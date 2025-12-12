@@ -11,6 +11,7 @@ import ContactPage from './Pages/Home/ContactPage';
 import Footer from './components/Footer/Footer';
 import { CartProvider } from './contexts/CartContext';
 import Home from './Pages/Home/Home';
+import Shop from './Pages/Shop/Shop';
 
 
 // Placeholder About Page
@@ -31,6 +32,7 @@ const App: React.FC = () => {
             <Box component="main" sx={{ flexGrow: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/shop" element={<Shop />} />
                 <Route path="/collections" element={<CollectionsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/about" element={<AboutPage />} />
