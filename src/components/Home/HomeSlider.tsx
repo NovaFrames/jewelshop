@@ -60,7 +60,7 @@ const HomeSlider = () => {
     <Box
       sx={{
         width: "100%",
-        height: { xs: "500px", md: "600px" },
+        height: { xs: "500px", md: "500px" },
         position: "relative",
         bgcolor: "#fff", // White background as seen in screenshot gaps
         py: 2,
