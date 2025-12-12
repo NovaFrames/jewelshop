@@ -17,7 +17,7 @@ const theme = responsiveFontSizes(
         contrastText: '#ffffff',
       },
       background: {
-        default: '#f9f5f0',
+        default: '#ffffffff',
         paper: '#ffffff',
       },
       text: {
@@ -93,6 +93,13 @@ const theme = responsiveFontSizes(
               boxShadow: '0 4px 12px rgba(125, 60, 60, 0.2)',
             },
           },
+          outlined: {
+            backgroundColor: "#9f7e44",
+            color: "white",
+            borderRadius: 20,
+            padding: "10px 24px",
+            "&:hover": { backgroundColor: "transparent", color: "#9f7e44", borderColor: "#9f7e44" },
+          }
         },
       },
       MuiAppBar: {
@@ -107,12 +114,6 @@ const theme = responsiveFontSizes(
         styleOverrides: {
           root: {
             borderRadius: 12,
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-            '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-            },
           },
         },
       },

@@ -49,7 +49,7 @@ const GoldRate = () => {
   ];
 
   return (
-    <Box sx={{ bgcolor: "#fbfbfb", py: 6 }}>
+    <Box sx={{ py: 6 }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: "center", mb: 5 }}>
           <Typography
