@@ -7,6 +7,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
+import { useNavigate } from 'react-router-dom';
 
 // Slide Data
 const slides = [
@@ -17,19 +18,16 @@ const slides = [
                 image: 'https://corano-demo.myshopify.com/cdn/shop/files/home4-slider4_480x.jpg?v=1614342429',
                 subtitle: 'Radiant',
                 title: 'Body Jewels',
-                buttonText: 'Shop Now',
             },
             {
                 image: 'https://corano-demo.myshopify.com/cdn/shop/files/home4-slider3_480x.jpg?v=1614342428',
                 subtitle: 'Earrings',
                 title: 'Collection Arrival',
-                buttonText: 'Shop Now',
             },
             {
                 image: 'https://corano-demo.myshopify.com/cdn/shop/files/home4-slider2_480x.jpg?v=1614342427',
                 subtitle: 'Stunning',
                 title: 'Diamond Rings',
-                buttonText: 'Shop Now',
             }
         ]
     },
@@ -40,19 +38,16 @@ const slides = [
                 image: 'https://corano-demo.myshopify.com/cdn/shop/files/home4-slider1_480x.jpg?v=1614342426',
                 subtitle: 'Exclusive',
                 title: 'Gold Bracelets',
-                buttonText: 'Shop Now',
             },
             {
                 image: 'https://goldsmith.ninetheme.com/wp-content/uploads/2022/12/5.png',
                 subtitle: 'Forever',
                 title: 'Engagement Rings',
-                buttonText: 'Shop Now',
             },
             {
                 image: 'https://goldsmith.ninetheme.com/wp-content/uploads/2022/12/7.png',
                 subtitle: 'Classic',
                 title: 'Gold Pendants',
-                buttonText: 'Shop Now',
             }
         ]
     }
@@ -60,6 +55,7 @@ const slides = [
 
 const LandingPage: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState(0);
+    const navigate = useNavigate();
 
     return (
         <Box sx={{ width: '100%', position: 'relative', overflow: 'hidden', bgcolor: '#f8f8f8' }}>
@@ -166,9 +162,9 @@ const LandingPage: React.FC = () => {
 
                                                     <Button
                                                         variant="outlined"
-
+                                                        onClick={() => navigate("/shop")}
                                                     >
-                                                        {item.buttonText}
+                                                        Shop Now
                                                     </Button>
                                                 </Box>
                                             </Box>

@@ -9,6 +9,7 @@ import {
   CardActionArea,
   Container,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface CategoryItem {
   title: string;
@@ -27,6 +28,7 @@ const categories: CategoryItem[] = [
 ];
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ py: 6, textAlign: "center" }}>
@@ -169,6 +171,7 @@ const HomePage: React.FC = () => {
 
                 <Button
                   variant="outlined"
+                  onClick={() => navigate("/shop")}
                 >
                   Shop Now
                 </Button>
@@ -227,6 +230,7 @@ const HomePage: React.FC = () => {
 
                 <Button
                   variant="outlined"
+                  onClick={() => navigate("/shop")}
                 >
                   Shop Now
                 </Button>

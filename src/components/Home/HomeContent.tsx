@@ -1,111 +1,18 @@
-import * as React from "react";
 import {
     Box,
     Button,
     Container,
     Grid,
     Typography,
-    Tabs,
-    Tab,
     Card,
     CardMedia,
     CardContent,
     Rating,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
-interface Product {
-    id: number;
-    name: string;
-    image: string;
-    price: string;
-    originalPrice?: string;
-    rating: number;
-    reviews: number;
-    sale?: boolean;
-}
-
-const products: Product[] = [
-    {
-        id: 1,
-        name: "Vighnaharta Gold And Rhodium Plated Alloy",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/42_02-600x689.jpg",
-        price: "$600 – $655",
-        rating: 5,
-        reviews: 1,
-        sale: true,
-    },
-    {
-        id: 2,
-        name: "The Tamasvini Gold and Diamond Nosepin for Women",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/24_02-600x689.jpg",
-        price: "$100 – $590",
-        rating: 5,
-        reviews: 1,
-        sale: true,
-    },
-    {
-        id: 3,
-        name: "Kisna Hallmarked Gold Earring for Women",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/21_02-600x689.jpg",
-        price: "$69 – $229",
-        rating: 5,
-        reviews: 1,
-        sale: true,
-    },
-    {
-        id: 4,
-        name: "Beebeecraft Gold Plated Threader Earrings",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/22_02-600x689.jpg",
-        price: "$590",
-        rating: 5,
-        reviews: 1,
-        sale: true,
-    },
-    {
-        id: 5,
-        name: "Darling Silver Golden Love In Nature Bracelet",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/20_02-600x689.jpg",
-        price: "$200",
-        rating: 5,
-        reviews: 1,
-        sale: false,
-    },
-    {
-        id: 6,
-        name: "Caratgold Designer Gold And Diamond Pendant",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/25_02-600x689.jpg",
-        price: "$75 – $200",
-        rating: 5,
-        reviews: 1,
-        sale: false,
-    },
-    {
-        id: 7,
-        name: "Bansuri Italian Bracelet Yellow Leaf Bracelet",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/40_02-600x689.jpg",
-        price: "$45",
-        rating: 5,
-        reviews: 1,
-        sale: false,
-    },
-    {
-        id: 8,
-        name: "Ocean Zen Zap Diamond Chain Pendant",
-        image: "https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/22_03-600x689.jpg",
-        price: "$360",
-        rating: 5,
-        reviews: 1,
-        sale: false,
-    },
-];
+import { products } from "../../Pages/Products/Products";
 
 export default function HomeContent() {
-    const [activeTab, setActiveTab] = React.useState(0);
-
-    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-        setActiveTab(newValue);
-    };
 
     const navigate = useNavigate();
     return (
@@ -210,44 +117,31 @@ export default function HomeContent() {
 
             {/* ================= FEATURED PRODUCTS ================= */}
             <Box sx={{ mb: 8 }}>
-                <Typography
-                    variant="h4"
-                    sx={{
-                        fontWeight: 700,
-                        textAlign: "center",
-                        mb: 3,
-                    }}
-                >
-                    Featured Products
-                </Typography>
 
-                <Tabs
-                    value={activeTab}
-                    onChange={handleTabChange}
-                    centered
-                    sx={{
-                        mb: 4,
-                        "& .MuiTab-root": {
-                            textTransform: "none",
+                <Box sx={{ mt: 8, textAlign: "center" }}>
+                    {/* Title */}
+                    <Typography
+                        variant="h4"
+                        sx={{
                             fontWeight: 600,
-                            fontSize: "1rem",
-                            minWidth: 120,
-                        },
-                        "& .Mui-selected": {
-                            color: "black",
-                        },
-                        "& .MuiTabs-indicator": {
-                            bgcolor: "black",
-                        },
-                    }}
-                >
-                    <Tab label="All Access" />
-                    <Tab label="Best Sellers" />
-                    <Tab label="On Sale" />
-                </Tabs>
+                            mb: 1,
+                            fontFamily: "serif",
+                        }}
+                    >
+                        Featured Products
+                    </Typography>
+
+                    {/* Subtitle */}
+                    <Typography
+                        variant="subtitle1"
+                        sx={{ mb: 4, color: "text.secondary" }}
+                    >
+                        Choose your favorite
+                    </Typography>
+                </Box>
 
                 <Grid container spacing={3}>
-                    {products.map((product) => (
+                    {products.slice(0, 8).map((product) => (
                         <Grid size={{ xs: 12, sm: 6, md: 3 }} key={product.id}>
                             <Card
                                 sx={{
@@ -255,6 +149,8 @@ export default function HomeContent() {
                                     boxShadow: "none",
                                     border: "1px solid #f0f0f0",
                                     transition: "all 0.3s ease",
+                                    display: { xs: "flex", sm: "block" },
+                                    flexDirection: { xs: "row", sm: "column" },
                                     "&:hover": {
                                         "& .product-image": {
                                             transform: "scale(1.05)",
@@ -270,22 +166,21 @@ export default function HomeContent() {
                                         "& .view-products-btn": {
                                             opacity: 1,
                                             visibility: "visible",
-                                            transform: "translateY(0) translateX(50%)",
+                                            transform: { xs: "translateY(0)", sm: "translateY(0) translateX(50%)" },
                                         },
                                     },
                                 }}
                             >
-
-
                                 {/* Action Buttons - Only visible on hover */}
-                                {/* <Box
+                                <Box
                                     className="action-buttons"
                                     sx={{
                                         position: "absolute",
                                         top: 10,
-                                        right: 10,
+                                        right: { xs: "auto", sm: 10 },
+                                        left: { xs: 10, sm: "auto" },
                                         display: "flex",
-                                        flexDirection: "column",
+                                        flexDirection: { xs: "row", sm: "column" },
                                         gap: 1,
                                         zIndex: 2,
                                         opacity: 0,
@@ -305,7 +200,7 @@ export default function HomeContent() {
                                             cursor: "pointer",
                                             transition: "all 0.2s ease",
                                             "&:hover": {
-                                                bgcolor: "black",
+                                                bgcolor: "#9f7e44",
                                                 color: "white",
                                             },
                                         }}
@@ -324,35 +219,25 @@ export default function HomeContent() {
                                             cursor: "pointer",
                                             transition: "all 0.2s ease",
                                             "&:hover": {
-                                                bgcolor: "black",
+                                                bgcolor: "#9f7e44",
                                                 color: "white",
                                             },
                                         }}
-                                    >
-                                        <Typography sx={{ fontSize: "1rem" }}>⚖</Typography>
-                                    </Box>
-                                    <Box
-                                        sx={{
-                                            width: 36,
-                                            height: 36,
-                                            bgcolor: "white",
-                                            border: "1px solid #e0e0e0",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            cursor: "pointer",
-                                            transition: "all 0.2s ease",
-                                            "&:hover": {
-                                                bgcolor: "black",
-                                                color: "white",
-                                            },
-                                        }}
+                                        onClick={() => navigate(`/product/${product.id}`)}
                                     >
                                         <Typography sx={{ fontSize: "1rem" }}>👁</Typography>
                                     </Box>
-                                </Box> */}
+                                </Box>
 
-                                <Box sx={{ overflow: "hidden", bgcolor: "#fafafa", position: "relative" }}>
+                                <Box
+                                    sx={{
+                                        overflow: "hidden",
+                                        bgcolor: "#fafafa",
+                                        position: "relative",
+                                        width: { xs: "40%", sm: "100%" },
+                                        flexShrink: 0,
+                                    }}
+                                >
                                     <CardMedia
                                         component="img"
                                         image={product.image}
@@ -361,14 +246,16 @@ export default function HomeContent() {
                                         sx={{
                                             objectFit: "contain",
                                             transition: "transform 0.3s ease",
+                                            height: { xs: "150px", sm: "auto" },
                                         }}
                                     />
 
-                                    {/* View Products Button - Only visible on hover */}
+                                    {/* View Products Button - Only visible on hover on desktop */}
                                     <Button
                                         variant="outlined"
                                         className="view-products-btn"
                                         sx={{
+                                            display: { xs: "none", sm: "block" },
                                             position: "absolute",
                                             bottom: 20,
                                             textTransform: "none",
@@ -377,18 +264,28 @@ export default function HomeContent() {
                                             visibility: "hidden",
                                             transition: "all 0.3s ease",
                                         }}
+                                        onClick={() => navigate(`/product/${product.id}`)}
                                     >
-                                        View Products
+                                        View Product
                                     </Button>
                                 </Box>
 
-                                <CardContent sx={{ textAlign: "center", p: 2 }}>
+                                <CardContent
+                                    sx={{
+                                        textAlign: { xs: "left", sm: "center" },
+                                        p: 2,
+                                        width: { xs: "60%", sm: "100%" },
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                    }}
+                                >
                                     <Typography
                                         variant="body2"
                                         sx={{
                                             fontWeight: 600,
                                             mb: 1,
-                                            minHeight: 40,
+                                            minHeight: { xs: "auto", sm: 40 },
                                             fontSize: "0.875rem",
                                             lineHeight: 1.4,
                                         }}
@@ -398,7 +295,7 @@ export default function HomeContent() {
                                     <Box
                                         sx={{
                                             display: "flex",
-                                            justifyContent: "center",
+                                            justifyContent: { xs: "flex-start", sm: "center" },
                                             alignItems: "center",
                                             mb: 1,
                                         }}
@@ -417,8 +314,24 @@ export default function HomeContent() {
                                             color: "text.primary",
                                         }}
                                     >
-                                        {product.price}
+                                        ${product.price}
                                     </Typography>
+
+                                    {/* View Product Button for Mobile */}
+                                    <Button
+                                        variant="outlined"
+                                        sx={{
+                                            display: { xs: "block", sm: "none" },
+                                            mt: 1,
+                                            textTransform: "none",
+                                            fontWeight: 600,
+                                            fontSize: "0.75rem",
+                                            py: 0.5,
+                                        }}
+                                        onClick={() => navigate(`/product/${product.id}`)}
+                                    >
+                                        View Product
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </Grid>
