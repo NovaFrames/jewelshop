@@ -1,5 +1,6 @@
 // src/Pages/Shop/Shop.tsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -20,23 +21,26 @@ import {
     Checkbox,
     IconButton,
     Stack,
-    Divider
+    Button,
+    TextField,
+    InputAdornment
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
     ExpandMore as ExpandMoreIcon,
-    GridView as GridViewIcon,
-    ViewList as ViewListIcon,
-    FavoriteBorder as FavoriteIcon
+    Search as SearchIcon,
+    FavoriteBorder as FavoriteIcon,
+    ShoppingCartOutlined as CartIcon
 } from '@mui/icons-material';
 import { products, categories } from '../Products/Products';
 
 const Shop: React.FC = () => {
+    const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState<string>('Our Store');
     const [sortBy, setSortBy] = useState<string>('default');
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [searchTerm, setSearchTerm] = useState<string>('');
 
-    // Filter products by category
+    // Filter products by category and search
     const filteredProducts = selectedCategory === 'Our Store'
         ? products
         : products.filter(p => p.category === selectedCategory);
@@ -63,25 +67,49 @@ const Shop: React.FC = () => {
         setSelectedCategory(categoryName);
     };
 
+
+
     return (
         <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh', py: 4 }}>
             <Container maxWidth="xl">
-                <Grid container spacing={3}>
+                <Grid container spacing={4}>
                     {/* Sidebar - Filters */}
                     <Grid size={{ xs: 12, md: 3 }}>
                         <Box sx={{ position: 'sticky', top: 80 }}>
+                            {/* Search Bar */}
+                            <TextField
+                                fullWidth
+                                placeholder="Search products..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon color="action" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{ mb: 3, bgcolor: 'white' }}
+                                size="small"
+                            />
+
                             {/* Categories Filter */}
                             <Accordion
                                 defaultExpanded
                                 sx={{
                                     mb: 2,
+                                    boxShadow: 'none',
+                                    border: '1px solid',
+                                    borderColor: 'divider',
+                                    '&:before': { display: 'none' }
                                 }}
                             >
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     sx={{
                                         borderBottom: '1px solid',
-                                        borderColor: 'divider'
+                                        borderColor: 'divider',
+                                        minHeight: 48
                                     }}
                                 >
                                     <Typography variant="h6" fontWeight={600} fontSize="1rem">
@@ -98,6 +126,7 @@ const Shop: React.FC = () => {
                                                         checked={selectedCategory === category.name}
                                                         onChange={() => handleCategoryChange(category.name)}
                                                         sx={{ py: 0.5 }}
+                                                        size="small"
                                                     />
                                                 }
                                                 label={
@@ -132,7 +161,7 @@ const Shop: React.FC = () => {
 
                     {/* Main Content - Products */}
                     <Grid size={{ xs: 12, md: 9 }}>
-                        {/* Header with sorting and view options */}
+                        {/* Header with results count and sorting */}
                         <Box sx={{
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -146,7 +175,7 @@ const Shop: React.FC = () => {
                             </Typography>
 
                             <Stack direction="row" spacing={2} alignItems="center">
-                                <FormControl size="small" sx={{ minWidth: 180 }}>
+                                <FormControl size="small" sx={{ minWidth: 200 }}>
                                     <Select
                                         value={sortBy}
                                         onChange={handleSortChange}
@@ -159,60 +188,32 @@ const Shop: React.FC = () => {
                                         <MenuItem value="rating">Sort by rating</MenuItem>
                                     </Select>
                                 </FormControl>
-
-                                <Box sx={{
-                                    display: 'flex',
-                                    gap: 0.5,
-                                    bgcolor: 'white',
-                                    borderRadius: 1,
-                                    p: 0.5
-                                }}>
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => setViewMode('grid')}
-                                        sx={{
-                                            bgcolor: viewMode === 'grid' ? 'primary.main' : 'transparent',
-                                            color: viewMode === 'grid' ? 'white' : 'text.primary',
-                                            '&:hover': {
-                                                bgcolor: viewMode === 'grid' ? 'primary.dark' : 'action.hover'
-                                            }
-                                        }}
-                                    >
-                                        <GridViewIcon fontSize="small" />
-                                    </IconButton>
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => setViewMode('list')}
-                                        sx={{
-                                            bgcolor: viewMode === 'list' ? 'primary.main' : 'transparent',
-                                            color: viewMode === 'list' ? 'white' : 'text.primary',
-                                            '&:hover': {
-                                                bgcolor: viewMode === 'list' ? 'primary.dark' : 'action.hover'
-                                            }
-                                        }}
-                                    >
-                                        <ViewListIcon fontSize="small" />
-                                    </IconButton>
-                                </Box>
                             </Stack>
                         </Box>
 
-                        <Divider sx={{ mb: 3 }} />
-
                         {/* Products Grid */}
                         <Grid container spacing={3}>
-                            {sortedProducts.map((product) => (
-                                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={product.id}>
+                            {sortedProducts.slice(0, 8).map((product, index) => (
+                                <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }} key={product.id}>
                                     <Card
                                         sx={{
                                             height: '100%',
                                             display: 'flex',
                                             flexDirection: 'column',
                                             position: 'relative',
+                                            bgcolor: 'white',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                                                transform: 'translateY(-4px)',
+                                                transition: 'all 0.3s ease'
+                                            }
                                         }}
+                                        onClick={() => navigate(`/product/${product.id}`)}
                                     >
-                                        {/* Sale Badge */}
-                                        {product.discount && (
+                                        {/* Sale Badge for specific products */}
+                                        {(index === 0 || index === 4) && product.discount && (
                                             <Chip
                                                 label={`-${product.discount}%`}
                                                 color="error"
@@ -235,13 +236,18 @@ const Shop: React.FC = () => {
                                                 top: 8,
                                                 right: 8,
                                                 zIndex: 1,
-                                                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                                                bgcolor: 'white',
+                                                boxShadow: 1,
                                                 '&:hover': {
                                                     bgcolor: 'white',
                                                     color: 'error.main'
                                                 }
                                             }}
                                             size="small"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // Handle wishlist logic here
+                                            }}
                                         >
                                             <FavoriteIcon fontSize="small" />
                                         </IconButton>
@@ -250,32 +256,20 @@ const Shop: React.FC = () => {
                                         <CardMedia
                                             component="div"
                                             sx={{
-                                                height: 280,
+                                                height: 200,
                                                 bgcolor: '#f5f5f5',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 backgroundImage: `url(${product.image})`,
                                                 backgroundSize: 'cover',
-                                                backgroundPosition: 'center'
+                                                backgroundPosition: 'center',
+                                                borderBottom: '1px solid #f0f0f0'
                                             }}
-                                        >
-                                        </CardMedia>
+                                        />
 
                                         {/* Product Info */}
-                                        <CardContent sx={{ flexGrow: 1, pb: 2 }}>
-                                            <Typography
-                                                variant="caption"
-                                                color="text.secondary"
-                                                sx={{
-                                                    textTransform: 'uppercase',
-                                                    display: 'block',
-                                                    mb: 0.5
-                                                }}
-                                            >
-                                                {product.category}
-                                            </Typography>
-
+                                        <CardContent sx={{ flexGrow: 1, p: 2 }}>
                                             <Typography
                                                 variant="body1"
                                                 component="h3"
@@ -295,20 +289,20 @@ const Shop: React.FC = () => {
                                                 {product.name}
                                             </Typography>
 
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
                                                 <Rating
                                                     value={product.rating}
                                                     precision={0.5}
                                                     size="small"
                                                     readOnly
-                                                    sx={{ fontSize: '1rem' }}
+                                                    sx={{ fontSize: '1rem', color: '#ffd700' }}
                                                 />
                                                 <Typography variant="caption" color="text.secondary">
                                                     ({product.reviews})
                                                 </Typography>
                                             </Box>
 
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                                                 {product.originalPrice && (
                                                     <Typography
                                                         variant="body2"
@@ -323,16 +317,50 @@ const Shop: React.FC = () => {
                                                 )}
                                                 <Typography
                                                     variant="h6"
-                                                    color="primary"
                                                     sx={{
                                                         fontWeight: 600,
-                                                        fontSize: '1.1rem'
+                                                        fontSize: '1.1rem',
+                                                        color: product.originalPrice ? '#ff4444' : '#333'
                                                     }}
                                                 >
                                                     ${product.price}
                                                 </Typography>
                                             </Box>
+
+                                            {/* Add to Cart Button */}
+                                            <Button
+                                                variant="outlined"
+                                                fullWidth
+                                                size="small"
+                                                startIcon={<CartIcon />}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/product/${product.id}`);
+                                                }}
+                                                sx={{
+                                                    borderColor: '#ddd',
+                                                    color: '#333',
+                                                    '&:hover': {
+                                                        borderColor: '#333',
+                                                        bgcolor: '#f9f9f9'
+                                                    }
+                                                }}
+                                            >
+                                                Add to Cart
+                                            </Button>
                                         </CardContent>
+
+                                        {/* Second Sale Timer for specific products */}
+                                        {(index === 0 || index === 4) && (
+                                            <Box sx={{
+                                                px: 2,
+                                                pb: 2,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1
+                                            }}>
+                                            </Box>
+                                        )}
                                     </Card>
                                 </Grid>
                             ))}
