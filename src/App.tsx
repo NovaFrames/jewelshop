@@ -13,6 +13,7 @@ import { CartProvider } from './contexts/CartContext';
 import Home from './Pages/Home/Home';
 import Shop from './Pages/Shop/Shop';
 import AddToCart from './Pages/AddToCart/AddToCart';
+import ProductDetails from './Pages/ProductDetails/ProductDetails';
 
 
 // Placeholder About Page
@@ -34,7 +35,7 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
-                <Route path="/product/:productId" element={<AddToCart />} />
+                <Route path="/product/:productId" element={<ProductDetails />} />
                 <Route path="/collections" element={<CollectionsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/about" element={<AboutPage />} />
