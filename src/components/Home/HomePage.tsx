@@ -234,54 +234,6 @@ const HomePage: React.FC = () => {
             </Box>
           </Grid>
         </Grid>
-
-        <Grid container spacing={3} sx={{ mt: 8 }}>
-          <Grid size={{ xs: 12 }}>
-            <Box
-              sx={{
-                backgroundImage:
-                  "url('https://opencart.mahardhi.com/MT04/jewels/image/catalog/banners/banner3.jpg')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                p: { xs: 3, md: 5 },
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center", // Center the content horizontally
-                position: "relative",
-                overflow: "hidden",
-                textAlign: "center", // Ensure text within the inner Box is centered
-              }}
-            >
-              <Box sx={{ zIndex: 1, width: { xs: "100%", md: "50%" } }}>
-                <Typography
-                  variant="body2"
-                  sx={{ mb: 1, color: "#5c2c2c", fontWeight: 500 }}
-                >
-                  For a best ever bridal season
-                </Typography>
-                <Typography
-                  variant="h4"
-                  sx={{
-                    mb: 3,
-                    fontFamily: "serif",
-                    color: "#333",
-                    fontWeight: 600,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Diamond Jewellery Collection
-                </Typography>
-                <Button
-                  variant="outlined"
-                >
-                  Shop Now
-                </Button>
-              </Box>
-            </Box>
-          </Grid>
-        </Grid>
-
       </Container>
     </Box>
   );
