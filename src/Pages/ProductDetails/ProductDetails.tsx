@@ -20,7 +20,6 @@ import {
 import {
     ShoppingCart as CartIcon,
     FavoriteBorder as FavoriteIcon,
-    Share as ShareIcon,
     LocalShipping as ShippingIcon,
     Verified as VerifiedIcon,
     ArrowBack as ArrowBackIcon,
@@ -323,21 +322,10 @@ const ProductDetails: React.FC = () => {
                             {/* Action Buttons */}
                             <Stack spacing={2} sx={{ mb: 3 }}>
                                 <Button
-                                    variant="contained"
+                                    variant="outlined"
                                     size="large"
                                     fullWidth
                                     startIcon={<CartIcon />}
-                                    sx={{
-                                        bgcolor: '#333',
-                                        color: 'white',
-                                        py: 1.75,
-                                        fontSize: '1rem',
-                                        fontWeight: 600,
-                                        borderRadius: 2,
-                                        '&:hover': {
-                                            bgcolor: '#000'
-                                        }
-                                    }}
                                 >
                                     Add to Cart
                                 </Button>

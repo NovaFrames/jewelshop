@@ -337,14 +337,6 @@ const Shop: React.FC = () => {
                                                     e.stopPropagation();
                                                     navigate(`/product/${product.id}`);
                                                 }}
-                                                sx={{
-                                                    borderColor: '#ddd',
-                                                    color: '#333',
-                                                    '&:hover': {
-                                                        borderColor: '#333',
-                                                        bgcolor: '#f9f9f9'
-                                                    }
-                                                }}
                                             >
                                                 Add to Cart
                                             </Button>
