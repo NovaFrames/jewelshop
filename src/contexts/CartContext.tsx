@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import type { ReactNode } from 'react';
 import type { CartItem } from '../types';
+import { mockCartItems } from './mockCartData';
 
 interface CartState {
   items: CartItem[];
@@ -12,7 +13,9 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: CartItem }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_QUANTITY'; payload: { productId: string; quantity: number } }
-  | { type: 'CLEAR_CART' };
+  | { type: 'CLEAR_CART' }
+  | { type: 'INCREASE_QUANTITY'; payload: string }
+  | { type: 'DECREASE_QUANTITY'; payload: string };
 
 interface CartContextType {
   state: CartState;
@@ -28,7 +31,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       const existingItem = state.items.find(
         (item) => item.product.id === action.payload.product.id
       );
-      
+
       if (existingItem) {
         return {
           ...state,
@@ -39,19 +42,19 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           ),
         };
       }
-      
+
       return {
         ...state,
         items: [...state.items, action.payload],
       };
     }
-    
+
     case 'REMOVE_ITEM':
       return {
         ...state,
         items: state.items.filter((item) => item.product.id !== action.payload),
       };
-      
+
     case 'UPDATE_QUANTITY':
       return {
         ...state,
@@ -61,13 +64,33 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
             : item
         ),
       };
-      
+
+    case 'INCREASE_QUANTITY':
+      return {
+        ...state,
+        items: state.items.map(item =>
+          item.product.id === action.payload
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      };
+
+    case 'DECREASE_QUANTITY':
+      return {
+        ...state,
+        items: state.items.map(item =>
+          item.product.id === action.payload && item.quantity > 1
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+      };
+
     case 'CLEAR_CART':
       return {
         items: [],
         total: 0,
       };
-      
+
     default:
       return state;
   }
@@ -75,7 +98,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, {
-    items: [],
+    items: mockCartItems, // Initialize with mock data
     total: 0,
   });
 

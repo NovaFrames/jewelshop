@@ -302,7 +302,7 @@ const Shop: React.FC = () => {
                                                 </Typography>
                                             </Box>
 
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                            {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                                                 {product.originalPrice && (
                                                     <Typography
                                                         variant="body2"
@@ -325,7 +325,7 @@ const Shop: React.FC = () => {
                                                 >
                                                     ${product.price}
                                                 </Typography>
-                                            </Box>
+                                            </Box> */}
 
                                             {/* Add to Cart Button */}
                                             <Button

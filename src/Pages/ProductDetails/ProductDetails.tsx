@@ -246,7 +246,7 @@ const ProductDetails: React.FC = () => {
                                             fontSize: { xs: '2rem', md: '2.5rem' }
                                         }}
                                     >
-                                       ₹{product.price}
+                                        ₹{product.price}
                                     </Typography>
                                     {product.originalPrice && (
                                         <Typography
@@ -348,65 +348,6 @@ const ProductDetails: React.FC = () => {
                                     Buy Now
                                 </Button>
                             </Stack>
-
-                            {/* Features */}
-                            <Box
-                                sx={{
-                                    bgcolor: '#f9f9f9',
-                                    borderRadius: 2,
-                                    p: 2.5,
-                                    border: '1px solid',
-                                    borderColor: 'divider'
-                                }}
-                            >
-                                <Stack spacing={2}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <ShippingIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                Free Shipping
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                On orders over ₹1000
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <VerifiedIcon sx={{ color: 'success.main', fontSize: 28 }} />
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                Authenticity Guaranteed
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                100% genuine products
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Box
-                                            sx={{
-                                                width: 28,
-                                                height: 28,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                        >
-                                            <Typography sx={{ fontSize: 24 }}>🔄</Typography>
-                                        </Box>
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                Easy Returns
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                30-day return policy
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-                                </Stack>
-                            </Box>
                         </Box>
                     </Grid>
                 </Grid>

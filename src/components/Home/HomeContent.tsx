@@ -307,15 +307,6 @@ export default function HomeContent() {
                                             sx={{ fontSize: "1rem" }}
                                         />
                                     </Box>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{
-                                            fontWeight: 700,
-                                            color: "text.primary",
-                                        }}
-                                    >
-                                        ${product.price}
-                                    </Typography>
 
                                     {/* View Product Button for Mobile */}
                                     <Button

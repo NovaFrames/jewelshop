@@ -1,502 +1,518 @@
 // src/Pages/AddToCart/AddToCart.tsx
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box,
     Container,
-    Grid,
     Typography,
-    Button,
-    Chip,
-    Divider,
+    Grid,
     Card,
     CardMedia,
     IconButton,
-    Rating,
+    Button,
+    Divider,
     Stack,
     Breadcrumbs,
-    Link
+    Link,
+    Paper,
 } from '@mui/material';
 import {
-    ShoppingCart as CartIcon,
-    FavoriteBorder as FavoriteIcon,
-    Share as ShareIcon,
-    LocalShipping as ShippingIcon,
-    Verified as VerifiedIcon,
-    ArrowBack as ArrowBackIcon,
-    NavigateNext as NavigateNextIcon
+    Delete,
+    ShoppingBagOutlined,
+    LocalShipping,
+    Security,
+    CardGiftcard,
+    ArrowForward,
+    Home as HomeIcon,
+    Add,
+    Remove,
 } from '@mui/icons-material';
-import { products } from '../Products/Products';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useCart } from '../../contexts/CartContext';
 
 const AddToCart: React.FC = () => {
-    const { productId } = useParams<{ productId: string }>();
     const navigate = useNavigate();
-    const [selectedImage, setSelectedImage] = useState(0);
-    const [quantity, setQuantity] = useState(1);
+    const { state, dispatch } = useCart();
 
-    // Find the product by ID
-    const product = products.find(p => p.id === productId);
+    const handleRemoveItem = (productId: string) => {
+        dispatch({ type: 'REMOVE_ITEM', payload: productId });
+    };
 
-    if (!product) {
+    const handleIncreaseQuantity = (productId: string) => {
+        dispatch({ type: 'INCREASE_QUANTITY', payload: productId });
+    };
+
+    const handleDecreaseQuantity = (productId: string) => {
+        dispatch({ type: 'DECREASE_QUANTITY', payload: productId });
+    };
+
+    const handleCheckout = () => {
+        // Navigate to checkout page (to be implemented)
+        navigate('/checkout');
+    };
+
+    const totalWeight = state.items.reduce((sum, item) => {
+        return sum + ((item.product.weight ?? 0) * item.quantity);
+    }, 0);
+
+    const totalItems = state.items.reduce((sum, item) => {
+        return sum + item.quantity;
+    }, 0);
+
+    // Empty cart state
+    if (state.items.length === 0) {
         return (
-            <Container sx={{ py: 8, textAlign: 'center' }}>
-                <Typography variant="h4" gutterBottom>Product not found</Typography>
-                <Button variant="contained" onClick={() => navigate('/shop')}>
-                    Back to Shop
-                </Button>
+            <Container maxWidth="lg" sx={{ py: 8, minHeight: '60vh' }}>
+                <Box
+                    sx={{
+                        textAlign: 'center',
+                        py: 8,
+                    }}
+                >
+                    <ShoppingBagOutlined
+                        sx={{
+                            fontSize: 120,
+                            color: 'primary.light',
+                            opacity: 0.3,
+                            mb: 3,
+                        }}
+                    />
+                    <Typography variant="h4" sx={{ mb: 2, fontWeight: 600 }}>
+                        Your Cart is Empty
+                    </Typography>
+                    <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
+                        Looks like you haven't added any items to your cart yet.
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        onClick={() => navigate('/shop')}
+                        sx={{
+                            px: 4,
+                            py: 1.5,
+                            fontWeight: 600,
+                        }}
+                    >
+                        Continue Shopping
+                    </Button>
+                </Box>
             </Container>
         );
     }
 
-    // Mock multiple images (in real app, product would have multiple images)
-    const productImages = [product.image, product.image, product.image, product.image];
-
     return (
-        <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh', py: 4 }}>
+        <Box sx={{ bgcolor: 'background.default', py: 6 }}>
             <Container maxWidth="xl">
                 {/* Breadcrumbs */}
-                <Box sx={{ mb: 3 }}>
-                    <Button
-                        startIcon={<ArrowBackIcon />}
-                        onClick={() => navigate('/shop')}
-                        sx={{ mb: 2, color: 'text.secondary' }}
+                <Breadcrumbs
+                    sx={{ mb: 4 }}
+                    separator="›"
+                    aria-label="breadcrumb"
+                >
+                    <Link
+                        component={RouterLink}
+                        to="/"
+                        underline="hover"
+                        color="inherit"
+                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
                     >
-                        Back to Shop
-                    </Button>
-                    <Breadcrumbs
-                        separator={<NavigateNextIcon fontSize="small" />}
-                        sx={{ fontSize: '0.875rem' }}
+                        <HomeIcon sx={{ fontSize: 20 }} />
+                        Home
+                    </Link>
+                    <Typography color="primary.main" fontWeight={600}>
+                        Shopping Cart
+                    </Typography>
+                </Breadcrumbs>
+
+                {/* Page Title */}
+                <Box sx={{ mb: 6, textAlign: 'center' }}>
+                    <Typography
+                        variant="h3"
+                        sx={{
+                            fontWeight: 700,
+                            mb: 1,
+                            fontFamily: 'Playfair Display, serif',
+                        }}
                     >
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/"
-                            sx={{ cursor: 'pointer' }}
-                        >
-                            Home
-                        </Link>
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/shop"
-                            sx={{ cursor: 'pointer' }}
-                        >
-                            Shop
-                        </Link>
-                        <Typography color="text.primary" sx={{ fontSize: '0.875rem' }}>
-                            {product.name}
-                        </Typography>
-                    </Breadcrumbs>
+                        Shopping Cart
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                        {totalItems} {totalItems === 1 ? 'item' : 'items'} in your cart
+                    </Typography>
                 </Box>
 
                 <Grid container spacing={4}>
-                    {/* Left Side - Product Images */}
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ position: 'sticky', top: 80 }}>
-                            {/* Main Product Image */}
-                            <Card
-                                sx={{
-                                    mb: 2,
-                                    bgcolor: 'white',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    borderRadius: 2
-                                }}
-                            >
-                                {/* Sale Badge */}
-                                {product.discount && (
-                                    <Chip
-                                        label={`${product.discount}% OFF`}
-                                        sx={{
-                                            position: 'absolute',
-                                            top: 16,
-                                            left: 16,
-                                            zIndex: 2,
-                                            fontWeight: 700,
-                                            fontSize: '0.875rem',
-                                            bgcolor: '#ff4444',
-                                            color: 'white',
-                                            height: '32px'
-                                        }}
-                                    />
-                                )}
-
-                                {/* Wishlist & Share Icons */}
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 16,
-                                        right: 16,
-                                        zIndex: 2,
-                                        display: 'flex',
-                                        gap: 1
-                                    }}
-                                >
-                                    <IconButton
-                                        sx={{
-                                            bgcolor: 'white',
-                                            boxShadow: 2,
-                                            '&:hover': {
-                                                bgcolor: 'white',
-                                                color: 'error.main'
-                                            }
-                                        }}
-                                        size="small"
-                                    >
-                                        <FavoriteIcon />
-                                    </IconButton>
-                                    <IconButton
-                                        sx={{
-                                            bgcolor: 'white',
-                                            boxShadow: 2,
-                                            '&:hover': {
-                                                bgcolor: 'white',
-                                                color: 'primary.main'
-                                            }
-                                        }}
-                                        size="small"
-                                    >
-                                        <ShareIcon />
-                                    </IconButton>
-                                </Box>
-
-                                <CardMedia
-                                    component="img"
-                                    image={productImages[selectedImage]}
-                                    alt={product.name}
-                                    sx={{
-                                        width: '100%',
-                                        height: { xs: 400, md: 500 },
-                                        objectFit: 'cover'
-                                    }}
-                                />
-                            </Card>
-
-                            {/* Thumbnail Images */}
-                            <Grid container spacing={2}>
-                                {productImages.map((img, index) => (
-                                    <Grid size={{ xs: 3 }} key={index}>
-                                        <Card
-                                            onClick={() => setSelectedImage(index)}
-                                            sx={{
-                                                cursor: 'pointer',
-                                                border: '2px solid',
-                                                borderColor: selectedImage === index ? 'primary.main' : 'transparent',
-                                                transition: 'all 0.2s ease',
-                                                borderRadius: 2,
-                                                overflow: 'hidden',
-                                                '&:hover': {
-                                                    borderColor: 'primary.main',
-                                                    transform: 'scale(1.05)'
-                                                }
-                                            }}
-                                        >
-                                            <CardMedia
-                                                component="img"
-                                                image={img}
-                                                alt={`${product.name} ${index + 1}`}
-                                                sx={{
-                                                    width: '100%',
-                                                    height: 100,
-                                                    objectFit: 'cover'
-                                                }}
-                                            />
-                                        </Card>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        </Box>
-                    </Grid>
-
-                    {/* Right Side - Product Details */}
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ bgcolor: 'white', p: { xs: 3, md: 4 }, borderRadius: 2 }}>
-                            {/* Category Badge */}
-                            <Chip
-                                label={product.category}
-                                size="small"
-                                sx={{
-                                    mb: 2,
-                                    bgcolor: '#f0f0f0',
-                                    color: 'text.secondary',
-                                    fontWeight: 600
-                                }}
-                            />
-
-                            {/* Product Name */}
-                            <Typography
-                                variant="h4"
-                                sx={{
-                                    fontWeight: 700,
-                                    mb: 2,
-                                    fontSize: { xs: '1.75rem', md: '2.25rem' },
-                                    lineHeight: 1.2
-                                }}
-                            >
-                                {product.name}
-                            </Typography>
-
-                            {/* Rating & Reviews */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                                <Rating
-                                    value={product.rating}
-                                    precision={0.5}
-                                    size="medium"
-                                    readOnly
-                                    sx={{
-                                        '& .MuiRating-iconFilled': {
-                                            color: '#fbbf24'
-                                        }
-                                    }}
-                                />
-                                <Typography variant="body2" color="text.secondary">
-                                    {product.rating} ({product.reviews} reviews)
-                                </Typography>
-                            </Box>
-
-                            {/* Price */}
-                            <Box sx={{ mb: 3 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 1 }}>
-                                    <Typography
-                                        variant="h3"
-                                        sx={{
-                                            fontWeight: 700,
-                                            color: product.originalPrice ? '#ff4444' : 'text.primary',
-                                            fontSize: { xs: '2rem', md: '2.5rem' }
-                                        }}
-                                    >
-                                        ${product.price}
-                                    </Typography>
-                                    {product.originalPrice && (
-                                        <Typography
-                                            variant="h5"
-                                            sx={{
-                                                textDecoration: 'line-through',
-                                                color: 'text.secondary',
-                                                fontSize: '1.5rem'
-                                            }}
-                                        >
-                                            ${product.originalPrice}
-                                        </Typography>
-                                    )}
-                                </Box>
-                                {product.originalPrice && (
-                                    <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 600 }}>
-                                        You save ${product.originalPrice - product.price} ({product.discount}% off)
-                                    </Typography>
-                                )}
-                            </Box>
-
-                            <Divider sx={{ my: 3 }} />
-
-                            {/* Product Description */}
-                            <Box sx={{ mb: 3 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                                    Description
-                                </Typography>
-                                <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                                    {product.description}
-                                </Typography>
-                            </Box>
-
-                            {/* Product Details */}
-                            <Box sx={{ mb: 3 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Product Details
-                                </Typography>
-                                <Stack spacing={1.5}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Material:
-                                        </Typography>
-                                        <Typography variant="body2" fontWeight={600}>
-                                            {product.material}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Category:
-                                        </Typography>
-                                        <Typography variant="body2" fontWeight={600}>
-                                            {product.category}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Availability:
-                                        </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            fontWeight={600}
-                                            sx={{ color: product.inStock ? 'success.main' : 'error.main' }}
-                                        >
-                                            {product.inStock ? 'In Stock' : 'Out of Stock'}
-                                        </Typography>
-                                    </Box>
-                                </Stack>
-                            </Box>
-
-                            <Divider sx={{ my: 3 }} />
-
-                            {/* Quantity Selector */}
-                            <Box sx={{ mb: 3 }}>
-                                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                                    Quantity
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            border: '2px solid',
-                                            borderColor: 'divider',
-                                            borderRadius: 2,
-                                            overflow: 'hidden'
-                                        }}
-                                    >
-                                        <Button
-                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                            sx={{
-                                                minWidth: 48,
-                                                height: 48,
-                                                borderRadius: 0,
-                                                color: 'text.primary',
-                                                fontSize: '1.25rem',
-                                                '&:hover': {
-                                                    bgcolor: 'action.hover'
-                                                }
-                                            }}
-                                        >
-                                            −
-                                        </Button>
-                                        <Typography
-                                            sx={{
-                                                minWidth: 60,
-                                                textAlign: 'center',
-                                                fontWeight: 600,
-                                                fontSize: '1.125rem'
-                                            }}
-                                        >
-                                            {quantity}
-                                        </Typography>
-                                        <Button
-                                            onClick={() => setQuantity(quantity + 1)}
-                                            sx={{
-                                                minWidth: 48,
-                                                height: 48,
-                                                borderRadius: 0,
-                                                color: 'text.primary',
-                                                fontSize: '1.25rem',
-                                                '&:hover': {
-                                                    bgcolor: 'action.hover'
-                                                }
-                                            }}
-                                        >
-                                            +
-                                        </Button>
-                                    </Box>
-                                </Box>
-                            </Box>
-
-                            {/* Action Buttons */}
-                            <Stack spacing={2} sx={{ mb: 3 }}>
-                                <Button
-                                    variant="contained"
-                                    size="large"
-                                    fullWidth
-                                    startIcon={<CartIcon />}
-                                    sx={{
-                                        bgcolor: '#333',
-                                        color: 'white',
-                                        py: 1.75,
-                                        fontSize: '1rem',
-                                        fontWeight: 600,
-                                        borderRadius: 2,
-                                        '&:hover': {
-                                            bgcolor: '#000'
-                                        }
-                                    }}
-                                >
-                                    Add to Cart
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    size="large"
-                                    fullWidth
-                                    sx={{
-                                        bgcolor: 'primary.main',
-                                        color: 'white',
-                                        py: 1.75,
-                                        fontSize: '1rem',
-                                        fontWeight: 600,
-                                        borderRadius: 2,
-                                        '&:hover': {
-                                            bgcolor: 'primary.dark'
-                                        }
-                                    }}
-                                >
-                                    Buy Now
-                                </Button>
-                            </Stack>
-
-                            {/* Features */}
+                    {/* Cart Items Section */}
+                    <Grid size={{ xs: 12, md: 8 }}>
+                        <Paper
+                            elevation={0}
+                            sx={{
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderRadius: 2,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            {/* Cart Header */}
                             <Box
                                 sx={{
-                                    bgcolor: '#f9f9f9',
-                                    borderRadius: 2,
-                                    p: 2.5,
-                                    border: '1px solid',
-                                    borderColor: 'divider'
+                                    bgcolor: 'primary.dark',
+                                    color: 'white',
+                                    p: 2,
+                                    display: { xs: 'none', md: 'block' },
                                 }}
                             >
+                                <Grid container spacing={2} alignItems="center">
+                                    <Grid size={5}>
+                                        <Typography variant="subtitle2" sx={{ textAlign: 'center' }} fontWeight={600}>
+                                            Product
+                                        </Typography>
+                                    </Grid>
+                                    <Grid size={2}>
+                                        <Typography variant="subtitle2" sx={{ textAlign: 'center' }} fontWeight={600}>
+                                            Quantity
+                                        </Typography>
+                                    </Grid>
+                                    <Grid size={2}>
+                                        <Typography variant="subtitle2" sx={{ textAlign: 'center' }} fontWeight={600}>
+                                            Weight
+                                        </Typography>
+                                    </Grid>
+                                    <Grid size={2}>
+                                        <Typography variant="subtitle2" sx={{ textAlign: 'center' }} fontWeight={600}>
+                                            Total Weight
+                                        </Typography>
+                                    </Grid>
+                                    <Grid size={1}>
+                                        <Typography variant="subtitle2" sx={{ textAlign: 'center' }} fontWeight={600}>
+                                            Action
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+
+                            {/* Cart Items */}
+                            <Box sx={{ p: { xs: 2, md: 3 } }}>
+                                {state.items.map((item, index) => (
+                                    <Box key={item.product.id}>
+                                        {index > 0 && <Divider sx={{ my: 3 }} />}
+                                        <Grid container spacing={2} alignItems="center">
+                                            {/* Product Info */}
+                                            <Grid size={{ xs: 12, md: 5 }}>
+                                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                                    <Card
+                                                        sx={{
+                                                            width: { xs: 100, md: 120 },
+                                                            height: { xs: 100, md: 120 },
+                                                            flexShrink: 0,
+                                                            bgcolor: '#fafafa',
+                                                            boxShadow: 'none',
+                                                            border: '1px solid',
+                                                            borderColor: 'divider',
+                                                        }}
+                                                    >
+                                                        <CardMedia
+                                                            component="img"
+                                                            image={
+                                                                Array.isArray(item.product.images)
+                                                                    ? item.product.images[0]
+                                                                    : (item.product as any).image || ''
+                                                            }
+                                                            alt={item.product.name}
+                                                            sx={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'contain',
+                                                                p: 1,
+                                                            }}
+                                                        />
+                                                    </Card>
+                                                    <Box sx={{ flex: 1 }}>
+                                                        <Typography
+                                                            variant="h6"
+                                                            sx={{
+                                                                fontWeight: 600,
+                                                                mb: 0.5,
+                                                                fontSize: { xs: '1rem', md: '1.25rem' },
+                                                            }}
+                                                        >
+                                                            {item.product.name}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                            sx={{ display: { xs: 'block', md: 'none' } }}
+                                                        >
+                                                            Weight: {item.product.weight} Gram
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                            sx={{ display: { xs: 'block', md: 'none' } }}
+                                                        >
+                                                            Total: {(item.product.weight ?? 0) * item.quantity} Gram
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Grid>
+
+                                            {/* Quantity Controls */}
+                                            <Grid size={{ xs: 12, md: 2 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: { xs: 'flex-start', md: 'center' },
+                                                    }}
+                                                >
+                                                    {/* Mobile view for quantity */}
+                                                    <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1 }}>
+                                                        <Typography variant="body2" fontWeight={600} sx={{ minWidth: 60 }}>
+                                                            Quantity:
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => handleDecreaseQuantity(item.product.id)}
+                                                                disabled={item.quantity <= 1}
+                                                                sx={{
+                                                                    border: '1px solid',
+                                                                    borderColor: 'divider',
+                                                                    borderRadius: 1,
+                                                                }}
+                                                            >
+                                                                <Remove fontSize="small" />
+                                                            </IconButton>
+                                                            <Typography
+                                                                variant="body1"
+                                                                sx={{
+                                                                    minWidth: 30,
+                                                                    textAlign: 'center',
+                                                                    fontWeight: 600,
+                                                                }}
+                                                            >
+                                                                {item.quantity}
+                                                            </Typography>
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => handleIncreaseQuantity(item.product.id)}
+                                                                sx={{
+                                                                    border: '1px solid',
+                                                                    borderColor: 'divider',
+                                                                    borderRadius: 1,
+                                                                }}
+                                                            >
+                                                                <Add fontSize="small" />
+                                                            </IconButton>
+                                                        </Box>
+                                                    </Box>
+
+                                                    {/* Desktop view for quantity */}
+                                                    <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1 }}>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => handleDecreaseQuantity(item.product.id)}
+                                                            disabled={item.quantity <= 1}
+                                                            sx={{
+                                                                border: '1px solid',
+                                                                borderColor: 'divider',
+                                                                borderRadius: 1,
+                                                            }}
+                                                        >
+                                                            <Remove fontSize="small" />
+                                                        </IconButton>
+                                                        <Typography
+                                                            variant="body1"
+                                                            sx={{
+                                                                minWidth: 30,
+                                                                textAlign: 'center',
+                                                                fontWeight: 600,
+                                                            }}
+                                                        >
+                                                            {item.quantity}
+                                                        </Typography>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => handleIncreaseQuantity(item.product.id)}
+                                                            sx={{
+                                                                border: '1px solid',
+                                                                borderColor: 'divider',
+                                                                borderRadius: 1,
+                                                            }}
+                                                        >
+                                                            <Add fontSize="small" />
+                                                        </IconButton>
+                                                    </Box>
+                                                </Box>
+                                            </Grid>
+
+                                            {/* Unit Weight */}
+                                            <Grid size={{ xs: 12, md: 2 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: { xs: 'flex-start', md: 'center' },
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        variant="subtitle2"
+                                                        sx={{
+                                                            display: { xs: 'none', md: 'block' },
+                                                            textAlign: 'center',
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {item.product.weight} Gram
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            display: { xs: 'flex', md: 'none' },
+                                                            alignItems: 'center',
+                                                            gap: 0.5,
+                                                        }}
+                                                    >
+                                                        <span style={{ fontWeight: 600 }}>Unit:</span> {item.product.weight} Gram
+                                                    </Typography>
+                                                </Box>
+                                            </Grid>
+
+                                            {/* Total Weight */}
+                                            <Grid size={{ xs: 12, md: 2 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: { xs: 'flex-start', md: 'center' },
+                                                    }}
+                                                >
+                                                    <Typography
+                                                        variant="subtitle2"
+                                                        sx={{
+                                                            display: { xs: 'none', md: 'block' },
+                                                            textAlign: 'center',
+                                                            fontWeight: 600,
+                                                            color: 'primary.main',
+                                                        }}
+                                                    >
+                                                        {(item.product.weight ?? 0) * item.quantity} Gram
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body2"
+                                                        sx={{
+                                                            display: { xs: 'flex', md: 'none' },
+                                                            alignItems: 'center',
+                                                            gap: 0.5,
+                                                        }}
+                                                    >
+                                                        <span style={{ fontWeight: 600 }}>Total:</span> {(item.product.weight ?? 0) * item.quantity} Gram
+                                                    </Typography>
+                                                </Box>
+                                            </Grid>
+
+                                            {/* Remove Button */}
+                                            <Grid size={{ xs: 12, md: 1 }}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: { xs: 'flex-start', md: 'center' },
+                                                    }}
+                                                >
+                                                    <IconButton
+                                                        size="small"
+                                                        color="error"
+                                                        onClick={() => handleRemoveItem(item.product.id)}
+                                                        sx={{
+                                                            mt: { xs: 0, md: 1 },
+                                                        }}
+                                                    >
+                                                        <Delete fontSize="small" />
+                                                        <Typography variant="body2" sx={{ ml: 0.5, display: { xs: 'inline', md: 'none' } }}>
+                                                            Remove
+                                                        </Typography>
+                                                    </IconButton>
+                                                </Box>
+                                            </Grid>
+                                        </Grid>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Paper>
+                    </Grid>
+
+                    {/* Order Summary Section */}
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <Box sx={{ position: 'sticky', top: 100 }}>
+
+                            {/* Order Summary */}
+                            <Paper
+                                elevation={0}
+                                sx={{
+                                    p: 3,
+                                    border: '1px solid',
+                                    borderColor: 'divider',
+                                    borderRadius: 2,
+                                }}
+                            >
+                                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+                                    Order Summary
+                                </Typography>
+
                                 <Stack spacing={2}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <ShippingIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                Free Shipping
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                On orders over $200
-                                            </Typography>
-                                        </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Typography variant="body1">Total Items</Typography>
+                                        <Typography variant="body1" fontWeight={600}>
+                                            {totalItems}
+                                        </Typography>
                                     </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <VerifiedIcon sx={{ color: 'success.main', fontSize: 28 }} />
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                Authenticity Guaranteed
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                100% genuine products
-                                            </Typography>
-                                        </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Typography variant="body1">Total Weight</Typography>
+                                        <Typography variant="body1" fontWeight={600}>
+                                            {totalWeight} Gram
+                                        </Typography>
                                     </Box>
+
                                     <Divider />
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Box
-                                            sx={{
-                                                width: 28,
-                                                height: 28,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                        >
-                                            <Typography sx={{ fontSize: 24 }}>🔄</Typography>
-                                        </Box>
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                Easy Returns
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                30-day return policy
-                                            </Typography>
-                                        </Box>
+                                </Stack>
+
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    size="large"
+                                    onClick={handleCheckout}
+                                    endIcon={<ArrowForward />}
+                                    sx={{
+                                        mt: 3,
+                                        py: 1.5,
+                                        fontWeight: 600,
+                                        fontSize: '1rem',
+                                    }}
+                                >
+                                    Proceed to Book
+                                </Button>
+
+                                {/* Benefits */}
+                                <Stack spacing={2} sx={{ mt: 3 }}>
+                                    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                                        <LocalShipping sx={{ color: 'primary.main' }} />
+                                        <Typography variant="body2" color="text.secondary">
+                                            Easy Booking
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                                        <Security sx={{ color: 'primary.main' }} />
+                                        <Typography variant="body2" color="text.secondary">
+                                            Secure Your Product
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                                        <CardGiftcard sx={{ color: 'primary.main' }} />
+                                        <Typography variant="body2" color="text.secondary">
+                                            Get Your Product
+                                        </Typography>
                                     </Box>
                                 </Stack>
-                            </Box>
+                            </Paper>
                         </Box>
                     </Grid>
                 </Grid>

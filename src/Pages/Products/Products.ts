@@ -13,6 +13,7 @@ export interface Product {
     inStock: boolean;
     discount?: number;
     tags: string[];
+    weight: number;
 }
 
 export const products: Product[] = [
@@ -29,7 +30,8 @@ export const products: Product[] = [
         reviews: 785,
         inStock: true,
         discount: 2,
-        tags: ['sale', 'trending']
+        tags: ['sale', 'trending'],
+        weight: 2,
     },
     {
         id: '2',
@@ -42,7 +44,8 @@ export const products: Product[] = [
         rating: 4.0,
         reviews: 342,
         inStock: true,
-        tags: ['new']
+        tags: ['new'],
+        weight: 2,
     },
     {
         id: '3',
@@ -57,7 +60,8 @@ export const products: Product[] = [
         reviews: 521,
         inStock: true,
         discount: 2,
-        tags: ['sale', 'bestseller']
+        tags: ['sale', 'bestseller'],
+        weight: 2,
     },
     {
         id: '4',
@@ -70,7 +74,8 @@ export const products: Product[] = [
         rating: 4.3,
         reviews: 198,
         inStock: true,
-        tags: ['trending']
+        tags: ['trending'],
+        weight: 2,
     },
     {
         id: '5',
@@ -83,7 +88,8 @@ export const products: Product[] = [
         rating: 4.6,
         reviews: 267,
         inStock: true,
-        tags: ['summer']
+        tags: ['summer'],
+        weight: 2,
     },
     {
         id: '6',
@@ -98,7 +104,8 @@ export const products: Product[] = [
         reviews: 643,
         inStock: true,
         discount: 2,
-        tags: ['sale', 'luxury']
+        tags: ['sale', 'luxury'],
+        weight: 2,
     },
     {
         id: '7',
@@ -111,7 +118,8 @@ export const products: Product[] = [
         rating: 5.0,
         reviews: 892,
         inStock: true,
-        tags: ['engagement', 'luxury']
+        tags: ['engagement', 'luxury'],
+        weight: 2,
     },
     {
         id: '8',
@@ -124,7 +132,8 @@ export const products: Product[] = [
         rating: 4.4,
         reviews: 456,
         inStock: true,
-        tags: ['classic']
+        tags: ['classic'],
+        weight: 2,
     },
     {
         id: '9',
@@ -137,7 +146,8 @@ export const products: Product[] = [
         rating: 4.7,
         reviews: 334,
         inStock: true,
-        tags: ['traditional', 'wedding']
+        tags: ['traditional', 'wedding'],
+        weight: 2,
     },
     {
         id: '10',
@@ -152,7 +162,8 @@ export const products: Product[] = [
         reviews: 289,
         inStock: true,
         discount: 2,
-        tags: ['sale', 'elegant']
+        tags: ['sale', 'elegant'],
+        weight: 2,
     },
     {
         id: '11',
@@ -165,7 +176,8 @@ export const products: Product[] = [
         rating: 4.9,
         reviews: 567,
         inStock: true,
-        tags: ['wedding', 'luxury']
+        tags: ['wedding', 'luxury'],
+        weight: 2,
     },
     {
         id: '12',
@@ -178,7 +190,8 @@ export const products: Product[] = [
         rating: 4.5,
         reviews: 421,
         inStock: true,
-        tags: ['classic']
+        tags: ['classic'],
+        weight: 2,
     },
     {
         id: '13',
@@ -191,7 +204,8 @@ export const products: Product[] = [
         rating: 4.7,
         reviews: 378,
         inStock: true,
-        tags: ['vintage', 'gift']
+        tags: ['vintage', 'gift'],
+        weight: 2,
     },
     {
         id: '14',
@@ -206,7 +220,8 @@ export const products: Product[] = [
         reviews: 712,
         inStock: true,
         discount: 2,
-        tags: ['sale', 'luxury', 'bestseller']
+        tags: ['sale', 'luxury', 'bestseller'],
+        weight: 2,
     },
     {
         id: '15',
@@ -219,7 +234,8 @@ export const products: Product[] = [
         rating: 4.4,
         reviews: 298,
         inStock: true,
-        tags: ['trendy', 'versatile']
+        tags: ['trendy', 'versatile'],
+        weight: 2,
     },
 ];
 

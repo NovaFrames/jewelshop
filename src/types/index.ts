@@ -14,6 +14,7 @@ export interface Product {
   featured: boolean;
   tags: string[];
   createdAt: Date;
+  weight?: number;
 }
 
 export interface Collection {
@@ -29,6 +30,7 @@ export interface CartItem {
   product: Product;
   quantity: number;
   size?: string;
+
 }
 
 export interface User {

@@ -14,7 +14,7 @@ import Home from './Pages/Home/Home';
 import Shop from './Pages/Shop/Shop';
 import AddToCart from './Pages/AddToCart/AddToCart';
 import ProductDetails from './Pages/ProductDetails/ProductDetails';
-
+import Account from './Pages/Account/Account';
 
 // Placeholder About Page
 const AboutPage: React.FC = () => (
@@ -39,6 +39,8 @@ const App: React.FC = () => {
                 <Route path="/collections" element={<CollectionsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/cart" element={<AddToCart />} />
+                <Route path="/account" element={<Account />} />
               </Routes>
             </Box>
             <Footer />
