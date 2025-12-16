@@ -1,6 +1,6 @@
-// src/Pages/AddToCart/AddToCart.tsx
+// src/Pages/ProductDetails/ProductDetails.tsx
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -15,25 +15,65 @@ import {
     Rating,
     Stack,
     Breadcrumbs,
-    Link
+    Link,
+    Tabs,
+    Tab,
+    TextField
 } from '@mui/material';
 import {
-    ShoppingCart as CartIcon,
     FavoriteBorder as FavoriteIcon,
-    LocalShipping as ShippingIcon,
-    Verified as VerifiedIcon,
-    ArrowBack as ArrowBackIcon,
-    NavigateNext as NavigateNextIcon
+    NavigateNext as NavigateNextIcon,
+    Facebook,
+    Twitter,
+    Instagram,
+    Pinterest,
+    Add,
+    Remove
 } from '@mui/icons-material';
 import { products } from '../Products/Products';
+import { useCart } from '../../contexts/CartContext';
+
+interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box sx={{ py: 3 }}>
+                    {children}
+                </Box>
+            )}
+        </div>
+    );
+}
 
 const ProductDetails: React.FC = () => {
     const { productId } = useParams<{ productId: string }>();
     const navigate = useNavigate();
+    const { dispatch } = useCart();
     const [selectedImage, setSelectedImage] = useState(0);
+    const [tabValue, setTabValue] = useState(0);
+    const [quantity, setQuantity] = useState(1);
 
     // Find the product by ID
     const product = products.find(p => p.id === productId);
+
+    // Related products (same category)
+    const relatedProducts = products
+        .filter(p => p.category === product?.category && p.id !== product?.id)
+        .slice(0, 4);
 
     if (!product) {
         return (
@@ -46,144 +86,102 @@ const ProductDetails: React.FC = () => {
         );
     }
 
-    // Mock multiple images (in real app, product would have multiple images)
-    const productImages = [product.image, product.image, product.image, product.image];
+    // Mock multiple images if not present
+    const productImages = product.images && product.images.length > 0
+        ? product.images
+        : [product.image, product.image, product.image, product.image];
+
+    const handleAddToCart = () => {
+        dispatch({
+            type: 'ADD_ITEM',
+            payload: {
+                product: product,
+                quantity: quantity
+            }
+        });
+        // Optionally show snackbar
+    };
+
+    const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
+    };
 
     return (
-        <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh', py: 4 }}>
+        <Box sx={{ bgcolor: '#fff', minHeight: '100vh', py: 4 }}>
             <Container maxWidth="xl">
                 {/* Breadcrumbs */}
-                <Box sx={{ mb: 3 }}>
-                    <Button
-                        startIcon={<ArrowBackIcon />}
-                        onClick={() => navigate('/shop')}
-                        sx={{ mb: 2, color: 'text.secondary' }}
-                    >
-                        Back to Shop
-                    </Button>
+                <Box sx={{ mb: 4 }}>
                     <Breadcrumbs
                         separator={<NavigateNextIcon fontSize="small" />}
                         sx={{ fontSize: '0.875rem' }}
                     >
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/"
-                            sx={{ cursor: 'pointer' }}
-                        >
-                            Home
-                        </Link>
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/shop"
-                            sx={{ cursor: 'pointer' }}
-                        >
-                            Shop
-                        </Link>
-                        <Typography color="text.primary" sx={{ fontSize: '0.875rem' }}>
-                            {product.name}
-                        </Typography>
+                        <Link component={RouterLink} to="/" underline="hover" color="inherit">Home</Link>
+                        <Link component={RouterLink} to="/shop" underline="hover" color="inherit">Shop</Link>
+                        <Typography color="text.primary">{product.name}</Typography>
                     </Breadcrumbs>
                 </Box>
 
-                <Grid container spacing={4}>
+                <Grid container spacing={6}>
                     {/* Left Side - Product Images */}
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ position: 'sticky', top: 80 }}>
-                            {/* Main Product Image */}
+                        <Box sx={{ position: 'sticky', top: 100 }}>
                             <Card
+                                elevation={0}
                                 sx={{
                                     mb: 2,
-                                    bgcolor: 'white',
                                     position: 'relative',
                                     overflow: 'hidden',
-                                    borderRadius: 2
+                                    borderRadius: 0
                                 }}
                             >
-                                {/* Sale Badge */}
                                 {product.discount && (
                                     <Chip
-                                        label={`${product.discount}% OFF`}
+                                        label={`-${product.discount}%`}
                                         sx={{
                                             position: 'absolute',
                                             top: 16,
                                             left: 16,
                                             zIndex: 2,
-                                            fontWeight: 700,
-                                            fontSize: '0.875rem',
-                                            bgcolor: '#ff4444',
+                                            bgcolor: '#832729',
                                             color: 'white',
-                                            height: '32px'
+                                            borderRadius: 0,
+                                            fontWeight: 600
                                         }}
                                     />
                                 )}
-
-                                {/* Wishlist & Share Icons */}
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 16,
-                                        right: 16,
-                                        zIndex: 2,
-                                        display: 'flex',
-                                        gap: 1
-                                    }}
-                                >
-                                    <IconButton
-                                        sx={{
-                                            bgcolor: 'white',
-                                            boxShadow: 2,
-                                            '&:hover': {
-                                                bgcolor: 'white',
-                                                color: 'error.main'
-                                            }
-                                        }}
-                                        size="small"
-                                    >
-                                        <FavoriteIcon />
-                                    </IconButton>
-                                </Box>
-
                                 <CardMedia
                                     component="img"
                                     image={productImages[selectedImage]}
                                     alt={product.name}
                                     sx={{
                                         width: '100%',
-                                        height: { xs: 400, md: 500 },
+                                        height: { xs: 400, md: 600 },
                                         objectFit: 'cover'
                                     }}
                                 />
                             </Card>
 
-                            {/* Thumbnail Images */}
+                            {/* Thumbnails */}
                             <Grid container spacing={2}>
                                 {productImages.map((img, index) => (
                                     <Grid size={{ xs: 3 }} key={index}>
                                         <Card
+                                            elevation={0}
                                             onClick={() => setSelectedImage(index)}
                                             sx={{
                                                 cursor: 'pointer',
-                                                border: '2px solid',
-                                                borderColor: selectedImage === index ? 'primary.main' : 'transparent',
+                                                border: selectedImage === index ? '1px solid #000' : '1px solid transparent',
+                                                borderRadius: 0,
+                                                opacity: selectedImage === index ? 1 : 0.7,
                                                 transition: 'all 0.2s ease',
-                                                borderRadius: 2,
-                                                overflow: 'hidden',
-                                                '&:hover': {
-                                                    borderColor: 'primary.main',
-                                                }
+                                                '&:hover': { opacity: 1 }
                                             }}
                                         >
                                             <CardMedia
                                                 component="img"
                                                 image={img}
                                                 alt={`${product.name} ${index + 1}`}
-                                                sx={{
-                                                    width: '100%',
-                                                    height: 100,
-                                                    objectFit: 'cover'
-                                                }}
+                                                sx={{ width: '100%', height: 100, objectFit: 'cover' }}
                                             />
                                         </Card>
                                     </Grid>
@@ -194,160 +192,207 @@ const ProductDetails: React.FC = () => {
 
                     {/* Right Side - Product Details */}
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <Box sx={{ bgcolor: 'white', p: { xs: 3, md: 4 }, borderRadius: 2 }}>
-                            {/* Category Badge */}
-                            <Chip
-                                label={product.category}
-                                size="small"
-                                sx={{
-                                    mb: 2,
-                                    bgcolor: '#f0f0f0',
-                                    color: 'text.secondary',
-                                    fontWeight: 600
-                                }}
-                            />
-
-                            {/* Product Name */}
+                        <Box>
                             <Typography
-                                variant="h4"
+                                variant="h3"
                                 sx={{
-                                    fontWeight: 700,
+                                    fontWeight: 400,
                                     mb: 2,
-                                    fontSize: { xs: '1.75rem', md: '2.25rem' },
-                                    lineHeight: 1.2
+                                    fontFamily: 'Playfair Display, serif',
+                                    color: '#333'
                                 }}
                             >
                                 {product.name}
                             </Typography>
 
-                            {/* Rating & Reviews */}
+                            {/* Rating */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                                <Rating
-                                    value={product.rating}
-                                    precision={0.5}
-                                    size="medium"
-                                    readOnly
-                                    sx={{
-                                        '& .MuiRating-iconFilled': {
-                                            color: '#fbbf24'
-                                        }
-                                    }}
-                                />
+                                <Rating value={product.rating} precision={0.5} readOnly size="small" />
+                                <Typography variant="body2" color="text.secondary">
+                                    (1 customer review)
+                                </Typography>
                             </Box>
 
                             {/* Price */}
-                            <Box sx={{ mb: 3 }}>
-                                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 1 }}>
+                            <Typography
+                                variant="h4"
+                                sx={{
+                                    fontWeight: 600,
+                                    mb: 3,
+                                    color: '#832729',
+                                    fontFamily: 'Playfair Display, serif'
+                                }}
+                            >
+                                ₹{product.price}
+                                {product.originalPrice && (
                                     <Typography
-                                        variant="h3"
+                                        component="span"
+                                        variant="h5"
                                         sx={{
-                                            fontWeight: 700,
-                                            color: product.originalPrice ? '#ff4444' : 'text.primary',
-                                            fontSize: { xs: '2rem', md: '2.5rem' }
+                                            textDecoration: 'line-through',
+                                            color: '#999',
+                                            ml: 2,
+                                            fontWeight: 400
                                         }}
                                     >
-                                        ₹{product.price}
-                                    </Typography>
-                                    {product.originalPrice && (
-                                        <Typography
-                                            variant="h5"
-                                            sx={{
-                                                textDecoration: 'line-through',
-                                                color: 'text.secondary',
-                                                fontSize: '1.5rem'
-                                            }}
-                                        >
-                                            ₹{product.originalPrice}
-                                        </Typography>
-                                    )}
-                                </Box>
-                                {product.originalPrice && (
-                                    <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 600 }}>
-                                        You save ₹{product.originalPrice - product.price} ({product.discount}% off)
+                                        ₹{product.originalPrice}
                                     </Typography>
                                 )}
-                            </Box>
+                            </Typography>
 
-                            <Divider sx={{ my: 3 }} />
+                            <Typography variant="body1" paragraph sx={{ color: '#666', mb: 4, lineHeight: 1.8 }}>
+                                {product.description}
+                            </Typography>
 
-                            {/* Product Description */}
-                            <Box sx={{ mb: 3 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                                    Description
-                                </Typography>
-                                <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                                    {product.description}
-                                </Typography>
-                            </Box>
-
-                            {/* Product Details */}
-                            <Box sx={{ mb: 3 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Product Details
-                                </Typography>
-                                <Stack spacing={1.5}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Material:
-                                        </Typography>
-                                        <Typography variant="body2" fontWeight={600}>
-                                            {product.material}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Category:
-                                        </Typography>
-                                        <Typography variant="body2" fontWeight={600}>
-                                            {product.category}
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Availability:
-                                        </Typography>
-                                        <Typography
-                                            variant="body2"
-                                            fontWeight={600}
-                                            sx={{ color: product.inStock ? 'success.main' : 'error.main' }}
-                                        >
-                                            {product.inStock ? 'In Stock' : 'Out of Stock'}
-                                        </Typography>
-                                    </Box>
-                                </Stack>
-                            </Box>
-
-                            <Divider sx={{ my: 3 }} />
-
-                            {/* Action Buttons */}
-                            <Stack spacing={2} sx={{ mb: 3 }}>
-                                <Button
-                                    variant="outlined"
-                                    size="large"
-                                    fullWidth
-                                    startIcon={<CartIcon />}
-                                >
-                                    Add to Cart
-                                </Button>
+                            {/* Add to Cart Section */}
+                            <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd' }}>
+                                    <IconButton onClick={() => setQuantity(Math.max(1, quantity - 1))}>
+                                        <Remove fontSize="small" />
+                                    </IconButton>
+                                    <TextField
+                                        value={quantity}
+                                        inputProps={{ style: { textAlign: 'center', padding: '10px 0', width: '40px' } }}
+                                        variant="standard"
+                                        InputProps={{ disableUnderline: true }}
+                                    />
+                                    <IconButton onClick={() => setQuantity(quantity + 1)}>
+                                        <Add fontSize="small" />
+                                    </IconButton>
+                                </Box>
                                 <Button
                                     variant="contained"
                                     size="large"
-                                    fullWidth
+                                    onClick={handleAddToCart}
                                     sx={{
-                                        bgcolor: 'primary.main',
+                                        bgcolor: '#832729',
                                         color: 'white',
-                                        py: 1.75,
-                                        fontSize: '1rem',
-                                        fontWeight: 600,
-                                        borderRadius: 2,
-                                        '&:hover': {
-                                            bgcolor: 'primary.dark'
-                                        }
+                                        px: 6,
+                                        '&:hover': { bgcolor: '#6b1f21' },
+                                        borderRadius: 0,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: 1
                                     }}
                                 >
-                                    Buy Now
+                                    Add to Cart
                                 </Button>
+                                <IconButton sx={{ border: '1px solid #ddd', borderRadius: 0 }}>
+                                    <FavoriteIcon />
+                                </IconButton>
+                            </Box>
+
+                            <Divider sx={{ mb: 3 }} />
+
+                            <Stack spacing={1} sx={{ mb: 4 }}>
+                                <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold" color="#333">SKU:</Box> {product.id}
+                                </Typography>
+                                <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold" color="#333">Category:</Box> {product.category}
+                                </Typography>
+                                <Typography variant="body2">
+                                    <Box component="span" fontWeight="bold" color="#333">Tags:</Box> {product.tags?.join(', ')}
+                                </Typography>
                             </Stack>
+
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Typography variant="body2" fontWeight="bold" color="#333">Share:</Typography>
+                                <Facebook fontSize="small" sx={{ color: '#666', cursor: 'pointer', '&:hover': { color: '#3b5998' } }} />
+                                <Twitter fontSize="small" sx={{ color: '#666', cursor: 'pointer', '&:hover': { color: '#1da1f2' } }} />
+                                <Instagram fontSize="small" sx={{ color: '#666', cursor: 'pointer', '&:hover': { color: '#e1306c' } }} />
+                                <Pinterest fontSize="small" sx={{ color: '#666', cursor: 'pointer', '&:hover': { color: '#bd081c' } }} />
+                            </Box>
+                        </Box>
+                    </Grid>
+
+                    {/* Tabs Section */}
+                    <Grid size={{ xs: 12 }}>
+                        <Box sx={{ width: '100%', mt: 4 }}>
+                            <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'center' }}>
+                                <Tabs value={tabValue} onChange={handleTabChange} aria-label="product tabs" textColor="inherit" indicatorColor="primary">
+                                    <Tab label="Description" sx={{ fontWeight: 600, textTransform: 'uppercase' }} />
+                                    <Tab label="Additional Information" sx={{ fontWeight: 600, textTransform: 'uppercase' }} />
+                                    <Tab label={`Reviews (${product.reviews})`} sx={{ fontWeight: 600, textTransform: 'uppercase' }} />
+                                </Tabs>
+                            </Box>
+                            <CustomTabPanel value={tabValue} index={0}>
+                                <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8, maxWidth: '800px', mx: 'auto', textAlign: 'center' }}>
+                                    {product.description}
+                                </Typography>
+                            </CustomTabPanel>
+                            <CustomTabPanel value={tabValue} index={1}>
+                                <Box sx={{ maxWidth: '600px', mx: 'auto' }}>
+                                    <Grid container spacing={2}>
+                                        <Grid size={6}><Typography fontWeight="bold">Weight</Typography></Grid>
+                                        <Grid size={6}><Typography color="text.secondary">{product.weight} g</Typography></Grid>
+                                        <Divider sx={{ width: '100%', my: 1 }} />
+                                        <Grid size={6}><Typography fontWeight="bold">Dimensions</Typography></Grid>
+                                        <Grid size={6}><Typography color="text.secondary">N/A</Typography></Grid>
+                                        <Divider sx={{ width: '100%', my: 1 }} />
+                                        <Grid size={6}><Typography fontWeight="bold">Material</Typography></Grid>
+                                        <Grid size={6}><Typography color="text.secondary">{product.material}</Typography></Grid>
+                                    </Grid>
+                                </Box>
+                            </CustomTabPanel>
+                            <CustomTabPanel value={tabValue} index={2}>
+                                <Typography align="center" color="text.secondary">No reviews yet.</Typography>
+                            </CustomTabPanel>
+                        </Box>
+                    </Grid>
+
+                    {/* Related Products */}
+                    <Grid size={{ xs: 12 }}>
+                        <Box sx={{ mt: 8 }}>
+                            <Typography variant="h4" align="center" sx={{ mb: 4, fontFamily: 'Playfair Display, serif' }}>
+                                Related Products
+                            </Typography>
+                            <Grid container spacing={4}>
+                                {relatedProducts.map((relatedProduct) => (
+                                    <Grid size={{ xs: 6, md: 3 }} key={relatedProduct.id}>
+                                        <Card elevation={0} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                            <Box sx={{ position: 'relative', overflow: 'hidden', '&:hover img': { transform: 'scale(1.05)' } }}>
+                                                <CardMedia
+                                                    component="img"
+                                                    image={relatedProduct.image}
+                                                    alt={relatedProduct.name}
+                                                    sx={{ height: 300, objectFit: 'cover', transition: 'transform 0.3s ease' }}
+                                                />
+                                                <Button
+                                                    variant="contained"
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        bottom: 10,
+                                                        left: '50%',
+                                                        transform: 'translateX(-50%)',
+                                                        bgcolor: 'white',
+                                                        color: 'black',
+                                                        '&:hover': { bgcolor: '#333', color: 'white' },
+                                                        opacity: 0,
+                                                        transition: 'opacity 0.3s ease',
+                                                        '.MuiBox-root:hover &': { opacity: 1 }
+                                                    }}
+                                                    onClick={() => navigate(`/product/${relatedProduct.id}`)}
+                                                >
+                                                    Quick View
+                                                </Button>
+                                            </Box>
+                                            <Box sx={{ pt: 2, textAlign: 'center' }}>
+                                                <Typography
+                                                    variant="subtitle1"
+                                                    component={RouterLink}
+                                                    to={`/product/${relatedProduct.id}`}
+                                                    sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 600, fontFamily: 'Playfair Display, serif' }}
+                                                >
+                                                    {relatedProduct.name}
+                                                </Typography>
+                                                <Typography variant="body1" color="#832729" fontWeight="bold" sx={{ mt: 1 }}>
+                                                    ₹{relatedProduct.price}
+                                                </Typography>
+                                            </Box>
+                                        </Card>
+                                    </Grid>
+                                ))}
+                            </Grid>
                         </Box>
                     </Grid>
                 </Grid>

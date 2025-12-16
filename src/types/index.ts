@@ -7,14 +7,16 @@ export interface Product {
   originalPrice?: number;
   category: string;
   material: string;
-  images: string[];
+  image: string;
+  images?: string[];
   rating: number;
   reviews: number;
   inStock: boolean;
-  featured: boolean;
+  featured?: boolean;
   tags: string[];
-  createdAt: Date;
+  createdAt?: Date;
   weight?: number;
+  discount?: number;
 }
 
 export interface Collection {

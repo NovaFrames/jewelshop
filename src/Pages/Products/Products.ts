@@ -8,6 +8,7 @@ export interface Product {
     category: string;
     material: string;
     image: string;
+    images?: string[];
     rating: number;
     reviews: number;
     inStock: boolean;
@@ -235,6 +236,21 @@ export const products: Product[] = [
         reviews: 298,
         inStock: true,
         tags: ['trendy', 'versatile'],
+        weight: 2,
+    },
+    {
+        id: '16',
+        name: 'Vighnaharta Gold And Rhodium Plated Alloy',
+        description: 'Indulge in the allure of timeless elegance with our Diamond Pendant Necklace. Whether worn as a symbol of love, a celebration of achievements, or simply as a daily indulgence, this necklace is a testament to enduring beauty and refined style. Your Timeless Elegance Diamond Pendant Necklace arrives in an elegant jewelry box, making it a perfect gift for a loved one or a treasured addition to your own collection.',
+        price: 600,
+        originalPrice: 655,
+        category: 'Necklace',
+        material: 'Gold Plated',
+        image: 'https://wordpressthemes.live/WCG10/WCM232_golden/jewellery07/wp-content/uploads/2025/03/25_02-600x689.jpg',
+        rating: 4.0,
+        reviews: 1,
+        inStock: true,
+        tags: ['elegant', 'gift'],
         weight: 2,
     },
 ];
