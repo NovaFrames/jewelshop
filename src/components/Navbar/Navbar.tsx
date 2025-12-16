@@ -15,25 +15,22 @@ import {
   Container,
   useScrollTrigger,
   Slide,
-  InputBase,
   Collapse,
   ListItemButton,
   ListItemText,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
-  FavoriteBorder,
   PersonOutline,
   ShoppingBagOutlined,
   Close,
-  Search as SearchIcon,
   StorefrontOutlined,
   DiamondOutlined,
   ExpandLess,
   ExpandMore,
   HelpOutline,
 } from '@mui/icons-material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 import { navItems, type NavItem } from './navbarData';
 import MegaMenu from './MegaMenu';
@@ -126,7 +123,6 @@ const MobileNavItem = ({ item, onClose }: { item: NavItem; onClose: () => void }
 const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const navigate = useNavigate();
   const { cartCount } = useCart();
   const timeoutRef = React.useRef<number | null>(null);
 
@@ -144,12 +140,6 @@ const Navbar: React.FC = () => {
     }, 100); // 100ms delay to bridge the gap
   };
 
-  const handleSearchSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    const searchTerm = formData.get('search') as string;
-    navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
-  };
 
   return (
     <>
@@ -212,49 +202,9 @@ const Navbar: React.FC = () => {
                 <Box sx={{ width: 40, height: 2, bgcolor: '#832729', mt: 0.5 }} />
               </Box>
 
-              {/* Search Bar - Desktop */}
-              <Box
-                component="form"
-                onSubmit={handleSearchSubmit}
-                sx={{
-                  display: { xs: 'none', md: 'flex' },
-                  flex: 1,
-                  maxWidth: 600,
-                  bgcolor: '#f5f5f5',
-                  borderRadius: 50,
-                  px: 2,
-                  py: 0.5,
-                  alignItems: 'center',
-                  mx: 4,
-                }}
-              >
-                <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
-                <InputBase
-                  name="search"
-                  placeholder="Search for engagement rings"
-                  fullWidth
-                  sx={{ ml: 1 }}
-                />
-              </Box>
-
               {/* Icons */}
               <Stack direction="row" spacing={{ xs: 1, md: 2 }} alignItems="center">
-                <IconButton sx={{ display: { xs: 'flex', md: 'none' } }}>
-                  <SearchIcon />
-                </IconButton>
-
                 <Stack direction="row" spacing={3} sx={{ display: { xs: 'none', md: 'flex' } }}>
-                  <IconButton size="medium" sx={{ color: '#832729' }}>
-                    <DiamondOutlined />
-                  </IconButton>
-                  <IconButton size="medium" sx={{ color: '#832729' }}>
-                    <StorefrontOutlined />
-                  </IconButton>
-                  <IconButton size="medium" component={RouterLink} to="/wishlist" sx={{ color: '#832729' }}>
-                    <Badge badgeContent={2} color="error">
-                      <FavoriteBorder />
-                    </Badge>
-                  </IconButton>
                   <IconButton size="medium" component={RouterLink} to="/account" sx={{ color: '#832729' }}>
                     <PersonOutline />
                   </IconButton>

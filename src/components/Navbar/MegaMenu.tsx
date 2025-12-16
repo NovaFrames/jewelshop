@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Grid, Typography, List, ListItem, ListItemText, Button, Paper } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import type { MegaMenuContent } from './navbarData';
-import { ArrowForward } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
 interface MegaMenuProps {
@@ -14,6 +14,7 @@ interface MegaMenuProps {
 const MegaMenu: React.FC<MegaMenuProps> = ({ data, onClose, onMouseEnter, onMouseLeave }) => {
     const [activeTab, setActiveTab] = useState(data.tabs[0]);
 
+    const navigate = useNavigate();
     const currentCategories = data.categories[activeTab] || [];
 
     return (
@@ -77,50 +78,55 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ data, onClose, onMouseEnter, onMous
                     <Grid container spacing={2}>
                         {currentCategories.map((item) => (
                             <Grid size={{ xs: 6, sm: 4 }} key={item.name}>
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 2,
-                                        p: 1,
-                                        cursor: 'pointer',
-                                        '&:hover .icon-placeholder': {
-                                            transform: 'scale(1.1)',
-                                        },
-                                        '&:hover .category-name': {
-                                            color: '#832729',
-                                        }
-                                    }}
+                                <Link
+                                    to={item.path}
+                                    style={{ textDecoration: 'none', color: 'inherit' }}
                                 >
-                                    {/* Placeholder Icon */}
                                     <Box
-                                        className="icon-placeholder"
                                         sx={{
-                                            width: 40,
-                                            height: 40,
-                                            bgcolor: '#f5f5f5',
-                                            borderRadius: '50%',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            justifyContent: 'center',
-                                            transition: 'transform 0.3s ease',
-                                            color: '#d4af37' // Gold color
+                                            gap: 2,
+                                            p: 1,
+                                            cursor: 'pointer',
+                                            '&:hover .icon-placeholder': {
+                                                transform: 'scale(1.1)',
+                                            },
+                                            '&:hover .category-name': {
+                                                color: '#832729',
+                                            }
                                         }}
                                     >
-                                        {/* We can replace this with actual icons later */}
-                                        <span style={{ fontSize: '20px' }}>✦</span>
+                                        {/* Placeholder Icon */}
+                                        <Box
+                                            className="icon-placeholder"
+                                            sx={{
+                                                width: 40,
+                                                height: 40,
+                                                bgcolor: '#f5f5f5',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                transition: 'transform 0.3s ease',
+                                                color: '#d4af37' // Gold color
+                                            }}
+                                        >
+                                            {/* We can replace this with actual icons later */}
+                                            <span style={{ fontSize: '20px' }}>✦</span>
+                                        </Box>
+                                        <Typography
+                                            className="category-name"
+                                            variant="body1"
+                                            sx={{
+                                                fontWeight: 500,
+                                                transition: 'color 0.2s ease'
+                                            }}
+                                        >
+                                            {item.name}
+                                        </Typography>
                                     </Box>
-                                    <Typography
-                                        className="category-name"
-                                        variant="body1"
-                                        sx={{
-                                            fontWeight: 500,
-                                            transition: 'color 0.2s ease'
-                                        }}
-                                    >
-                                        {item.name}
-                                    </Typography>
-                                </Box>
+                                </Link>
                             </Grid>
                         ))}
                         {currentCategories.length === 0 && (
@@ -145,18 +151,6 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ data, onClose, onMouseEnter, onMous
                     <Typography variant="h6" sx={{ fontFamily: '"Playfair Display", serif', mb: 1, color: '#333' }}>
                         {data.promoTitle}
                     </Typography>
-                    <Button
-                        endIcon={<ArrowForward />}
-                        sx={{
-                            color: '#832729',
-                            textTransform: 'none',
-                            fontWeight: 600,
-                            p: 0,
-                            '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' }
-                        }}
-                    >
-                        {data.promoLinkText}
-                    </Button>
                 </Box>
             </Box>
 
@@ -184,6 +178,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ data, onClose, onMouseEnter, onMous
                         </Box>
                     </Box>
                     <Button
+                        onClick={() => navigate("/all-jewellery")}
                         variant="contained"
                         sx={{
                             bgcolor: '#832729',

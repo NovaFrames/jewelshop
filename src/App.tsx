@@ -19,6 +19,7 @@ import AdminProducts from './Pages/Admin/AdminProducts';
 import AdminLayout from './Pages/Admin/AdminLayout';
 import AdminDashboard from './Pages/Admin/AdminDashboard';
 import AdminCategories from './Pages/Admin/AdminCategories';
+import SelectedCategory from './Pages/SelectedCategory/SelectedCategory';
 
 // Placeholder About Page
 const AboutPage: React.FC = () => (
@@ -59,6 +60,34 @@ const App: React.FC = () => {
                       <Route path="/about" element={<AboutPage />} />
                       <Route path="/cart" element={<AddToCart />} />
                       <Route path="/account" element={<Account />} />
+                        <Route path="/earrings" element={<SelectedCategory />} />
+                <Route path="/pendants" element={<SelectedCategory />} />
+                <Route path="/rings" element={<SelectedCategory />} />
+                <Route path="/chains" element={<SelectedCategory />} />
+                <Route path="/nose-pin" element={<SelectedCategory />} />
+                <Route path="/necklaces" element={<SelectedCategory />} />
+                <Route path="/bangles" element={<SelectedCategory />} />
+                <Route path="/bracelets" element={<SelectedCategory />} />
+
+                {/* Category Routes - Gold */}
+                <Route path="/gold/all" element={<SelectedCategory />} />
+                <Route path="/gold/bangles" element={<SelectedCategory />} />
+                <Route path="/gold/bracelets" element={<SelectedCategory />} />
+                <Route path="/gold/earrings" element={<SelectedCategory />} />
+                <Route path="/gold/chains" element={<SelectedCategory />} />
+                <Route path="/gold/rings" element={<SelectedCategory />} />
+                <Route path="/gold/necklaces" element={<SelectedCategory />} />
+                <Route path="/gold/nose-pins" element={<SelectedCategory />} />
+
+                {/* Category Routes - Diamond */}
+                <Route path="/diamond/all" element={<SelectedCategory />} />
+                <Route path="/diamond/bangles" element={<SelectedCategory />} />
+                <Route path="/diamond/bracelets" element={<SelectedCategory />} />
+                <Route path="/diamond/earrings" element={<SelectedCategory />} />
+                <Route path="/diamond/chains" element={<SelectedCategory />} />
+                <Route path="/diamond/rings" element={<SelectedCategory />} />
+                <Route path="/diamond/necklaces" element={<SelectedCategory />} />
+                <Route path="/diamond/nose-pins" element={<SelectedCategory />} />
                     </Routes>
                   </Box>
                   <Footer />

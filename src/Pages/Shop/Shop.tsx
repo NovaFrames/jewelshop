@@ -19,7 +19,6 @@ import {
     AccordionDetails,
     FormControlLabel,
     Checkbox,
-    IconButton,
     Stack,
     Button,
     TextField,
@@ -29,7 +28,6 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 import {
     ExpandMore as ExpandMoreIcon,
     Search as SearchIcon,
-    FavoriteBorder as FavoriteIcon,
     ShoppingCartOutlined as CartIcon
 } from '@mui/icons-material';
 import { products, categories } from '../Products/Products';
@@ -203,12 +201,7 @@ const Shop: React.FC = () => {
                                             position: 'relative',
                                             bgcolor: 'white',
                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                            cursor: 'pointer',
-                                            '&:hover': {
-                                                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                                                transform: 'translateY(-4px)',
-                                                transition: 'all 0.3s ease'
-                                            }
+                                            cursor: 'pointer', 
                                         }}
                                         onClick={() => navigate(`/product/${product.id}`)}
                                     >
@@ -228,29 +221,6 @@ const Shop: React.FC = () => {
                                                 }}
                                             />
                                         )}
-
-                                        {/* Wishlist Icon */}
-                                        <IconButton
-                                            sx={{
-                                                position: 'absolute',
-                                                top: 8,
-                                                right: 8,
-                                                zIndex: 1,
-                                                bgcolor: 'white',
-                                                boxShadow: 1,
-                                                '&:hover': {
-                                                    bgcolor: 'white',
-                                                    color: 'error.main'
-                                                }
-                                            }}
-                                            size="small"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                // Handle wishlist logic here
-                                            }}
-                                        >
-                                            <FavoriteIcon fontSize="small" />
-                                        </IconButton>
 
                                         {/* Product Image */}
                                         <CardMedia
