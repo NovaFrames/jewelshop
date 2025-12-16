@@ -53,7 +53,7 @@ const App: React.FC = () => {
                   <Box component="main" sx={{ flexGrow: 1 }}>
                     <Routes>
                       <Route path="/" element={<Home />} />
-                      <Route path="/shop" element={<Shop />} />
+                      <Route path="/all-jewellery" element={<Shop />} />
                       <Route path="/product/:productId" element={<ProductDetails />} />
                       <Route path="/collections" element={<CollectionsPage />} />
                       <Route path="/contact" element={<ContactPage />} />
