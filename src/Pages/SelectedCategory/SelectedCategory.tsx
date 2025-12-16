@@ -247,7 +247,8 @@ const SelectedCategory: React.FC = () => {
 
                                     {/* Add to Cart Button */}
                                     <Button
-                                        variant="outlined"
+                                        variant="contained"
+                                        color='secondary'
                                         fullWidth
                                         size="small"
                                         startIcon={<CartIcon />}
@@ -275,6 +276,7 @@ const SelectedCategory: React.FC = () => {
                         </Typography>
                         <Button
                             variant="contained"
+                            color='secondary'
                             onClick={() => navigate('/all-jewellery')}
                             sx={{
                                 mt: 3,

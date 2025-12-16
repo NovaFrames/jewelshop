@@ -161,7 +161,8 @@ const LandingPage: React.FC = () => {
                                                     </Typography>
 
                                                     <Button
-                                                        variant="outlined"
+                                                        variant="contained"
+                                                        color='secondary'
                                                         onClick={() => navigate("/shop")}
                                                     >
                                                         Shop Now

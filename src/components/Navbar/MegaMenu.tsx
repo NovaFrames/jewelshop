@@ -180,6 +180,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ data, onClose, onMouseEnter, onMous
                     <Button
                         onClick={() => navigate("/all-jewellery")}
                         variant="contained"
+                        color='secondary'
                         sx={{
                             bgcolor: '#832729',
                             color: 'white',

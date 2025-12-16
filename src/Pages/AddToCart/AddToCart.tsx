@@ -8,8 +8,6 @@ import {
     IconButton,
     Button,
     Divider,
-    Breadcrumbs,
-    Link,
     Paper,
 } from '@mui/material';
 import {
@@ -18,7 +16,7 @@ import {
     Add,
     Remove,
 } from '@mui/icons-material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
 
 const AddToCart: React.FC = () => {
@@ -71,6 +69,7 @@ const AddToCart: React.FC = () => {
                     </Typography>
                     <Button
                         variant="contained"
+                        color='secondary'
                         size="large"
                         onClick={() => navigate('/shop')}
                         sx={{
@@ -88,13 +87,16 @@ const AddToCart: React.FC = () => {
     }
 
     return (
-        <Box sx={{ bgcolor: '#fff', py: 6 }}>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                overflowX: 'hidden',
+                overflowY: 'visible', // ✅ allow page scroll
+                bgcolor: '#fff',
+                py: 6
+            }}
+        >
             <Container maxWidth="xl">
-                {/* Breadcrumbs */}
-                <Breadcrumbs sx={{ mb: 4 }} separator="›">
-                    <Link component={RouterLink} to="/" underline="hover" color="inherit">Home</Link>
-                    <Typography color="text.primary">Shopping Cart</Typography>
-                </Breadcrumbs>
 
                 <Typography
                     variant="h3"
@@ -108,10 +110,10 @@ const AddToCart: React.FC = () => {
                     Shopping Cart
                 </Typography>
 
-                <Grid container spacing={4}>
+                <Grid container spacing={4} alignItems="flex-start">
                     {/* Cart Items Section */}
                     <Grid size={{ xs: 12, md: 8 }}>
-                        <Paper elevation={0} sx={{ border: '1px solid #eee' }}>
+                        <Paper elevation={0} sx={{ border: '1px solid #eee', }}>
                             {/* Header */}
                             <Box sx={{ display: { xs: 'none', md: 'flex' }, p: 2, borderBottom: '1px solid #eee', bgcolor: '#f9f9f9' }}>
                                 <Grid container spacing={2}>
@@ -192,7 +194,17 @@ const AddToCart: React.FC = () => {
                     </Grid>
 
                     {/* Cart Totals */}
-                    <Grid size={{ xs: 12, md: 4 }}>
+                    <Grid
+                        size={{ xs: 12, md: 4 }}
+                        sx={{
+                            position: 'sticky',
+                            top: 96,
+                            alignSelf: 'flex-start',
+                            willChange: 'transform',   // 👈 key
+                            transform: 'translateZ(0)' // 👈 breaks ancestor transform chain
+                        }}
+                    >
+
                         <Paper elevation={0} sx={{ p: 3, border: '1px solid #eee', bgcolor: '#fcfcfc' }}>
                             <Typography variant="h5" sx={{ mb: 3, fontFamily: 'Playfair Display, serif' }}>Cart Totals</Typography>
 
@@ -211,12 +223,11 @@ const AddToCart: React.FC = () => {
                             <Button
                                 fullWidth
                                 variant="contained"
+                                color='secondary'
                                 size="large"
                                 onClick={handleCheckout}
                                 sx={{
                                     py: 1.5,
-                                    bgcolor: '#832729',
-                                    '&:hover': { bgcolor: '#6b1f21' },
                                     textTransform: 'none',
                                     fontSize: '1.1rem'
                                 }}

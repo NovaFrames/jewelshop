@@ -137,6 +137,7 @@ const AdminCategories: React.FC = () => {
                             />
                             <Button
                                 variant="contained"
+                                color='secondary'
                                 startIcon={<AddIcon />}
                                 onClick={handleAddCategory}
                                 sx={{ bgcolor: '#832729', '&:hover': { bgcolor: '#6b1f21' } }}
@@ -181,6 +182,7 @@ const AdminCategories: React.FC = () => {
                             />
                             <Button
                                 variant="contained"
+                                color='secondary'
                                 startIcon={<AddIcon />}
                                 onClick={handleAddMaterial}
                                 sx={{ bgcolor: '#832729', '&:hover': { bgcolor: '#6b1f21' } }}

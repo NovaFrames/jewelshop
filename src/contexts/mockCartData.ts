@@ -25,4 +25,25 @@ export const mockCartItems: CartItem[] = [
         } as any,
         quantity: 1,
     },
+    {
+        product: {
+            ...products[7], // Diamond Pendant Necklace - $890
+            images: [products[7].image],
+        } as any,
+        quantity: 1,
+    },
+    {
+        product: {
+            ...products[9], // Diamond Pendant Necklace - $890
+            images: [products[9].image],
+        } as any,
+        quantity: 1,
+    },
+    {
+        product: {
+            ...products[11], // Diamond Pendant Necklace - $890
+            images: [products[11].image],
+        } as any,
+        quantity: 1,
+    },
 ];

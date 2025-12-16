@@ -76,7 +76,8 @@ const ProductDetails: React.FC = () => {
         return (
             <Container sx={{ py: 8, textAlign: 'center' }}>
                 <Typography variant="h4" gutterBottom>Product not found</Typography>
-                <Button variant="contained" onClick={() => navigate('/shop')}>
+                <Button variant="contained"
+                    color='secondary' onClick={() => navigate('/shop')}>
                     Back to Shop
                 </Button>
             </Container>
@@ -247,6 +248,7 @@ const ProductDetails: React.FC = () => {
                                 </Box>
                                 <Button
                                     variant="contained"
+                                    color='secondary'
                                     size="large"
                                     onClick={handleAddToCart}
                                     sx={{
@@ -340,6 +342,7 @@ const ProductDetails: React.FC = () => {
                                                 />
                                                 <Button
                                                     variant="contained"
+                                                    color='secondary'
                                                     sx={{
                                                         position: 'absolute',
                                                         bottom: 10,

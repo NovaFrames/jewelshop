@@ -51,7 +51,8 @@ export default function HomeContent() {
                         When Luxury Meets Style: Unique Design and Craftsmanship
                     </Typography>
                     <Button
-                        variant="outlined"
+                        variant="contained"
+                        color='secondary'
                         sx={{
                             color: "white",
                             textTransform: "none",
@@ -252,7 +253,8 @@ export default function HomeContent() {
 
                                     {/* View Products Button - Only visible on hover on desktop */}
                                     <Button
-                                        variant="outlined"
+                                        variant="contained"
+                                        color='secondary'
                                         className="view-products-btn"
                                         sx={{
                                             display: { xs: "none", sm: "block" },
@@ -310,7 +312,8 @@ export default function HomeContent() {
 
                                     {/* View Product Button for Mobile */}
                                     <Button
-                                        variant="outlined"
+                                        variant="contained"
+                                        color='secondary'
                                         sx={{
                                             display: { xs: "block", sm: "none" },
                                             mt: 1,
@@ -378,7 +381,8 @@ export default function HomeContent() {
                             >
                                 The Perfect Bracelets
                             </Typography>
-                            <Button variant="outlined" onClick={() => navigate("/shop")}>Shop Now</Button>
+                            <Button variant="contained"
+                                color='secondary' onClick={() => navigate("/shop")}>Shop Now</Button>
                         </Box>
                     </Box>
                 </Grid>
@@ -419,7 +423,8 @@ export default function HomeContent() {
                                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
                                         Ring Collection
                                     </Typography>
-                                    <Button variant="outlined" onClick={() => navigate("/shop")}>Shop Now</Button>
+                                    <Button variant="contained"
+                                        color='secondary' onClick={() => navigate("/shop")}>Shop Now</Button>
                                 </Box>
                             </Box>
                         </Grid>
@@ -449,7 +454,8 @@ export default function HomeContent() {
                                         <br />
                                         Gold collection
                                     </Typography>
-                                    <Button variant="outlined" onClick={() => navigate("/shop")}>Shop Now</Button>
+                                    <Button variant="contained"
+                                        color='secondary' onClick={() => navigate("/shop")}>Shop Now</Button>
                                 </Box>
                             </Box>
                         </Grid>
@@ -538,7 +544,8 @@ export default function HomeContent() {
                         When Luxury Meets Style: Unique Design and Craftsmanship
                     </Typography>
                     <Button
-                        variant="outlined"
+                        variant="contained"
+                        color='secondary'
                         sx={{
                             color: "white",
                             textTransform: "none",
@@ -592,7 +599,8 @@ export default function HomeContent() {
                                 Diamond Jewellery Collection
                             </Typography>
                             <Button
-                                variant="outlined"
+                                variant="contained"
+                                color='secondary'
                                 onClick={() => navigate("/shop")}
                             >
                                 Shop Now

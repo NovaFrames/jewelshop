@@ -153,7 +153,7 @@ const ContactPage: React.FC = () => {
       <Container sx={{ py: { xs: 8, md: 12 } }}>
         <Grid container spacing={6}>
           {/* Contact Information */}
-          <Grid size={{xs:12,md:4}}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -163,7 +163,7 @@ const ContactPage: React.FC = () => {
                 <Typography variant="h4" sx={{ mb: 4, fontWeight: 600, color: 'primary.main' }}>
                   Get in Touch
                 </Typography>
-                
+
                 <Stack spacing={4}>
                   {contactInfo.map((info, index) => (
                     <Paper
@@ -256,7 +256,7 @@ const ContactPage: React.FC = () => {
           </Grid>
 
           {/* Contact Form */}
-          <Grid size={{xs:12,md:4}}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -281,7 +281,7 @@ const ContactPage: React.FC = () => {
 
                 <Box component="form" onSubmit={handleSubmit}>
                   <Grid container spacing={3}>
-                    <Grid size={{xs:12,md:4}}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
                         fullWidth
                         label="Your Name"
@@ -289,10 +289,11 @@ const ContactPage: React.FC = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        variant="outlined"
+                        variant="contained"
+                        color='secondary'
                       />
                     </Grid>
-                    <Grid size={{xs:12,md:4}}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
                         fullWidth
                         label="Email Address"
@@ -301,7 +302,8 @@ const ContactPage: React.FC = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        variant="outlined"
+                        variant="contained"
+                        color='secondary'
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -311,14 +313,15 @@ const ContactPage: React.FC = () => {
                         }}
                       />
                     </Grid>
-                    <Grid size={{xs:12,md:4}}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
                         fullWidth
                         label="Phone Number"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        variant="outlined"
+                        variant="contained"
+                        color='secondary'
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -328,7 +331,7 @@ const ContactPage: React.FC = () => {
                         }}
                       />
                     </Grid>
-                    <Grid size={{xs:12,md:4}}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
                         fullWidth
                         label="Subject"
@@ -336,10 +339,11 @@ const ContactPage: React.FC = () => {
                         value={formData.subject}
                         onChange={handleChange}
                         required
-                        variant="outlined"
+                        variant="contained"
+                        color='secondary'
                       />
                     </Grid>
-                    <Grid size={{xs:12,md:4}}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
                         fullWidth
                         label="Your Message"
@@ -349,7 +353,8 @@ const ContactPage: React.FC = () => {
                         required
                         multiline
                         rows={6}
-                        variant="outlined"
+                        variant="contained"
+                        color='secondary'
                       />
                     </Grid>
                   </Grid>
@@ -358,6 +363,7 @@ const ContactPage: React.FC = () => {
                     <Button
                       type="submit"
                       variant="contained"
+                      color='secondary'
                       color="primary"
                       size="large"
                       endIcon={<Send />}
@@ -403,7 +409,7 @@ const ContactPage: React.FC = () => {
                   </Typography>
                   <Grid container spacing={3}>
                     {faqs.map((faq, index) => (
-                      <Grid size={{xs:12,md:4}} key={index}>
+                      <Grid size={{ xs: 12, md: 4 }} key={index}>
                         <Paper
                           elevation={0}
                           sx={{

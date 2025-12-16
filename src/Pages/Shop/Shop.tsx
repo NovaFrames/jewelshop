@@ -282,7 +282,8 @@ const Shop: React.FC = () => {
 
                                             {/* Add to Cart Button */}
                                             <Button
-                                                variant="outlined"
+                                                variant="contained"
+                                                color='secondary'
                                                 fullWidth
                                                 size="small"
                                                 startIcon={<CartIcon />}

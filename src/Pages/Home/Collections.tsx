@@ -166,7 +166,8 @@ const CollectionsPage: React.FC = () => {
           <TextField
             fullWidth
             placeholder="Search collections..."
-            variant="outlined"
+            variant="contained"
+            color='secondary'
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -175,17 +176,18 @@ const CollectionsPage: React.FC = () => {
               ),
             }}
           />
-          
+
           <Stack direction="row" spacing={2}>
             <Button
-              variant="outlined"
+              variant="contained"
+              color='secondary'
               startIcon={<FilterList />}
               onClick={() => setFilterOpen(true)}
               sx={{ display: { xs: 'flex', md: 'none' } }}
             >
               Filters
             </Button>
-            
+
             <FormControl sx={{ minWidth: 200 }}>
               <InputLabel>Sort By</InputLabel>
               <Select
@@ -227,7 +229,7 @@ const CollectionsPage: React.FC = () => {
 
         <Grid container spacing={3}>
           {/* Desktop Filters */}
-          <Grid size={{xs:12,md:3}} sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Grid size={{ xs: 12, md: 3 }} sx={{ display: { xs: 'none', md: 'block' } }}>
             <Box
               sx={{
                 p: 3,
@@ -284,7 +286,8 @@ const CollectionsPage: React.FC = () => {
               </Box>
 
               <Button
-                variant="outlined"
+                variant="contained"
+                color='secondary'
                 fullWidth
                 onClick={() => {
                   setPriceRange([0, 5000]);
@@ -297,10 +300,10 @@ const CollectionsPage: React.FC = () => {
           </Grid>
 
           {/* Collections Grid */}
-          <Grid size={{xs:12,md:9}}>
+          <Grid size={{ xs: 12, md: 9 }}>
             <Grid container spacing={4}>
               {collections.map((collection, index) => (
-                <Grid size={{xs:12,md:4}} key={collection.id}>
+                <Grid size={{ xs: 12, md: 4 }} key={collection.id}>
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -365,7 +368,8 @@ const CollectionsPage: React.FC = () => {
                           {collection.productCount} products
                         </Typography>
                         <Button
-                          variant="outlined"
+                          variant="contained"
+                          color='secondary'
                           color="primary"
                           fullWidth
                           sx={{ mt: 'auto' }}
@@ -464,7 +468,8 @@ const CollectionsPage: React.FC = () => {
 
         <Stack direction="row" spacing={2} sx={{ mt: 'auto' }}>
           <Button
-            variant="outlined"
+            variant="contained"
+            color='secondary'
             fullWidth
             onClick={() => {
               setPriceRange([0, 5000]);
@@ -475,6 +480,7 @@ const CollectionsPage: React.FC = () => {
           </Button>
           <Button
             variant="contained"
+            color='secondary'
             fullWidth
             onClick={() => setFilterOpen(false)}
           >

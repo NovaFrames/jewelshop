@@ -207,6 +207,7 @@ const AdminProducts: React.FC = () => {
                 </Typography>
                 <Button
                     variant="contained"
+                    color='secondary'
                     startIcon={<AddIcon />}
                     onClick={() => handleOpenDialog()}
                     sx={{ bgcolor: '#832729', '&:hover': { bgcolor: '#6b1f21' } }}
@@ -351,7 +352,8 @@ const AdminProducts: React.FC = () => {
                             <Box sx={{ mb: 2 }}>
                                 <Button
                                     component="label"
-                                    variant="outlined"
+                                    variant="contained"
+                                    color='secondary'
                                     startIcon={<CloudUploadIcon />}
                                     disabled={uploading}
                                 >
@@ -452,7 +454,8 @@ const AdminProducts: React.FC = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog}>Cancel</Button>
-                    <Button onClick={handleSave} variant="contained" sx={{ bgcolor: '#832729', '&:hover': { bgcolor: '#6b1f21' } }}>
+                    <Button onClick={handleSave} variant="contained"
+                        color='secondary' sx={{ bgcolor: '#832729', '&:hover': { bgcolor: '#6b1f21' } }}>
                         Save
                     </Button>
                 </DialogActions>

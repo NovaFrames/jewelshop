@@ -428,6 +428,7 @@ const Account: React.FC = () => {
                                     <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                                         <Button
                                             variant="contained"
+                                            color='secondary'
                                             onClick={handleSaveProfile}
                                             startIcon={<Save />}
                                             fullWidth
@@ -435,7 +436,8 @@ const Account: React.FC = () => {
                                             Save Changes
                                         </Button>
                                         <Button
-                                            variant="outlined"
+                                            variant="contained"
+                                            color='secondary'
                                             onClick={handleCancelProfileEdit}
                                             startIcon={<Cancel />}
                                             fullWidth
@@ -492,6 +494,7 @@ const Account: React.FC = () => {
                                 </Box>
                                 <Button
                                     variant="contained"
+                                    color='secondary'
                                     startIcon={<Add />}
                                     onClick={handleAddAddress}
                                     sx={{ minWidth: 160 }}
@@ -566,7 +569,8 @@ const Account: React.FC = () => {
                                                     {!address.isDefault && (
                                                         <Button
                                                             size="small"
-                                                            variant="outlined"
+                                                            variant="contained"
+                                                            color='secondary'
                                                             onClick={() => handleSetDefaultAddress(address.id)}
                                                         >
                                                             Set as Default
@@ -605,6 +609,7 @@ const Account: React.FC = () => {
                                     </Typography>
                                     <Button
                                         variant="contained"
+                                        color='secondary'
                                         startIcon={<Add />}
                                         onClick={handleAddAddress}
                                     >
@@ -743,6 +748,7 @@ const Account: React.FC = () => {
                     </Button>
                     <Button
                         variant="contained"
+                        color='secondary'
                         onClick={handleSaveAddress}
                         disabled={!addressForm.address || !addressForm.city || !addressForm.state || !addressForm.zipCode}
                     >

@@ -149,10 +149,7 @@ const Navbar: React.FC = () => {
         <Collapse in={isAtTop} timeout={300}>
           <Box
             sx={{
-              bgcolor: "#832729",
-              color: "#fff",
               display: { xs: "none", md: "block" },
-              py: 0.5,
             }}
           >
             <Container maxWidth="xl">
@@ -163,19 +160,19 @@ const Navbar: React.FC = () => {
                 <Stack direction="row" spacing={3}>
                   <Button
                     startIcon={<StorefrontOutlined sx={{ fontSize: 16 }} />}
-                    sx={{ color: "#fff", textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
+                    sx={{ textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
                   >
                     Store
                   </Button>
                   <Button
                     startIcon={<HelpOutline sx={{ fontSize: 16 }} />}
-                    sx={{ color: "#fff", textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
+                    sx={{ textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
                   >
                     Help
                   </Button>
                   <Button
                     startIcon={<LocalShippingOutlined sx={{ fontSize: 16 }} />}
-                    sx={{ color: "#fff", textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
+                    sx={{ textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
                   >
                     Track
                   </Button>
@@ -344,7 +341,8 @@ const Navbar: React.FC = () => {
         <Box sx={{ p: 2 }}>
           <Button
             fullWidth
-            variant="outlined"
+            variant="contained"
+            color='secondary'
             startIcon={<SearchIcon />}
             sx={{ justifyContent: "flex-start", color: "#555", borderColor: "#ddd" }}
           >

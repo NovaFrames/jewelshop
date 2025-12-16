@@ -55,8 +55,6 @@ const Footer: React.FC = () => {
     <Box
       component="footer"
       sx={{
-        bgcolor: 'primary.dark',
-        color: 'white',
         pt: { xs: 8, md: 12 },
         pb: { xs: 4, md: 6 },
       }}
@@ -64,13 +62,15 @@ const Footer: React.FC = () => {
       <Container maxWidth="xl">
         <Grid container spacing={6}>
           {/* Brand Column */}
-          <Grid size={{xs:12,md:4}}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Typography
               variant="h4"
               sx={{
+                fontFamily: '"Playfair Display", serif',
+                letterSpacing: 2,
                 mb: 3,
                 fontWeight: 700,
-                letterSpacing: '2px',
+                fontSize: { xs: "1.5rem", md: "2rem" },
               }}
             >
               JEWELRY
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
               Timeless elegance meets modern luxury. We craft jewelry pieces
               that tell your unique story with exceptional quality and design.
             </Typography>
-            
+
             <Stack direction="row" spacing={2} sx={{ mb: 4 }}>
               {[
                 { icon: <Facebook />, href: '#' },
@@ -94,10 +94,10 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   sx={{
-                    color: 'white',
-                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    color: 'black',
+                    bgcolor: 'rgba(0, 0, 0, 0.1)',
                     '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 0.2)',
+                      bgcolor: 'rgba(0, 0, 0, 0.2)',
                     },
                   }}
                 >
@@ -108,7 +108,7 @@ const Footer: React.FC = () => {
           </Grid>
 
           {/* Quick Links */}
-          <Grid size={{xs:12,md:2}}>
+          <Grid size={{ xs: 12, md: 2 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
               Shop
             </Typography>
@@ -132,7 +132,7 @@ const Footer: React.FC = () => {
           </Grid>
 
           {/* Categories */}
-          <Grid size={{xs:12,md:2}}>
+          <Grid size={{ xs: 12, md: 2 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
               Categories
             </Typography>
@@ -156,7 +156,7 @@ const Footer: React.FC = () => {
           </Grid>
 
           {/* Company */}
-          <Grid size={{xs:12,md:2}}>
+          <Grid size={{ xs: 12, md: 2 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
               Company
             </Typography>
@@ -180,7 +180,7 @@ const Footer: React.FC = () => {
           </Grid>
 
           {/* Newsletter */}
-          <Grid size={{xs:12,md:2}}>
+          <Grid size={{ xs: 12, md: 2 }}>
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
               Stay Updated
             </Typography>
@@ -194,7 +194,8 @@ const Footer: React.FC = () => {
                   mb: 2,
                   '& .MuiOutlinedInput-root': {
                     bgcolor: 'rgba(255, 255, 255, 0.1)',
-                    color: 'white',
+                    color: 'black',
+                    border: "none",
                     '& fieldset': {
                       borderColor: 'rgba(255, 255, 255, 0.3)',
                     },
@@ -207,7 +208,7 @@ const Footer: React.FC = () => {
               <Button
                 fullWidth
                 variant="contained"
-                color="secondary"
+                color='secondary'
                 endIcon={<ArrowForward />}
                 sx={{
                   textTransform: 'none',
@@ -224,12 +225,12 @@ const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <Grid container spacing={2} alignItems="center">
-          <Grid size={{xs:12,md:6}}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="body2" sx={{ opacity: 0.7 }}>
               &copy; {new Date().getFullYear()} Jewelry Store. All rights reserved.
             </Typography>
           </Grid>
-          <Grid size={{xs:12,md:6}}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack
               direction="row"
               spacing={3}
