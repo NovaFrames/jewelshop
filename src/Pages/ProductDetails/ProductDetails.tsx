@@ -14,15 +14,12 @@ import {
     IconButton,
     Rating,
     Stack,
-    Breadcrumbs,
-    Link,
     Tabs,
     Tab,
     TextField
 } from '@mui/material';
 import {
     FavoriteBorder as FavoriteIcon,
-    NavigateNext as NavigateNextIcon,
     Facebook,
     Twitter,
     Instagram,
@@ -108,19 +105,7 @@ const ProductDetails: React.FC = () => {
 
     return (
         <Box sx={{ bgcolor: '#fff', minHeight: '100vh', py: 4 }}>
-            <Container maxWidth="xl">
-                {/* Breadcrumbs */}
-                <Box sx={{ mb: 4 }}>
-                    <Breadcrumbs
-                        separator={<NavigateNextIcon fontSize="small" />}
-                        sx={{ fontSize: '0.875rem' }}
-                    >
-                        <Link component={RouterLink} to="/" underline="hover" color="inherit">Home</Link>
-                        <Link component={RouterLink} to="/shop" underline="hover" color="inherit">Shop</Link>
-                        <Typography color="text.primary">{product.name}</Typography>
-                    </Breadcrumbs>
-                </Box>
-
+            <Container>
                 <Grid container spacing={6}>
                     {/* Left Side - Product Images */}
                     <Grid size={{ xs: 12, md: 6 }}>
@@ -312,7 +297,6 @@ const ProductDetails: React.FC = () => {
                                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="product tabs" textColor="inherit" indicatorColor="primary">
                                     <Tab label="Description" sx={{ fontWeight: 600, textTransform: 'uppercase' }} />
                                     <Tab label="Additional Information" sx={{ fontWeight: 600, textTransform: 'uppercase' }} />
-                                    <Tab label={`Reviews (${product.reviews})`} sx={{ fontWeight: 600, textTransform: 'uppercase' }} />
                                 </Tabs>
                             </Box>
                             <CustomTabPanel value={tabValue} index={0}>
@@ -333,9 +317,6 @@ const ProductDetails: React.FC = () => {
                                         <Grid size={6}><Typography color="text.secondary">{product.material}</Typography></Grid>
                                     </Grid>
                                 </Box>
-                            </CustomTabPanel>
-                            <CustomTabPanel value={tabValue} index={2}>
-                                <Typography align="center" color="text.secondary">No reviews yet.</Typography>
                             </CustomTabPanel>
                         </Box>
                     </Grid>

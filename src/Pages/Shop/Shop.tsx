@@ -9,7 +9,6 @@ import {
     Card,
     CardMedia,
     CardContent,
-    Chip,
     Rating,
     FormControl,
     Select,
@@ -201,26 +200,10 @@ const Shop: React.FC = () => {
                                             position: 'relative',
                                             bgcolor: 'white',
                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                            cursor: 'pointer', 
+                                            cursor: 'pointer',
                                         }}
                                         onClick={() => navigate(`/product/${product.id}`)}
                                     >
-                                        {/* Sale Badge for specific products */}
-                                        {(index === 0 || index === 4) && product.discount && (
-                                            <Chip
-                                                label={`-${product.discount}%`}
-                                                color="error"
-                                                size="small"
-                                                sx={{
-                                                    position: 'absolute',
-                                                    top: 12,
-                                                    left: 12,
-                                                    zIndex: 1,
-                                                    fontWeight: 600,
-                                                    fontSize: '0.75rem'
-                                                }}
-                                            />
-                                        )}
 
                                         {/* Product Image */}
                                         <CardMedia

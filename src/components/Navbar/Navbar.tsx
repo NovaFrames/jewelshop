@@ -1,5 +1,5 @@
 // src/components/Navbar/Navbar.tsx
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -13,106 +13,90 @@ import {
   Button,
   Badge,
   Container,
-  useScrollTrigger,
-  Slide,
   Collapse,
   ListItemButton,
   ListItemText,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Menu as MenuIcon,
   PersonOutline,
   ShoppingBagOutlined,
   Close,
   StorefrontOutlined,
-  DiamondOutlined,
   ExpandLess,
   ExpandMore,
   HelpOutline,
-} from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
-import { useCart } from '../../contexts/CartContext';
-import { navItems, type NavItem } from './navbarData';
-import MegaMenu from './MegaMenu';
-import { AnimatePresence } from 'framer-motion';
+  Search as SearchIcon,
+  FavoriteBorder,
+  LocalShippingOutlined,
+  PhoneOutlined,
+} from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
-interface HideOnScrollProps {
-  children: React.ReactElement;
-}
+import { navItems, type NavItem } from "./navbarData";
+import MegaMenu from "./MegaMenu";
+import { useCart } from "../../contexts/CartContext";
+import { useScrollDirection } from "./useScrollDirection";
 
-const HideOnScroll: React.FC<HideOnScrollProps> = ({ children }) => {
-  const trigger = useScrollTrigger();
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      {children}
-    </Slide>
-  );
-};
-
-const MobileNavItem = ({ item, onClose }: { item: NavItem; onClose: () => void }) => {
+/* -------------------- Mobile Nav Item -------------------- */
+const MobileNavItem = ({
+  item,
+  onClose,
+}: {
+  item: NavItem;
+  onClose: () => void;
+}) => {
   const [open, setOpen] = useState(false);
   const hasSubmenu = item.hasMegaMenu && item.megaMenuData;
 
   const handleClick = () => {
-    if (hasSubmenu) {
-      setOpen(!open);
-    } else {
-      onClose();
-    }
+    if (hasSubmenu) setOpen(!open);
+    else onClose();
   };
 
   return (
     <>
-      <ListItem disablePadding sx={{ display: 'block' }}>
+      <ListItem disablePadding>
         <Button
-          component={hasSubmenu ? 'div' : RouterLink}
+          component={hasSubmenu ? "div" : RouterLink}
           to={hasSubmenu ? undefined : item.path}
           onClick={handleClick}
           fullWidth
           sx={{
-            justifyContent: 'space-between',
-            color: '#333',
-            textTransform: 'none',
-            fontWeight: 500,
-            py: 1.5,
+            justifyContent: "space-between",
+            textTransform: "none",
+            color: "#333",
+            py: 2,
             px: 2,
-            borderBottom: '1px solid #f0f0f0',
-            borderRadius: 0,
-            '&:hover': {
-              bgcolor: '#f5f5f5'
-            }
+            borderBottom: "1px solid #eee",
+            "&:active": { bgcolor: "#f2f2f2" },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography variant="body1" sx={{ fontWeight: 500, fontFamily: '"Inter", sans-serif' }}>{item.name}</Typography>
-          </Box>
-          {hasSubmenu && (open ? <ExpandLess sx={{ color: '#832729' }} /> : <ExpandMore sx={{ color: '#832729' }} />)}
+          <Typography fontWeight={500}>{item.name}</Typography>
+          {hasSubmenu &&
+            (open ? (
+              <ExpandLess sx={{ color: "#832729" }} />
+            ) : (
+              <ExpandMore sx={{ color: "#832729" }} />
+            ))}
         </Button>
       </ListItem>
+
       {hasSubmenu && (
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding sx={{ bgcolor: '#f9f9f9' }}>
-            {/* Show 'Category' tab items by default */}
-            {item.megaMenuData?.categories['Category']?.map((subItem) => (
+        <Collapse in={open}>
+          <List disablePadding sx={{ bgcolor: "#fafafa" }}>
+            {item.megaMenuData?.categories["Category"]?.map((sub) => (
               <ListItemButton
-                key={subItem.name}
+                key={sub.name}
                 component={RouterLink}
-                to={subItem.path}
+                to={sub.path}
                 onClick={onClose}
-                sx={{ pl: 4, py: 1 }}
+                sx={{ pl: 4 }}
               >
-                <ListItemText
-                  primary={subItem.name}
-                  primaryTypographyProps={{ fontSize: '0.9rem', color: '#555', fontFamily: '"Inter", sans-serif' }}
-                />
+                <ListItemText primary={sub.name} />
               </ListItemButton>
             ))}
-            <ListItemButton component={RouterLink} to={item.path} onClick={onClose} sx={{ pl: 4, py: 1 }}>
-              <ListItemText
-                primary={`View All ${item.name}`}
-                primaryTypographyProps={{ fontSize: '0.9rem', color: '#832729', fontWeight: 600, fontFamily: '"Inter", sans-serif' }}
-              />
-            </ListItemButton>
           </List>
         </Collapse>
       )}
@@ -120,216 +104,264 @@ const MobileNavItem = ({ item, onClose }: { item: NavItem; onClose: () => void }
   );
 };
 
+/* -------------------- Navbar -------------------- */
 const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const { cartCount } = useCart();
-  const timeoutRef = React.useRef<number | null>(null);
+  const scrollDir = useScrollDirection();
+  const [isAtTop, setIsAtTop] = useState(true);
+  const timeoutRef = useRef<number | null>(null);
 
-  const handleMouseEnter = (itemName: string) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    setHoveredItem(itemName);
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsAtTop(window.scrollY < 20);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleMouseEnter = (name: string) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setHoveredItem(name);
   };
 
   const handleMouseLeave = () => {
     timeoutRef.current = window.setTimeout(() => {
       setHoveredItem(null);
-    }, 100); // 100ms delay to bridge the gap
+    }, 120);
   };
-
 
   return (
     <>
-      <HideOnScroll>
-        <AppBar
-          position="sticky"
-          color="inherit"
-          elevation={0}
-          sx={{
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-            backgroundColor: '#ffffff',
-            zIndex: 1200,
-          }}
-        >
-          {/* Top Row: Logo, Search, Icons */}
+      {/* -------------------- APP BAR -------------------- */}
+      <AppBar
+        position="fixed"
+        elevation={0}
+        color="inherit"
+        sx={{
+          bgcolor: "#ffffff",
+          zIndex: 1200,
+          transition: "all 0.3s ease",
+        }}
+      >
+        {/* ---------- Top Utility Bar ---------- */}
+        <Collapse in={isAtTop} timeout={300}>
+          <Box
+            sx={{
+              bgcolor: "#832729",
+              color: "#fff",
+              display: { xs: "none", md: "block" },
+              py: 0.5,
+            }}
+          >
+            <Container maxWidth="xl">
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="caption" sx={{ letterSpacing: 1 }}>
+                  Free Shipping on Orders Over ₹2000
+                </Typography>
+                <Stack direction="row" spacing={3}>
+                  <Button
+                    startIcon={<StorefrontOutlined sx={{ fontSize: 16 }} />}
+                    sx={{ color: "#fff", textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
+                  >
+                    Store
+                  </Button>
+                  <Button
+                    startIcon={<HelpOutline sx={{ fontSize: 16 }} />}
+                    sx={{ color: "#fff", textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
+                  >
+                    Help
+                  </Button>
+                  <Button
+                    startIcon={<LocalShippingOutlined sx={{ fontSize: 16 }} />}
+                    sx={{ color: "#fff", textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
+                  >
+                    Track
+                  </Button>
+                </Stack>
+              </Stack>
+            </Container>
+          </Box>
+        </Collapse>
+
+        {/* ---------- Main Header ---------- */}
+        <Box sx={{ borderBottom: "1px solid #eee" }}>
           <Container maxWidth="xl">
-            <Toolbar
-              sx={{
-                justifyContent: 'space-between',
-                py: 1.5,
-                gap: 2,
-                minHeight: { xs: 64, md: 80 },
-              }}
-            >
-              {/* Mobile Menu Button */}
-              <IconButton
-                sx={{ display: { xs: 'flex', md: 'none' } }}
-                onClick={() => setMobileOpen(true)}
-                aria-label="Open menu"
-                size="large"
-              >
-                <MenuIcon />
-              </IconButton>
+            <Toolbar sx={{ minHeight: { xs: 64, md: 90 }, justifyContent: "space-between" }} disableGutters>
+              {/* Left */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <IconButton
+                  sx={{ display: { xs: "flex", md: "none" } }}
+                  onClick={() => setMobileOpen(true)}
+                >
+                  <MenuIcon />
+                </IconButton>
+
+                <Button
+                  component={RouterLink}
+                  to="/contact"
+                  startIcon={<PhoneOutlined />}
+                  sx={{ display: { xs: "none", md: "flex" }, color: "#333", textTransform: "none" }}
+                >
+                  Contact Us
+                </Button>
+              </Box>
 
               {/* Logo */}
               <Box
                 component={RouterLink}
                 to="/"
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textDecoration: 'none',
-                  color: '#832729',
-                  mr: { xs: 'auto', md: 4 }
+                  textAlign: "center",
+                  textDecoration: "none",
+                  color: "#832729",
+                  position: { xs: "relative", md: "absolute" },
+                  left: { md: "50%" },
+                  transform: { md: "translateX(-50%)" },
                 }}
               >
                 <Typography
                   variant="h4"
                   sx={{
-                    fontWeight: 700,
                     fontFamily: '"Playfair Display", serif',
-                    lineHeight: 1,
-                    letterSpacing: '1px',
+                    letterSpacing: 2,
+                    fontWeight: 700,
+                    fontSize: { xs: "1.5rem", md: "2rem" },
                   }}
                 >
                   JEWELRY
                 </Typography>
-                <Box sx={{ width: 40, height: 2, bgcolor: '#832729', mt: 0.5 }} />
+                <Typography variant="caption" letterSpacing={3} sx={{ color: "#555", fontSize: "0.6rem" }}>
+                  EST. 2024
+                </Typography>
               </Box>
 
-              {/* Icons */}
-              <Stack direction="row" spacing={{ xs: 1, md: 2 }} alignItems="center">
-                <Stack direction="row" spacing={3} sx={{ display: { xs: 'none', md: 'flex' } }}>
-                  <IconButton size="medium" component={RouterLink} to="/account" sx={{ color: '#832729' }}>
+              {/* Right */}
+              <Stack direction="row" spacing={1}>
+                <IconButton sx={{ display: { xs: "flex", md: "none" } }}>
+                  <SearchIcon />
+                </IconButton>
+                <Stack direction="row" spacing={1} sx={{ display: { xs: "none", md: "flex" } }}>
+                  <IconButton component={RouterLink} to="/account">
                     <PersonOutline />
                   </IconButton>
-                  <IconButton size="medium" component={RouterLink} to="/cart" sx={{ color: '#832729' }}>
-                    <Badge badgeContent={cartCount} color="error">
-                      <ShoppingBagOutlined />
-                    </Badge>
+                  <IconButton>
+                    <FavoriteBorder />
                   </IconButton>
                 </Stack>
-                {/* Mobile Cart Icon */}
-                <IconButton size="medium" component={RouterLink} to="/cart" sx={{ display: { xs: 'flex', md: 'none' }, color: '#832729' }}>
-                  <Badge badgeContent={cartCount} color="error">
+                <IconButton component={RouterLink} to="/cart">
+                  <Badge
+                    badgeContent={cartCount}
+                    sx={{ "& .MuiBadge-badge": { bgcolor: "#832729", color: "white" } }}
+                  >
                     <ShoppingBagOutlined />
                   </Badge>
                 </IconButton>
               </Stack>
             </Toolbar>
+          </Container>
+        </Box>
 
-            {/* Bottom Row: Navigation Links (Desktop) */}
-            <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'relative' }}>
-              <Stack
-                direction="row"
-                spacing={4}
-                justifyContent="center"
-                sx={{ py: 1.5 }}
-              >
+        {/* ---------- Desktop Navigation ---------- */}
+        <Collapse in={isAtTop || scrollDir === "up"} timeout={300}>
+          <Box sx={{ display: { xs: "none", md: "block" }, borderBottom: "1px solid #eee" }}>
+            <Container maxWidth="xl">
+              <Stack direction="row" justifyContent="center" spacing={5}>
                 {navItems.map((item) => (
                   <Box
                     key={item.name}
                     onMouseEnter={() => handleMouseEnter(item.name)}
                     onMouseLeave={handleMouseLeave}
-                  // Removed position: relative to allow MegaMenu to span full width
                   >
                     <Button
                       component={RouterLink}
                       to={item.path}
-                      startIcon={item.name === 'All Jewellery' ? <DiamondOutlined fontSize="small" /> : null}
                       sx={{
-                        color: '#333',
+                        textTransform: "uppercase",
+                        py: 2,
+                        color: "#333",
                         fontWeight: 500,
-                        textTransform: 'none',
-                        fontSize: '0.95rem',
-                        '&:hover': {
-                          color: '#832729',
-                          bgcolor: 'transparent',
+                        fontSize: "0.85rem",
+                        letterSpacing: "1px",
+                        borderBottom:
+                          hoveredItem === item.name
+                            ? "2px solid #832729"
+                            : "2px solid transparent",
+                        "&:hover": {
+                          color: "#832729",
+                          bgcolor: "transparent",
                         },
-                        borderBottom: hoveredItem === item.name ? '2px solid #832729' : '2px solid transparent',
                         borderRadius: 0,
-                        pb: 0.5
                       }}
                     >
                       {item.name}
                     </Button>
 
-                    {/* Mega Menu */}
                     <AnimatePresence>
-                      {item.hasMegaMenu && hoveredItem === item.name && item.megaMenuData && (
-                        <MegaMenu
-                          key="mega-menu"
-                          data={item.megaMenuData}
-                          onClose={handleMouseLeave}
-                          onMouseEnter={() => handleMouseEnter(item.name)}
-                          onMouseLeave={handleMouseLeave}
-                        />
-                      )}
+                      {item.hasMegaMenu &&
+                        hoveredItem === item.name &&
+                        item.megaMenuData && (
+                          <MegaMenu
+                            data={item.megaMenuData}
+                            onMouseEnter={() => handleMouseEnter(item.name)}
+                            onMouseLeave={handleMouseLeave}
+                            onClose={handleMouseLeave}
+                          />
+                        )}
                     </AnimatePresence>
                   </Box>
                 ))}
               </Stack>
-            </Box>
-          </Container>
-        </AppBar>
-      </HideOnScroll>
+            </Container>
+          </Box>
+        </Collapse>
+      </AppBar>
 
-      {/* Mobile Drawer */}
+      {/* ---------- SPACER ---------- */}
+      <Box sx={{ height: { xs: "90px", md: "176px" } }} />
+
+      {/* -------------------- MOBILE DRAWER -------------------- */}
       <Drawer
-        anchor="left"
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: { xs: '85%', sm: 350 },
-            bgcolor: 'background.default',
-          },
-        }}
+        sx={{ "& .MuiDrawer-paper": { width: { xs: "85%", sm: 350 } } }}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          {/* Drawer Header */}
-          <Box sx={{ p: 2, bgcolor: '#832729', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {/* Header */}
+        <Box sx={{ p: 2, bgcolor: "#832729", color: "#fff" }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <PersonOutline />
-              <Typography variant="subtitle1" fontWeight={600}>Login / Sign Up</Typography>
+              <Typography fontWeight={600}>Login / Signup</Typography>
             </Box>
-            <IconButton onClick={() => setMobileOpen(false)} sx={{ color: 'white' }}>
+            <IconButton onClick={() => setMobileOpen(false)} sx={{ color: "#fff" }}>
               <Close />
             </IconButton>
-          </Box>
-
-          {/* Menu Items */}
-          <Box sx={{ flex: 1, overflowY: 'auto' }}>
-            <List disablePadding>
-              {navItems.map((item) => (
-                <MobileNavItem key={item.name} item={item} onClose={() => setMobileOpen(false)} />
-              ))}
-            </List>
-          </Box>
-
-          {/* Drawer Footer */}
-          <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderTop: '1px solid #e0e0e0' }}>
-            <Stack spacing={2}>
-              <Button
-                startIcon={<StorefrontOutlined />}
-                sx={{ justifyContent: 'flex-start', color: '#555', textTransform: 'none' }}
-              >
-                Store Locator
-              </Button>
-              <Button
-                startIcon={<HelpOutline />}
-                sx={{ justifyContent: 'flex-start', color: '#555', textTransform: 'none' }}
-              >
-                Help & Support
-              </Button>
-            </Stack>
-          </Box>
+          </Stack>
         </Box>
+
+        {/* Search */}
+        <Box sx={{ p: 2 }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<SearchIcon />}
+            sx={{ justifyContent: "flex-start", color: "#555", borderColor: "#ddd" }}
+          >
+            Search Jewelry
+          </Button>
+        </Box>
+
+        {/* Menu */}
+        <List disablePadding>
+          {navItems.map((item) => (
+            <MobileNavItem
+              key={item.name}
+              item={item}
+              onClose={() => setMobileOpen(false)}
+            />
+          ))}
+        </List>
       </Drawer>
     </>
   );
