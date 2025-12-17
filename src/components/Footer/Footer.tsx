@@ -59,7 +59,7 @@ const Footer: React.FC = () => {
         pb: { xs: 4, md: 6 },
       }}
     >
-      <Container maxWidth="xl">
+      <Container>
         <Grid container spacing={6}>
           {/* Brand Column */}
           <Grid size={{ xs: 12, md: 4 }}>
