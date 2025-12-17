@@ -21,8 +21,7 @@ import Home from './Pages/Home/Home';
 import Shop from './Pages/Shop/Shop';
 import AddToCart from './Pages/AddToCart/AddToCart';
 import ProductDetails from './Pages/ProductDetails/ProductDetails';
-import CollectionsPage from './Pages/Home/Collections';
-import ContactPage from './Pages/Home/ContactPage';
+import ContactPage from './Pages/ContactPage/ContactPage';
 import Account from './Pages/Account/Account';
 import SelectedCategory from './Pages/SelectedCategory/SelectedCategory';
 
@@ -88,7 +87,6 @@ const App: React.FC = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/all-jewellery" element={<Shop />} />
                 <Route path="/product/:productId" element={<ProductDetails />} />
-                <Route path="/collections" element={<CollectionsPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/cart" element={<AddToCart />} />

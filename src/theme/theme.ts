@@ -129,10 +129,23 @@ const theme = responsiveFontSizes(
         },
       },
       MuiTextField: {
+        defaultProps: {
+          variant: 'outlined',
+        },
         styleOverrides: {
           root: {
-            '& .MuiOutlinedInput-root': {
+            '& .MuiInputBase-root': {
               borderRadius: 8,
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: '#000',
+            },
+
+            '& .MuiInputLabel-root': {
+              color: '#666',
+            },
+
+            '& .MuiInputLabel-root.Mui-focused': {
+              color: '#7d3c3c',
             },
           },
         },

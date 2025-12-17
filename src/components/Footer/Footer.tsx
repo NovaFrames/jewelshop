@@ -190,20 +190,7 @@ const Footer: React.FC = () => {
                 placeholder="Your email"
                 variant="outlined"
                 size="small"
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    bgcolor: 'rgba(255, 255, 255, 0.1)',
-                    color: 'black',
-                    border: "none",
-                    '& fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'rgba(255, 255, 255, 0.5)',
-                    },
-                  },
-                }}
+                sx={{ mb: 2 }}
               />
               <Button
                 fullWidth
