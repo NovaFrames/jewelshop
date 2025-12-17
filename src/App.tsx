@@ -25,6 +25,7 @@ import AddToCart from './Pages/User/AddToCart/AddToCart';
 import ProductDetails from './Pages/User/ProductDetails/ProductDetails';
 import Account from './Pages/User/Account/Account';
 import SelectedCategory from './Pages/User/SelectedCategory/SelectedCategory';
+import Orders from './Pages/Orders/Orders';
 import LoginPage from './Pages/LoginPage/LoginPage';
 
 // Admin Pages
@@ -50,6 +51,7 @@ const App: React.FC = () => {
                 <Route path="/all-jewellery" element={<Shop />} />
                 <Route path="/product/:productId" element={<ProductDetails />} />
                 <Route path="/cart" element={<AddToCart />} />
+                <Route path="/orders" element={<Orders />} />
                 <Route path="/account" element={<Account />} />
                 <Route path="/login" element={<LoginPage />} />
 

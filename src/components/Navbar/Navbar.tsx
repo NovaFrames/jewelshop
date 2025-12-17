@@ -28,7 +28,7 @@ import {
   ExpandMore,
   HelpOutline,
   Search as SearchIcon,
-  FavoriteBorder,
+  ReceiptLong,
   LocalShippingOutlined,
   PhoneOutlined,
 } from "@mui/icons-material";
@@ -37,10 +37,11 @@ import { AnimatePresence } from "framer-motion";
 
 import { navItems, type NavItem } from "./navbarData";
 import MegaMenu from "./MegaMenu";
-import { useCart } from "../../contexts/CartContext";
 import { useScrollDirection } from "./useScrollDirection";
 import { useAuth } from "../../contexts/AuthContext";
 import LoginModal from "../Auth/LoginModal";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase/firebase";
 
 /* -------------------- Mobile Nav Item -------------------- */
 const MobileNavItem = ({
@@ -112,11 +113,44 @@ const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const { cartCount } = useCart();
+  const [cartCount, setCartCount] = useState(0);
   const { currentUser, userData } = useAuth();
   const scrollDir = useScrollDirection();
   const [isAtTop, setIsAtTop] = useState(true);
   const timeoutRef = useRef<number | null>(null);
+
+  // Fetch cart count from Firestore
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      if (!currentUser) {
+        setCartCount(0);
+        return;
+      }
+
+      try {
+        const cartRef = doc(db, 'cart', currentUser.uid);
+        const cartDoc = await getDoc(cartRef);
+
+        if (cartDoc.exists()) {
+          const cartData = cartDoc.data();
+          const items = cartData.items || [];
+          // Count number of unique products, not total quantity
+          setCartCount(items.length);
+        } else {
+          setCartCount(0);
+        }
+      } catch (error) {
+        console.error('Error fetching cart count:', error);
+        setCartCount(0);
+      }
+    };
+
+    fetchCartCount();
+
+    // Refresh cart count every 5 seconds when user is on the page
+    const interval = setInterval(fetchCartCount, 5000);
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -273,8 +307,8 @@ const Navbar: React.FC = () => {
                       <PersonOutline />
                     )}
                   </IconButton>
-                  <IconButton>
-                    <FavoriteBorder />
+                  <IconButton component={RouterLink} to="/orders">
+                    <ReceiptLong />
                   </IconButton>
                 </Stack>
                 <IconButton component={RouterLink} to="/cart">

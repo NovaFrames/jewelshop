@@ -25,149 +25,252 @@ import {
     Remove,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../../contexts/CartContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
+import { CheckoutModals } from './CheckoutModals';
+
+interface CartItem {
+    productId: string;
+    name: string;
+    price: number;
+    image: string;
+    quantity: number;
+    category: string;
+    material: string;
+    addedAt: string;
+}
 
 const AddToCart: React.FC = () => {
     const navigate = useNavigate();
-    const { state, dispatch } = useCart();
-    const { currentUser } = useAuth();
+    const { currentUser, userData } = useAuth();
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-    // Load cart from Firestore on mount
-    useEffect(() => {
-        const loadCartFromFirestore = async () => {
-            if (!currentUser) {
-                setLoading(false);
-                return;
+    const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+    const [addAddressModalOpen, setAddAddressModalOpen] = useState(false);
+    const [selectedAddress, setSelectedAddress] = useState<any>(null);
+    const [newAddress, setNewAddress] = useState({
+        type: 'home',
+        name: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: 'United States',
+        phone: ''
+    });
+
+    // Load cart from Firestore
+    const loadCart = async () => {
+        if (!currentUser) {
+            setLoading(false);
+            setCartItems([]);
+            return;
+        }
+
+        try {
+            const cartRef = doc(db, 'cart', currentUser.uid);
+            const cartDoc = await getDoc(cartRef);
+
+            if (cartDoc.exists()) {
+                const cartData = cartDoc.data();
+                setCartItems(cartData.items || []);
+            } else {
+                setCartItems([]);
             }
+        } catch (error) {
+            console.error('Error loading cart:', error);
+            setSnackbar({ open: true, message: 'Failed to load cart', severity: 'error' });
+            setCartItems([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-            try {
-                const cartRef = doc(db, 'cart', currentUser.uid);
-                const cartDoc = await getDoc(cartRef);
-
-                if (cartDoc.exists()) {
-                    const cartData = cartDoc.data();
-                    const firestoreItems = cartData.items || [];
-
-                    // Clear local cart and load from Firestore
-                    dispatch({ type: 'CLEAR_CART' });
-
-                    // Add each item to local cart
-                    firestoreItems.forEach((item: any) => {
-                        dispatch({
-                            type: 'ADD_ITEM',
-                            payload: {
-                                product: {
-                                    id: item.productId,
-                                    name: item.name,
-                                    price: item.price,
-                                    image: item.image,
-                                    category: item.category,
-                                    material: item.material,
-                                } as any,
-                                quantity: item.quantity
-                            }
-                        });
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading cart from Firestore:', error);
-                setSnackbar({ open: true, message: 'Failed to load cart', severity: 'error' });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadCartFromFirestore();
-    }, [currentUser]);
-
-    // Sync cart to Firestore whenever it changes (after initial load)
-    useEffect(() => {
-        // Skip sync during initial load
-        if (loading) return;
-
-        // Skip if not logged in
+    // Update cart in Firestore
+    const updateCart = async (newItems: CartItem[]) => {
         if (!currentUser) return;
 
-        // Sync to Firestore
-        const syncToFirestore = async () => {
-            try {
-                const cartRef = doc(db, 'cart', currentUser.uid);
-                const firestoreItems = state.items.map(item => ({
-                    productId: item.product.id,
-                    name: item.product.name,
-                    price: item.product.price,
-                    image: (item.product as any).image || '',
-                    quantity: item.quantity,
-                    category: item.product.category,
-                    material: item.product.material,
-                    addedAt: new Date().toISOString()
-                }));
+        try {
+            const cartRef = doc(db, 'cart', currentUser.uid);
+            await updateDoc(cartRef, {
+                items: newItems,
+                updatedAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error('Error updating cart:', error);
+            setSnackbar({ open: true, message: 'Failed to update cart', severity: 'error' });
+        }
+    };
 
-                if (firestoreItems.length > 0) {
-                    await setDoc(cartRef, {
-                        userId: currentUser.uid,
-                        items: firestoreItems,
-                        updatedAt: new Date().toISOString()
-                    }, { merge: true });
-                } else {
-                    // If cart is empty, update with empty items array
-                    await updateDoc(cartRef, {
-                        items: [],
-                        updatedAt: new Date().toISOString()
-                    });
-                }
-            } catch (error) {
-                console.error('Error syncing cart to Firestore:', error);
-            }
-        };
+    // Load cart on mount and set default address
+    useEffect(() => {
+        loadCart();
 
-        syncToFirestore();
-    }, [state.items, currentUser, loading]);
+        // Set default address if available
+        if (userData?.addresses && userData.addresses.length > 0) {
+            const defaultAddr = userData.addresses.find((addr: any) => addr.isDefault);
+            setSelectedAddress(defaultAddr || userData.addresses[0]);
+        }
+    }, [currentUser, userData]);
 
+    // Handle remove item
     const handleRemoveItem = async (productId: string) => {
-        // Close the confirmation modal
         setDeleteConfirmOpen(false);
         setItemToDelete(null);
 
-        // Remove from local cart (useEffect will sync to Firestore)
-        dispatch({ type: 'REMOVE_ITEM', payload: productId });
+        const newItems = cartItems.filter(item => item.productId !== productId);
+        setCartItems(newItems);
+        await updateCart(newItems);
 
         setSnackbar({ open: true, message: 'Item removed from cart', severity: 'success' });
     };
 
+    // Handle delete click
     const handleDeleteClick = (productId: string) => {
         setItemToDelete(productId);
         setDeleteConfirmOpen(true);
     };
 
+    // Handle cancel delete
     const handleCancelDelete = () => {
         setDeleteConfirmOpen(false);
         setItemToDelete(null);
     };
 
+    // Handle increase quantity
     const handleIncreaseQuantity = async (productId: string) => {
-        // Update local cart (useEffect will sync to Firestore)
-        dispatch({ type: 'INCREASE_QUANTITY', payload: productId });
+        const newItems = cartItems.map(item =>
+            item.productId === productId
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+        );
+        setCartItems(newItems);
+        await updateCart(newItems);
     };
 
+    // Handle decrease quantity
     const handleDecreaseQuantity = async (productId: string) => {
-        // Update local cart (useEffect will sync to Firestore)
-        dispatch({ type: 'DECREASE_QUANTITY', payload: productId });
+        const newItems = cartItems.map(item =>
+            item.productId === productId && item.quantity > 1
+                ? { ...item, quantity: item.quantity - 1 }
+                : item
+        );
+        setCartItems(newItems);
+        await updateCart(newItems);
     };
 
-    const handleCheckout = () => {
-        navigate('/checkout');
+    // Open checkout modal
+    const handleOpenCheckoutModal = () => {
+        if (!currentUser || cartItems.length === 0) {
+            setSnackbar({ open: true, message: 'Cart is empty', severity: 'error' });
+            return;
+        }
+        setCheckoutModalOpen(true);
     };
 
-    const totalAmount = state.items.reduce((sum, item) => {
-        return sum + (item.product.price * item.quantity);
+    // Handle add new address
+    const handleAddNewAddress = async () => {
+        if (!currentUser || !newAddress.address || !newAddress.city || !newAddress.state || !newAddress.zipCode || !newAddress.phone) {
+            setSnackbar({ open: true, message: 'Please fill all required address fields', severity: 'error' });
+            return;
+        }
+
+        try {
+            const userRef = doc(db, 'users', currentUser.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+                const currentAddresses = userDoc.data().addresses || [];
+                const addressToAdd = {
+                    ...newAddress,
+                    isDefault: currentAddresses.length === 0,
+                    id: Date.now().toString()
+                };
+
+                await updateDoc(userRef, {
+                    addresses: [...currentAddresses, addressToAdd]
+                });
+
+                setSelectedAddress(addressToAdd);
+                setAddAddressModalOpen(false);
+                setNewAddress({
+                    type: 'home',
+                    name: '',
+                    address: '',
+                    city: '',
+                    state: '',
+                    zipCode: '',
+                    country: 'United States',
+                    phone: ''
+                });
+                setSnackbar({ open: true, message: 'Address added successfully', severity: 'success' });
+            }
+        } catch (error) {
+            console.error('Error adding address:', error);
+            setSnackbar({ open: true, message: 'Failed to add address', severity: 'error' });
+        }
+    };
+
+    // Place order with selected address
+    const handlePlaceOrder = async () => {
+        if (!selectedAddress) {
+            setSnackbar({ open: true, message: 'Please select a delivery address', severity: 'error' });
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            // Calculate total
+            const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Create order in Firestore
+            const orderData = {
+                userId: currentUser!.uid,
+                userName: userData?.name || 'Guest',
+                userEmail: userData?.email || '',
+                userPhone: userData?.phone || '',
+                deliveryAddress: selectedAddress,
+                items: cartItems,
+                totalAmount: total,
+                status: 'processing',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            await addDoc(collection(db, 'orders'), orderData);
+
+            // Clear cart in Firestore
+            const cartRef = doc(db, 'cart', currentUser!.uid);
+            await updateDoc(cartRef, {
+                items: [],
+                updatedAt: new Date().toISOString()
+            });
+
+            // Clear local cart
+            setCartItems([]);
+
+            // Close checkout modal and show success modal
+            setCheckoutModalOpen(false);
+            setSuccessModalOpen(true);
+
+        } catch (error) {
+            console.error('Error creating order:', error);
+            setSnackbar({ open: true, message: 'Failed to place order', severity: 'error' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Calculate total
+    const totalAmount = cartItems.reduce((sum, item) => {
+        return sum + (item.price * item.quantity);
     }, 0);
 
     // Show loading state
@@ -180,7 +283,7 @@ const AddToCart: React.FC = () => {
     }
 
     // Empty cart state
-    if (state.items.length === 0) {
+    if (cartItems.length === 0) {
         return (
             <Container maxWidth="lg" sx={{ py: 8, minHeight: '60vh' }}>
                 <Box
@@ -253,8 +356,8 @@ const AddToCart: React.FC = () => {
 
                             {/* Items */}
                             <Box sx={{ p: 2 }}>
-                                {state.items.map((item, index) => (
-                                    <Box key={item.product.id}>
+                                {cartItems.map((item, index) => (
+                                    <Box key={item.productId}>
                                         {index > 0 && <Divider sx={{ my: 2 }} />}
                                         <Grid container spacing={2} alignItems="center">
                                             {/* Product */}
@@ -262,23 +365,23 @@ const AddToCart: React.FC = () => {
                                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                                                     <IconButton
                                                         size="small"
-                                                        onClick={() => handleDeleteClick(item.product.id)}
+                                                        onClick={() => handleDeleteClick(item.productId)}
                                                         sx={{ color: '#999', '&:hover': { color: '#d32f2f' } }}
                                                     >
                                                         <Delete fontSize="small" />
                                                     </IconButton>
                                                     <Box
                                                         component="img"
-                                                        src={Array.isArray(item.product.images) ? item.product.images[0] : (item.product as any).image}
-                                                        alt={item.product.name}
+                                                        src={item.image}
+                                                        alt={item.name}
                                                         sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1 }}
                                                     />
                                                     <Box>
                                                         <Typography variant="subtitle1" fontWeight={600} sx={{ fontFamily: 'Playfair Display, serif' }}>
-                                                            {item.product.name}
+                                                            {item.name}
                                                         </Typography>
                                                         <Typography variant="body2" color="text.secondary">
-                                                            {item.product.material}
+                                                            {item.material}
                                                         </Typography>
                                                     </Box>
                                                 </Box>
@@ -287,18 +390,18 @@ const AddToCart: React.FC = () => {
                                             {/* Price */}
                                             <Grid size={{ xs: 6, md: 2 }}>
                                                 <Typography variant="body1" align="center" sx={{ display: { xs: 'block', md: 'block' } }}>
-                                                    ₹{item.product.price}
+                                                    ₹{item.price}
                                                 </Typography>
                                             </Grid>
 
                                             {/* Quantity */}
                                             <Grid size={{ xs: 6, md: 3 }}>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #ddd', borderRadius: 1, width: 'fit-content', mx: 'auto' }}>
-                                                    <IconButton size="small" onClick={() => handleDecreaseQuantity(item.product.id)} disabled={item.quantity <= 1}>
+                                                    <IconButton size="small" onClick={() => handleDecreaseQuantity(item.productId)} disabled={item.quantity <= 1}>
                                                         <Remove fontSize="small" />
                                                     </IconButton>
                                                     <Typography sx={{ px: 2, minWidth: 30, textAlign: 'center' }}>{item.quantity}</Typography>
-                                                    <IconButton size="small" onClick={() => handleIncreaseQuantity(item.product.id)}>
+                                                    <IconButton size="small" onClick={() => handleIncreaseQuantity(item.productId)}>
                                                         <Add fontSize="small" />
                                                     </IconButton>
                                                 </Box>
@@ -309,7 +412,7 @@ const AddToCart: React.FC = () => {
                                                 <Box sx={{ display: 'flex', justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: 'center' }}>
                                                     <Typography variant="body2" sx={{ display: { xs: 'block', md: 'none' } }} color="text.secondary">Subtotal:</Typography>
                                                     <Typography variant="subtitle1" fontWeight={600} color="#832729">
-                                                        ₹{item.product.price * item.quantity}
+                                                        ₹{item.price * item.quantity}
                                                     </Typography>
                                                 </Box>
                                             </Grid>
@@ -343,7 +446,7 @@ const AddToCart: React.FC = () => {
                                     variant="contained"
                                     color='secondary'
                                     size="large"
-                                    onClick={handleCheckout}
+                                    onClick={handleOpenCheckoutModal}
                                     sx={{
                                         py: 1.5,
                                         textTransform: 'none',
@@ -407,6 +510,25 @@ const AddToCart: React.FC = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Checkout Modals */}
+            <CheckoutModals
+                checkoutModalOpen={checkoutModalOpen}
+                onCloseCheckout={() => setCheckoutModalOpen(false)}
+                addresses={(userData?.addresses || []) as any}
+                selectedAddress={selectedAddress}
+                onSelectAddress={setSelectedAddress}
+                onOpenAddAddress={() => setAddAddressModalOpen(true)}
+                onPlaceOrder={handlePlaceOrder}
+                addAddressModalOpen={addAddressModalOpen}
+                onCloseAddAddress={() => setAddAddressModalOpen(false)}
+                newAddress={newAddress}
+                onAddressChange={(field, value) => setNewAddress({ ...newAddress, [field]: value })}
+                onSaveAddress={handleAddNewAddress}
+                successModalOpen={successModalOpen}
+                onCloseSuccess={() => setSuccessModalOpen(false)}
+                onViewOrders={() => navigate('/orders')}
+            />
         </Box>
     );
 };
