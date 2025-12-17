@@ -1,66 +1,69 @@
-import { Box } from "@mui/material";
+import { Box, useMediaQuery, useTheme, Skeleton } from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import { useEffect, useState } from "react";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { db } from "../../firebase/firebase";
 
-// Import images
-import image1 from "../../assets/image1.png";
-import image2 from "../../assets/image2.png";
-import image3 from "../../assets/image3.png";
-
-const slides = [
-  {
-    id: 1,
-    image: image1,
-    title: "Timeless Elegance",
-    description: "Discover our latest collection of exquisite designs.",
-    cta: "Explore Now"
-  },
-  {
-    id: 2,
-    image: image2,
-    title: "Modern Artistry",
-    description: "Crafted for the contemporary soul.",
-    cta: "Shop Collection"
-  },
-  {
-    id: 3,
-    image: image3,
-    title: "Royal Heritage",
-    description: "Experience the grandeur of tradition.",
-    cta: "View Designs"
-  },
-  // Duplicating slides to ensure smooth loop with centeredSlides and slidesPerView="auto"
-  {
-    id: 4,
-    image: image1,
-    title: "Timeless Elegance",
-    description: "Discover our latest collection of exquisite designs.",
-    cta: "Explore Now"
-  },
-  {
-    id: 5,
-    image: image2,
-    title: "Modern Artistry",
-    description: "Crafted for the contemporary soul.",
-    cta: "Shop Collection"
-  },
-  {
-    id: 6,
-    image: image3,
-    title: "Royal Heritage",
-    description: "Experience the grandeur of tradition.",
-    cta: "View Designs"
-  },
-];
+interface Banner {
+  id: string;
+  title: string;
+  desktopImageUrl: string;
+  mobileImageUrl: string;
+  createdAt: number;
+}
 
 const HomeSlider = () => {
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const q = query(collection(db, 'banners'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const bannerList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Banner[];
+        setBanners(bannerList);
+      } catch (error) {
+        console.error("Error fetching banners: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ width: "100%", height: { xs: "600px", md: "600px" }, p: 2 }}>
+        <Skeleton variant="rectangular" width="100%" height="100%" sx={{ borderRadius: "12px" }} />
+      </Box>
+    );
+  }
+
+  if (banners.length === 0) {
+    return null;
+  }
+
+  // Duplicate banners if there are few to ensure smooth loop
+  const displayBanners = [...banners];
+  while (displayBanners.length > 0 && displayBanners.length < 6) {
+    displayBanners.push(...banners);
+  }
+
   return (
     <Box
       sx={{
         width: "100%",
-        height: { xs: "500px", md: "500px" },
+        height: { xs: "600px", md: "600px" },
         position: "relative",
         bgcolor: "#fff", // White background as seen in screenshot gaps
         py: 2,
@@ -102,7 +105,7 @@ const HomeSlider = () => {
         spaceBetween={20}
         slidesPerView={"auto"}
         centeredSlides={true}
-        loop={true}
+        loop={displayBanners.length > 1}
         autoplay={{
           delay: 3000,
           disableOnInteraction: false,
@@ -111,8 +114,8 @@ const HomeSlider = () => {
           clickable: true,
         }}
       >
-        {slides.map((slide) => (
-          <SwiperSlide key={slide.id}>
+        {displayBanners.map((banner, index) => (
+          <SwiperSlide key={`${banner.id}-${index}`}>
             <Box
               sx={{
                 position: "relative",
@@ -123,24 +126,12 @@ const HomeSlider = () => {
               {/* Background Image */}
               <Box
                 component="img"
-                src={slide.image}
-                alt={slide.title}
+                src={isMobile ? banner.mobileImageUrl : banner.desktopImageUrl}
+                alt={banner.title}
                 sx={{
                   width: "100%",
                   height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-
-              {/* Gradient Overlay for Text Readability */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  background: "linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 60%)",
+                  objectFit: "fill",
                 }}
               />
 
