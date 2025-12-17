@@ -28,9 +28,11 @@ import SelectedCategory from './Pages/User/SelectedCategory/SelectedCategory';
 import LoginPage from './Pages/LoginPage/LoginPage';
 
 // Admin Pages
-import AdminDashboard from './Pages/Admin/AdminDashboard';
 import AdminProducts from './Pages/Admin/AdminProducts';
 import AdminCategories from './Pages/Admin/AdminCategories';
+import AdminOrders from './Pages/Admin/AdminOrders';
+import AdminUsers from './Pages/Admin/AdminUsers';
+import AdminBanner from './Pages/Admin/AdminBanner';
 
 const App: React.FC = () => {
   return (
@@ -84,10 +86,12 @@ const App: React.FC = () => {
 
               {/* ---------------- ADMIN ROUTES ---------------- */}
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Navigate to="dashboard" replace />} />
-                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route index element={<Navigate to="products" replace />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="categories" element={<AdminCategories />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="banner" element={<AdminBanner />} />
               </Route>
 
             </Routes>

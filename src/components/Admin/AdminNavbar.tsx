@@ -12,7 +12,7 @@ const AdminNavbar: React.FC = () => {
     };
 
     return (
-        <AppBar position="static" sx={{ bgcolor: '#1a1a1a', mb: 4 }}>
+        <AppBar position="static" color="default" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', mb: 4 }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <Typography
@@ -21,10 +21,10 @@ const AdminNavbar: React.FC = () => {
                         component="div"
                         sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 2 }}
                     >
-                        <Box component="span" sx={{ fontWeight: 'bold', color: '#fff' }}>
+                        <Box component="span" sx={{ fontWeight: 'bold', color: 'primary.main', fontFamily: 'Playfair Display, serif', fontSize: '1.5rem' }}>
                             JEWELRY SHOP
                         </Box>
-                        <Box component="span" sx={{ bgcolor: '#832729', px: 1, py: 0.5, borderRadius: 1, fontSize: '0.75rem' }}>
+                        <Box component="span" sx={{ bgcolor: 'primary.main', color: 'white', px: 1, py: 0.5, borderRadius: 1, fontSize: '0.75rem', fontWeight: 600 }}>
                             ADMIN
                         </Box>
                     </Typography>
@@ -34,16 +34,15 @@ const AdminNavbar: React.FC = () => {
                             component={RouterLink}
                             to="/"
                             startIcon={<Home />}
-                            sx={{ color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}
+                            sx={{ color: 'text.primary' }}
                         >
                             View Site
                         </Button>
                         <Button
                             onClick={handleLogout}
                             startIcon={<ExitToApp />}
-                            color="error"
-                            variant="contained"
-                            sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+                            color="primary"
+                            variant="outlined"
                         >
                             Logout
                         </Button>

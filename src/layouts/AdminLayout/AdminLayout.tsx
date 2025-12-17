@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Box, Container, Tab, Tabs, Paper } from '@mui/material';
 import AdminNavbar from '../../components/Admin/AdminNavbar';
-import { Inventory, Dashboard, ShoppingCart, People, Category } from '@mui/icons-material';
+import { Inventory, ShoppingCart, People, Category, ViewCarousel } from '@mui/icons-material';
 
 const AdminLayout: React.FC = () => {
     const location = useLocation();
@@ -13,15 +13,15 @@ const AdminLayout: React.FC = () => {
     useEffect(() => {
         const path = location.pathname;
         if (path.includes('/admin/products')) {
-            setValue(1);
+            setValue(0);
         } else if (path.includes('/admin/categories')) {
-            setValue(2);
+            setValue(1);
         } else if (path.includes('/admin/orders')) {
-            setValue(3);
+            setValue(2);
         } else if (path.includes('/admin/users')) {
+            setValue(3);
+        } else if (path.includes('/admin/banner')) {
             setValue(4);
-        } else {
-            setValue(0); // Dashboard
         }
     }, [location]);
 
@@ -29,19 +29,19 @@ const AdminLayout: React.FC = () => {
         setValue(newValue);
         switch (newValue) {
             case 0:
-                navigate('/admin/dashboard');
-                break;
-            case 1:
                 navigate('/admin/products');
                 break;
-            case 2:
+            case 1:
                 navigate('/admin/categories');
                 break;
-            case 3:
+            case 2:
                 navigate('/admin/orders');
                 break;
-            case 4:
+            case 3:
                 navigate('/admin/users');
+                break;
+            case 4:
+                navigate('/admin/banner');
                 break;
             default:
                 break;
@@ -49,10 +49,10 @@ const AdminLayout: React.FC = () => {
     };
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
             <AdminNavbar />
             <Container maxWidth="xl">
-                <Paper sx={{ mb: 3 }}>
+                <Paper sx={{ mb: 3, borderRadius: 0, borderBottom: 1, borderColor: 'divider' }} elevation={0}>
                     <Tabs
                         value={value}
                         onChange={handleChange}
@@ -65,20 +65,15 @@ const AdminLayout: React.FC = () => {
                                 minHeight: 64,
                                 textTransform: 'none',
                                 fontSize: '1rem',
+                                fontWeight: 500,
                             },
-                            '& .Mui-selected': {
-                                color: '#832729 !important',
-                            },
-                            '& .MuiTabs-indicator': {
-                                backgroundColor: '#832729',
-                            }
                         }}
                     >
-                        <Tab icon={<Dashboard />} iconPosition="start" label="Dashboard" />
                         <Tab icon={<Inventory />} iconPosition="start" label="Products" />
                         <Tab icon={<Category />} iconPosition="start" label="Categories" />
                         <Tab icon={<ShoppingCart />} iconPosition="start" label="Orders" />
                         <Tab icon={<People />} iconPosition="start" label="Users" />
+                        <Tab icon={<ViewCarousel />} iconPosition="start" label="Banner" />
                     </Tabs>
                 </Paper>
 

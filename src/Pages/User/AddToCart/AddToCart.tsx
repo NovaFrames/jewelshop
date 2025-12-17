@@ -1,5 +1,5 @@
 // src/Pages/AddToCart/AddToCart.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Container,
@@ -9,6 +9,14 @@ import {
     Button,
     Divider,
     Paper,
+    CircularProgress,
+    Snackbar,
+    Alert,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    DialogContentText,
 } from '@mui/material';
 import {
     Delete,
@@ -18,20 +26,139 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../../contexts/CartContext';
+import { useAuth } from '../../../contexts/AuthContext';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { db } from '../../../firebase/firebase';
 
 const AddToCart: React.FC = () => {
     const navigate = useNavigate();
     const { state, dispatch } = useCart();
+    const { currentUser } = useAuth();
+    const [loading, setLoading] = useState(true);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-    const handleRemoveItem = (productId: string) => {
+    // Load cart from Firestore on mount
+    useEffect(() => {
+        const loadCartFromFirestore = async () => {
+            if (!currentUser) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const cartRef = doc(db, 'cart', currentUser.uid);
+                const cartDoc = await getDoc(cartRef);
+
+                if (cartDoc.exists()) {
+                    const cartData = cartDoc.data();
+                    const firestoreItems = cartData.items || [];
+
+                    // Clear local cart and load from Firestore
+                    dispatch({ type: 'CLEAR_CART' });
+
+                    // Add each item to local cart
+                    firestoreItems.forEach((item: any) => {
+                        dispatch({
+                            type: 'ADD_ITEM',
+                            payload: {
+                                product: {
+                                    id: item.productId,
+                                    name: item.name,
+                                    price: item.price,
+                                    image: item.image,
+                                    category: item.category,
+                                    material: item.material,
+                                } as any,
+                                quantity: item.quantity
+                            }
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading cart from Firestore:', error);
+                setSnackbar({ open: true, message: 'Failed to load cart', severity: 'error' });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadCartFromFirestore();
+    }, [currentUser]);
+
+    // Sync cart to Firestore whenever it changes (after initial load)
+    useEffect(() => {
+        // Skip sync during initial load
+        if (loading) return;
+
+        // Skip if not logged in
+        if (!currentUser) return;
+
+        // Sync to Firestore
+        const syncToFirestore = async () => {
+            try {
+                const cartRef = doc(db, 'cart', currentUser.uid);
+                const firestoreItems = state.items.map(item => ({
+                    productId: item.product.id,
+                    name: item.product.name,
+                    price: item.product.price,
+                    image: (item.product as any).image || '',
+                    quantity: item.quantity,
+                    category: item.product.category,
+                    material: item.product.material,
+                    addedAt: new Date().toISOString()
+                }));
+
+                if (firestoreItems.length > 0) {
+                    await setDoc(cartRef, {
+                        userId: currentUser.uid,
+                        items: firestoreItems,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                } else {
+                    // If cart is empty, update with empty items array
+                    await updateDoc(cartRef, {
+                        items: [],
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('Error syncing cart to Firestore:', error);
+            }
+        };
+
+        syncToFirestore();
+    }, [state.items, currentUser, loading]);
+
+    const handleRemoveItem = async (productId: string) => {
+        // Close the confirmation modal
+        setDeleteConfirmOpen(false);
+        setItemToDelete(null);
+
+        // Remove from local cart (useEffect will sync to Firestore)
         dispatch({ type: 'REMOVE_ITEM', payload: productId });
+
+        setSnackbar({ open: true, message: 'Item removed from cart', severity: 'success' });
     };
 
-    const handleIncreaseQuantity = (productId: string) => {
+    const handleDeleteClick = (productId: string) => {
+        setItemToDelete(productId);
+        setDeleteConfirmOpen(true);
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteConfirmOpen(false);
+        setItemToDelete(null);
+    };
+
+    const handleIncreaseQuantity = async (productId: string) => {
+        // Update local cart (useEffect will sync to Firestore)
         dispatch({ type: 'INCREASE_QUANTITY', payload: productId });
     };
 
-    const handleDecreaseQuantity = (productId: string) => {
+    const handleDecreaseQuantity = async (productId: string) => {
+        // Update local cart (useEffect will sync to Firestore)
         dispatch({ type: 'DECREASE_QUANTITY', payload: productId });
     };
 
@@ -42,6 +169,15 @@ const AddToCart: React.FC = () => {
     const totalAmount = state.items.reduce((sum, item) => {
         return sum + (item.product.price * item.quantity);
     }, 0);
+
+    // Show loading state
+    if (loading) {
+        return (
+            <Container maxWidth="lg" sx={{ py: 8, minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <CircularProgress />
+            </Container>
+        );
+    }
 
     // Empty cart state
     if (state.items.length === 0) {
@@ -71,7 +207,7 @@ const AddToCart: React.FC = () => {
                         variant="contained"
                         color='secondary'
                         size="large"
-                        onClick={() => navigate('/shop')}
+                        onClick={() => navigate('/all-jewellery')}
                         sx={{
                             px: 5,
                             py: 1.5,
@@ -126,7 +262,7 @@ const AddToCart: React.FC = () => {
                                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                                                     <IconButton
                                                         size="small"
-                                                        onClick={() => handleRemoveItem(item.product.id)}
+                                                        onClick={() => handleDeleteClick(item.product.id)}
                                                         sx={{ color: '#999', '&:hover': { color: '#d32f2f' } }}
                                                     >
                                                         <Delete fontSize="small" />
@@ -221,6 +357,56 @@ const AddToCart: React.FC = () => {
                     </Grid>
                 </Grid>
             </Container>
+
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteConfirmOpen}
+                onClose={handleCancelDelete}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle sx={{ fontFamily: 'Playfair Display, serif', fontWeight: 600 }}>
+                    Remove Item from Cart?
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to remove this item from your cart? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button
+                        onClick={handleCancelDelete}
+                        variant="outlined"
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={() => itemToDelete && handleRemoveItem(itemToDelete)}
+                        variant="contained"
+                        color="error"
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

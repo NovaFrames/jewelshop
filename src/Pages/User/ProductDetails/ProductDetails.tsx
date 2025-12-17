@@ -16,10 +16,11 @@ import {
     Stack,
     Tabs,
     Tab,
-    TextField
+    TextField,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import {
-    FavoriteBorder as FavoriteIcon,
     Facebook,
     Twitter,
     Instagram,
@@ -29,6 +30,9 @@ import {
 } from '@mui/icons-material';
 import { products } from '../Products/Products';
 import { useCart } from '../../../contexts/CartContext';
+import { useAuth } from '../../../contexts/AuthContext';
+import { doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { db } from '../../../firebase/firebase';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -60,9 +64,11 @@ const ProductDetails: React.FC = () => {
     const { productId } = useParams<{ productId: string }>();
     const navigate = useNavigate();
     const { dispatch } = useCart();
+    const { currentUser } = useAuth();
     const [selectedImage, setSelectedImage] = useState(0);
     const [tabValue, setTabValue] = useState(0);
     const [quantity, setQuantity] = useState(1);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
     // Find the product by ID
     const product = products.find(p => p.id === productId);
@@ -89,15 +95,64 @@ const ProductDetails: React.FC = () => {
         ? product.images
         : [product.image, product.image, product.image, product.image];
 
-    const handleAddToCart = () => {
-        dispatch({
-            type: 'ADD_ITEM',
-            payload: {
-                product: product,
-                quantity: quantity
+    const handleAddToCart = async () => {
+        try {
+            // Add to local cart context
+            dispatch({
+                type: 'ADD_ITEM',
+                payload: {
+                    product: product,
+                    quantity: quantity
+                }
+            });
+
+            // If user is logged in, save to Firestore
+            if (currentUser) {
+                const cartRef = doc(db, 'cart', currentUser.uid);
+                const cartDoc = await getDoc(cartRef);
+
+                const cartItem = {
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image,
+                    quantity: quantity,
+                    category: product.category,
+                    material: product.material,
+                    addedAt: new Date().toISOString()
+                };
+
+                if (cartDoc.exists()) {
+                    // Update existing cart
+                    const existingItems = cartDoc.data().items || [];
+                    const existingItemIndex = existingItems.findIndex((item: any) => item.productId === product.id);
+
+                    if (existingItemIndex > -1) {
+                        // Update quantity of existing item
+                        existingItems[existingItemIndex].quantity += quantity;
+                        await updateDoc(cartRef, { items: existingItems });
+                    } else {
+                        // Add new item to cart
+                        await updateDoc(cartRef, {
+                            items: arrayUnion(cartItem)
+                        });
+                    }
+                } else {
+                    // Create new cart document
+                    await setDoc(cartRef, {
+                        userId: currentUser.uid,
+                        items: [cartItem],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+                }
             }
-        });
-        // Optionally show snackbar
+
+            setSnackbar({ open: true, message: 'Product added to cart successfully!', severity: 'success' });
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            setSnackbar({ open: true, message: 'Failed to add product to cart', severity: 'error' });
+        }
     };
 
     const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -263,9 +318,6 @@ const ProductDetails: React.FC = () => {
                                 >
                                     Add to Cart
                                 </Button>
-                                <IconButton sx={{ border: '1px solid #ddd', borderRadius: 0 }}>
-                                    <FavoriteIcon />
-                                </IconButton>
                             </Box>
 
                             <Divider sx={{ mb: 3 }} />
@@ -381,6 +433,22 @@ const ProductDetails: React.FC = () => {
                     </Grid>
                 </Grid>
             </Container>
+
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
