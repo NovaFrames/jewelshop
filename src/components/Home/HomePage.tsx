@@ -172,7 +172,7 @@ const HomePage: React.FC = () => {
                 <Button
                   variant="contained"
                   color='secondary'
-                  onClick={() => navigate("/shop")}
+                  onClick={() => navigate("/all-jewellery")}
                 >
                   Shop Now
                 </Button>
@@ -232,7 +232,7 @@ const HomePage: React.FC = () => {
                 <Button
                   variant="contained"
                   color='secondary'
-                  onClick={() => navigate("/shop")}
+                  onClick={() => navigate("/all-jewellery")}
                 >
                   Shop Now
                 </Button>

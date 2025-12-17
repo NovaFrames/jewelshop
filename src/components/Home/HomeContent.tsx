@@ -60,7 +60,7 @@ export default function HomeContent() {
                             py: 1.5,
                             fontWeight: 600,
                         }}
-                        onClick={() => navigate("/shop")}
+                        onClick={() => navigate("/all-jewellery")}
                     >
                         Shop Now
                     </Button>
@@ -382,7 +382,7 @@ export default function HomeContent() {
                                 The Perfect Bracelets
                             </Typography>
                             <Button variant="contained"
-                                color='secondary' onClick={() => navigate("/shop")}>Shop Now</Button>
+                                color='secondary' onClick={() => navigate("/all-jewellery")}>Shop Now</Button>
                         </Box>
                     </Box>
                 </Grid>
@@ -424,7 +424,7 @@ export default function HomeContent() {
                                         Ring Collection
                                     </Typography>
                                     <Button variant="contained"
-                                        color='secondary' onClick={() => navigate("/shop")}>Shop Now</Button>
+                                        color='secondary' onClick={() => navigate("/all-jewellery")}>Shop Now</Button>
                                 </Box>
                             </Box>
                         </Grid>
@@ -455,7 +455,7 @@ export default function HomeContent() {
                                         Gold collection
                                     </Typography>
                                     <Button variant="contained"
-                                        color='secondary' onClick={() => navigate("/shop")}>Shop Now</Button>
+                                        color='secondary' onClick={() => navigate("/all-jewellery")}>Shop Now</Button>
                                 </Box>
                             </Box>
                         </Grid>
@@ -553,7 +553,7 @@ export default function HomeContent() {
                             py: 1.5,
                             fontWeight: 600,
                         }}
-                        onClick={() => navigate("/shop")}
+                        onClick={() => navigate("/all-jewellery")}
                     >
                         Shop Now
                     </Button>
@@ -601,7 +601,7 @@ export default function HomeContent() {
                             <Button
                                 variant="contained"
                                 color='secondary'
-                                onClick={() => navigate("/shop")}
+                                onClick={() => navigate("/all-jewellery")}
                             >
                                 Shop Now
                             </Button>
