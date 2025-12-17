@@ -87,17 +87,8 @@ const AddToCart: React.FC = () => {
     }
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                overflowX: 'hidden',
-                overflowY: 'visible', // ✅ allow page scroll
-                bgcolor: '#fff',
-                py: 6
-            }}
-        >
+        <Box sx={{ py: 6 }}>
             <Container maxWidth="xl">
-
                 <Typography
                     variant="h3"
                     sx={{
@@ -110,7 +101,7 @@ const AddToCart: React.FC = () => {
                     Shopping Cart
                 </Typography>
 
-                <Grid container spacing={4} alignItems="flex-start">
+                <Grid container spacing={4}>
                     {/* Cart Items Section */}
                     <Grid size={{ xs: 12, md: 8 }}>
                         <Paper elevation={0} sx={{ border: '1px solid #eee', }}>
@@ -194,47 +185,39 @@ const AddToCart: React.FC = () => {
                     </Grid>
 
                     {/* Cart Totals */}
-                    <Grid
-                        size={{ xs: 12, md: 4 }}
-                        sx={{
-                            position: 'sticky',
-                            top: 96,
-                            alignSelf: 'flex-start',
-                            willChange: 'transform',   // 👈 key
-                            transform: 'translateZ(0)' // 👈 breaks ancestor transform chain
-                        }}
-                    >
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <Box sx={{ position: 'sticky', top: 180 }}>
+                            <Paper elevation={0} sx={{ p: 3, border: '1px solid #eee', bgcolor: '#fcfcfc' }}>
+                                <Typography variant="h5" sx={{ mb: 3, fontFamily: 'Playfair Display, serif' }}>Cart Totals</Typography>
 
-                        <Paper elevation={0} sx={{ p: 3, border: '1px solid #eee', bgcolor: '#fcfcfc' }}>
-                            <Typography variant="h5" sx={{ mb: 3, fontFamily: 'Playfair Display, serif' }}>Cart Totals</Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                                    <Typography>Subtotal</Typography>
+                                    <Typography fontWeight={600}>₹{totalAmount}</Typography>
+                                </Box>
 
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                                <Typography>Subtotal</Typography>
-                                <Typography fontWeight={600}>₹{totalAmount}</Typography>
-                            </Box>
+                                <Divider sx={{ mb: 2 }} />
 
-                            <Divider sx={{ mb: 2 }} />
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                                    <Typography variant="h6">Total</Typography>
+                                    <Typography variant="h6" color="#832729">₹{totalAmount}</Typography>
+                                </Box>
 
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-                                <Typography variant="h6">Total</Typography>
-                                <Typography variant="h6" color="#832729">₹{totalAmount}</Typography>
-                            </Box>
-
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                color='secondary'
-                                size="large"
-                                onClick={handleCheckout}
-                                sx={{
-                                    py: 1.5,
-                                    textTransform: 'none',
-                                    fontSize: '1.1rem'
-                                }}
-                            >
-                                Proceed to Checkout
-                            </Button>
-                        </Paper>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color='secondary'
+                                    size="large"
+                                    onClick={handleCheckout}
+                                    sx={{
+                                        py: 1.5,
+                                        textTransform: 'none',
+                                        fontSize: '1.1rem'
+                                    }}
+                                >
+                                    Proceed to Checkout
+                                </Button>
+                            </Paper>
+                        </Box>
                     </Grid>
                 </Grid>
             </Container>

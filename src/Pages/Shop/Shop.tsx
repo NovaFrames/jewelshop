@@ -20,13 +20,10 @@ import {
     Checkbox,
     Stack,
     Button,
-    TextField,
-    InputAdornment
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
     ExpandMore as ExpandMoreIcon,
-    Search as SearchIcon,
     ShoppingCartOutlined as CartIcon
 } from '@mui/icons-material';
 import { products, categories } from '../Products/Products';
@@ -35,7 +32,6 @@ const Shop: React.FC = () => {
     const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState<string>('Our Store');
     const [sortBy, setSortBy] = useState<string>('default');
-    const [searchTerm, setSearchTerm] = useState<string>('');
 
     // Filter products by category and search
     const filteredProducts = selectedCategory === 'Our Store'
@@ -72,23 +68,8 @@ const Shop: React.FC = () => {
                 <Grid container spacing={4}>
                     {/* Sidebar - Filters */}
                     <Grid size={{ xs: 12, md: 3 }}>
-                        <Box sx={{ position: 'sticky', top: 80 }}>
-                            {/* Search Bar */}
-                            <TextField
-                                fullWidth
-                                placeholder="Search products..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon color="action" />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{ mb: 3, bgcolor: 'white' }}
-                                size="small"
-                            />
+                        <Box sx={{ position: 'sticky', top: 180 }}>
+
 
                             {/* Categories Filter */}
                             <Accordion
