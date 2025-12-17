@@ -15,15 +15,16 @@ import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 
 import { CartProvider } from './contexts/CartContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 // Pages
 import Home from './Pages/Home/Home';
 import Shop from './Pages/Shop/Shop';
 import AddToCart from './Pages/AddToCart/AddToCart';
 import ProductDetails from './Pages/ProductDetails/ProductDetails';
-import ContactPage from './Pages/ContactPage/ContactPage';
 import Account from './Pages/Account/Account';
 import SelectedCategory from './Pages/SelectedCategory/SelectedCategory';
+import LoginPage from './Pages/LoginPage/LoginPage';
 
 // Admin
 import AdminLayout from './Pages/Admin/AdminLayout';
@@ -40,98 +41,100 @@ const AboutPage: React.FC = () => (
 
 const App: React.FC = () => {
   return (
-    <CartProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+    <AuthProvider>
+      <CartProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
 
-        <Router>
-          {/* ROOT WRAPPER — NO overflow / NO transform */}
-          <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <Router>
+            {/* ROOT WRAPPER — NO overflow / NO transform */}
+            <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-            {/* 🔥 NAVBAR — OUTSIDE ROUTES (IMPORTANT) */}
-            <Navbar />
+              {/* 🔥 NAVBAR — OUTSIDE ROUTES (IMPORTANT) */}
+              <Navbar />
 
-            {/* MAIN CONTENT — PAGE SCROLLS HERE */}
-            <Box component="main" sx={{ flexGrow: 1 }}>
-              <Routes>
+              {/* MAIN CONTENT — PAGE SCROLLS HERE */}
+              <Box component="main" sx={{ flexGrow: 1 }}>
+                <Routes>
 
-                {/* Admin Routes */}
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<AdminDashboard />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route
-                    path="orders"
-                    element={
-                      <Box sx={{ p: 3 }}>
-                        <Typography variant="h4">
-                          Orders Management (Coming Soon)
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <Route
-                    path="users"
-                    element={
-                      <Box sx={{ p: 3 }}>
-                        <Typography variant="h4">
-                          User Management (Coming Soon)
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </Route>
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route
+                      path="orders"
+                      element={
+                        <Box sx={{ p: 3 }}>
+                          <Typography variant="h4">
+                            Orders Management (Coming Soon)
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <Route
+                      path="users"
+                      element={
+                        <Box sx={{ p: 3 }}>
+                          <Typography variant="h4">
+                            User Management (Coming Soon)
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </Route>
 
-                {/* Public Routes */}
-                <Route path="/" element={<Home />} />
-                <Route path="/all-jewellery" element={<Shop />} />
-                <Route path="/product/:productId" element={<ProductDetails />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/cart" element={<AddToCart />} />
-                <Route path="/account" element={<Account />} />
+                  {/* Public Routes */}
+                  <Route path="/" element={<Home />} />
+                  <Route path="/all-jewellery" element={<Shop />} />
+                  <Route path="/product/:productId" element={<ProductDetails />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/cart" element={<AddToCart />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/login" element={<LoginPage />} />
 
-                {/* Category Routes */}
-                <Route path="/earrings" element={<SelectedCategory />} />
-                <Route path="/pendants" element={<SelectedCategory />} />
-                <Route path="/rings" element={<SelectedCategory />} />
-                <Route path="/chains" element={<SelectedCategory />} />
-                <Route path="/nose-pin" element={<SelectedCategory />} />
-                <Route path="/necklaces" element={<SelectedCategory />} />
-                <Route path="/bangles" element={<SelectedCategory />} />
-                <Route path="/bracelets" element={<SelectedCategory />} />
+                  {/* Category Routes */}
+                  <Route path="/earrings" element={<SelectedCategory />} />
+                  <Route path="/pendants" element={<SelectedCategory />} />
+                  <Route path="/rings" element={<SelectedCategory />} />
+                  <Route path="/chains" element={<SelectedCategory />} />
+                  <Route path="/nose-pin" element={<SelectedCategory />} />
+                  <Route path="/necklaces" element={<SelectedCategory />} />
+                  <Route path="/bangles" element={<SelectedCategory />} />
+                  <Route path="/bracelets" element={<SelectedCategory />} />
 
-                {/* Gold */}
-                <Route path="/gold/all" element={<SelectedCategory />} />
-                <Route path="/gold/bangles" element={<SelectedCategory />} />
-                <Route path="/gold/bracelets" element={<SelectedCategory />} />
-                <Route path="/gold/earrings" element={<SelectedCategory />} />
-                <Route path="/gold/chains" element={<SelectedCategory />} />
-                <Route path="/gold/rings" element={<SelectedCategory />} />
-                <Route path="/gold/necklaces" element={<SelectedCategory />} />
-                <Route path="/gold/nose-pins" element={<SelectedCategory />} />
+                  {/* Gold */}
+                  <Route path="/gold/all" element={<SelectedCategory />} />
+                  <Route path="/gold/bangles" element={<SelectedCategory />} />
+                  <Route path="/gold/bracelets" element={<SelectedCategory />} />
+                  <Route path="/gold/earrings" element={<SelectedCategory />} />
+                  <Route path="/gold/chains" element={<SelectedCategory />} />
+                  <Route path="/gold/rings" element={<SelectedCategory />} />
+                  <Route path="/gold/necklaces" element={<SelectedCategory />} />
+                  <Route path="/gold/nose-pins" element={<SelectedCategory />} />
 
-                {/* Diamond */}
-                <Route path="/diamond/all" element={<SelectedCategory />} />
-                <Route path="/diamond/bangles" element={<SelectedCategory />} />
-                <Route path="/diamond/bracelets" element={<SelectedCategory />} />
-                <Route path="/diamond/earrings" element={<SelectedCategory />} />
-                <Route path="/diamond/chains" element={<SelectedCategory />} />
-                <Route path="/diamond/rings" element={<SelectedCategory />} />
-                <Route path="/diamond/necklaces" element={<SelectedCategory />} />
-                <Route path="/diamond/nose-pins" element={<SelectedCategory />} />
+                  {/* Diamond */}
+                  <Route path="/diamond/all" element={<SelectedCategory />} />
+                  <Route path="/diamond/bangles" element={<SelectedCategory />} />
+                  <Route path="/diamond/bracelets" element={<SelectedCategory />} />
+                  <Route path="/diamond/earrings" element={<SelectedCategory />} />
+                  <Route path="/diamond/chains" element={<SelectedCategory />} />
+                  <Route path="/diamond/rings" element={<SelectedCategory />} />
+                  <Route path="/diamond/necklaces" element={<SelectedCategory />} />
+                  <Route path="/diamond/nose-pins" element={<SelectedCategory />} />
 
-              </Routes>
+                </Routes>
+              </Box>
+
+              {/* FOOTER */}
+              <Footer />
+
             </Box>
-
-            {/* FOOTER */}
-            <Footer />
-
-          </Box>
-        </Router>
-      </ThemeProvider>
-    </CartProvider>
+          </Router>
+        </ThemeProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 };
 

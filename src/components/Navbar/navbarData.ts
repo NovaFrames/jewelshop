@@ -126,7 +126,7 @@ export const navItems: NavItem[] = [
     { name: 'Rings', path: '/rings' },
     { name: 'Bracelets', path: '/bracelets' },
     { name: 'Necklaces', path: '/necklaces' },
-    { name: 'Nose Pins', path: '/nose-pins' },
+    { name: 'Nose Pins', path: '/nose-pin' },
     { name: 'Bangles', path: '/bangles' },
 
 

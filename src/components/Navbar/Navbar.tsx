@@ -16,6 +16,7 @@ import {
   Collapse,
   ListItemButton,
   ListItemText,
+  Avatar,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -38,6 +39,8 @@ import { navItems, type NavItem } from "./navbarData";
 import MegaMenu from "./MegaMenu";
 import { useCart } from "../../contexts/CartContext";
 import { useScrollDirection } from "./useScrollDirection";
+import { useAuth } from "../../contexts/AuthContext";
+import LoginModal from "../Auth/LoginModal";
 
 /* -------------------- Mobile Nav Item -------------------- */
 const MobileNavItem = ({
@@ -108,7 +111,9 @@ const MobileNavItem = ({
 const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const { cartCount } = useCart();
+  const { currentUser, userData } = useAuth();
   const scrollDir = useScrollDirection();
   const [isAtTop, setIsAtTop] = useState(true);
   const timeoutRef = useRef<number | null>(null);
@@ -130,6 +135,16 @@ const Navbar: React.FC = () => {
     timeoutRef.current = window.setTimeout(() => {
       setHoveredItem(null);
     }, 120);
+  };
+
+  const handleProfileClick = () => {
+    if (currentUser) {
+      // Navigate to account if logged in
+      window.location.href = '/account';
+    } else {
+      // Open login modal if not logged in
+      setLoginModalOpen(true);
+    }
   };
 
   return (
@@ -240,8 +255,23 @@ const Navbar: React.FC = () => {
                   <SearchIcon />
                 </IconButton>
                 <Stack direction="row" spacing={1} sx={{ display: { xs: "none", md: "flex" } }}>
-                  <IconButton component={RouterLink} to="/account">
-                    <PersonOutline />
+                  <IconButton
+                    onClick={handleProfileClick}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                  >
+                    {currentUser && userData ? (
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Avatar
+                          src={userData.avatar}
+                          sx={{ width: 32, height: 32 }}
+                        />
+                        <Typography variant="body2" sx={{ display: { xs: 'none', lg: 'block' } }}>
+                          {userData.name}
+                        </Typography>
+                      </Stack>
+                    ) : (
+                      <PersonOutline />
+                    )}
                   </IconButton>
                   <IconButton>
                     <FavoriteBorder />
@@ -327,9 +357,28 @@ const Navbar: React.FC = () => {
         {/* Header */}
         <Box sx={{ p: 2, bgcolor: "#832729", color: "#fff" }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <PersonOutline />
-              <Typography fontWeight={600}>Login / Signup</Typography>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1, cursor: 'pointer' }}
+              onClick={() => {
+                setMobileOpen(false);
+                if (currentUser) {
+                  window.location.href = '/account';
+                } else {
+                  setLoginModalOpen(true);
+                }
+              }}
+            >
+              {currentUser && userData ? (
+                <>
+                  <Avatar src={userData.avatar} sx={{ width: 32, height: 32 }} />
+                  <Typography fontWeight={600}>{userData.name}</Typography>
+                </>
+              ) : (
+                <>
+                  <PersonOutline />
+                  <Typography fontWeight={600}>Login / Signup</Typography>
+                </>
+              )}
             </Box>
             <IconButton onClick={() => setMobileOpen(false)} sx={{ color: "#fff" }}>
               <Close />
@@ -361,6 +410,9 @@ const Navbar: React.FC = () => {
           ))}
         </List>
       </Drawer>
+
+      {/* Login Modal */}
+      <LoginModal open={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </>
   );
 };

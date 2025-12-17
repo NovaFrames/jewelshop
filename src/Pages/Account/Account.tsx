@@ -1,5 +1,5 @@
 // src/Pages/Account/Account.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Container,
@@ -30,6 +30,7 @@ import {
     FormControlLabel,
     Radio,
     Chip,
+    CircularProgress,
 } from '@mui/material';
 import {
     Home as HomeIcon,
@@ -43,53 +44,37 @@ import {
     Email,
     Person,
     CheckCircle,
+    Logout,
 } from '@mui/icons-material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
-// Mock user data - in real app, this would come from auth context/API
-const mockUser = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop',
-    createdAt: '2024-01-15',
-};
-
-// Mock addresses - in real app, this would come from API
-const mockAddresses = [
-    {
-        id: '1',
-        type: 'home',
-        name: 'Home',
-        address: '123 Main Street',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'United States',
-        isDefault: true,
-        phone: '+1 (555) 123-4567',
-    },
-    {
-        id: '2',
-        type: 'office',
-        name: 'Office',
-        address: '456 Business Ave',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10002',
-        country: 'United States',
-        isDefault: false,
-        phone: '+1 (555) 987-6543',
-    },
-];
-
-type Address = typeof mockAddresses[0];
+interface Address {
+    id: string;
+    type: string;
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+    isDefault: boolean;
+    phone: string;
+}
 
 const Account: React.FC = () => {
+    const navigate = useNavigate();
+    const { currentUser, userData, updateUserData, logout } = useAuth();
+
+    // Redirect if not logged in
+    useEffect(() => {
+        if (!currentUser) {
+            navigate('/', { replace: true });
+        }
+    }, [currentUser, navigate]);
+
     // States
-    const [user, setUser] = useState(mockUser);
-    const [addresses, setAddresses] = useState<Address[]>(mockAddresses);
+    const [addresses, setAddresses] = useState<Address[]>(userData?.addresses || []);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isEditingAddress, setIsEditingAddress] = useState(false);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
@@ -97,11 +82,18 @@ const Account: React.FC = () => {
     const [showSuccess, setShowSuccess] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
 
+    // Sync addresses when userData changes
+    useEffect(() => {
+        if (userData?.addresses) {
+            setAddresses(userData.addresses);
+        }
+    }, [userData]);
+
     // Form states
     const [profileForm, setProfileForm] = useState({
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
+        name: userData?.name || '',
+        email: userData?.email || '',
+        phone: userData?.phone || '',
     });
 
     const [addressForm, setAddressForm] = useState({
@@ -119,21 +111,23 @@ const Account: React.FC = () => {
     // Profile handlers
     const handleEditProfile = () => {
         setProfileForm({
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
+            name: userData?.name || '',
+            email: userData?.email || '',
+            phone: userData?.phone || '',
         });
         setIsEditingProfile(true);
     };
 
-    const handleSaveProfile = () => {
-        setUser(prev => ({
-            ...prev,
-            ...profileForm,
-        }));
-        setIsEditingProfile(false);
-        setSuccessMessage('Profile updated successfully');
-        setShowSuccess(true);
+    const handleSaveProfile = async () => {
+        try {
+            await updateUserData(profileForm);
+            setIsEditingProfile(false);
+            setSuccessMessage('Profile updated successfully');
+            setShowSuccess(true);
+        } catch (error) {
+            setSuccessMessage('Failed to update profile');
+            setShowSuccess(true);
+        }
     };
 
     const handleCancelProfileEdit = () => {
@@ -170,28 +164,32 @@ const Account: React.FC = () => {
         setIsEditingAddress(true);
     };
 
-    const handleDeleteAddress = (addressId: string) => {
+    const handleDeleteAddress = async (addressId: string) => {
         if (addresses.find(addr => addr.id === addressId)?.isDefault && addresses.length > 1) {
             // If deleting default address, make another one default
             const otherAddress = addresses.find(addr => addr.id !== addressId);
             if (otherAddress) {
-                setAddresses(prev =>
-                    prev
-                        .filter(addr => addr.id !== addressId)
-                        .map((addr, index) => ({
-                            ...addr,
-                            isDefault: index === 0,
-                        }))
-                );
+                const updatedAddresses = addresses
+                    .filter(addr => addr.id !== addressId)
+                    .map((addr, index) => ({
+                        ...addr,
+                        isDefault: index === 0,
+                    }));
+                setAddresses(updatedAddresses);
+                await updateUserData({ addresses: updatedAddresses });
             }
         } else {
-            setAddresses(prev => prev.filter(addr => addr.id !== addressId));
+            const updatedAddresses = addresses.filter(addr => addr.id !== addressId);
+            setAddresses(updatedAddresses);
+            await updateUserData({ addresses: updatedAddresses });
         }
         setSuccessMessage('Address deleted successfully');
         setShowSuccess(true);
     };
 
-    const handleSaveAddress = () => {
+    const handleSaveAddress = async () => {
+        let updatedAddresses: Address[];
+
         if (isAddingAddress) {
             const newAddress: Address = {
                 id: Date.now().toString(),
@@ -200,19 +198,16 @@ const Account: React.FC = () => {
             };
 
             // If setting as default, unset other defaults
-            const updatedAddresses = addressForm.isDefault
+            const baseAddresses = addressForm.isDefault
                 ? addresses.map(addr => ({ ...addr, isDefault: false }))
                 : addresses;
 
-            setAddresses([...updatedAddresses, newAddress]);
+            updatedAddresses = [...baseAddresses, newAddress];
+            setAddresses(updatedAddresses);
             setIsAddingAddress(false);
         } else if (editingAddress) {
-            const updatedAddresses = addresses.map(addr => {
+            updatedAddresses = addresses.map(addr => {
                 if (addr.id === editingAddress.id) {
-                    // If setting as default, unset other defaults
-                    if (addressForm.isDefault && !addr.isDefault) {
-                        return { ...addresses.map(a => ({ ...a, isDefault: false })).find(a => a.id === editingAddress.id), ...addressForm } as Address;
-                    }
                     return { ...addr, ...addressForm };
                 }
                 // Unset other defaults if this is becoming default
@@ -225,7 +220,12 @@ const Account: React.FC = () => {
             setAddresses(updatedAddresses);
             setIsEditingAddress(false);
             setEditingAddress(null);
+        } else {
+            return;
         }
+
+        // Update Firebase
+        await updateUserData({ addresses: updatedAddresses });
 
         setAddressForm({
             type: 'home',
@@ -271,19 +271,28 @@ const Account: React.FC = () => {
         }));
     };
 
-    const handleSetDefaultAddress = (addressId: string) => {
-        setAddresses(prev =>
-            prev.map(addr => ({
-                ...addr,
-                isDefault: addr.id === addressId,
-            }))
-        );
+    const handleSetDefaultAddress = async (addressId: string) => {
+        const updatedAddresses = addresses.map(addr => ({
+            ...addr,
+            isDefault: addr.id === addressId,
+        }));
+        setAddresses(updatedAddresses);
+        await updateUserData({ addresses: updatedAddresses });
         setSuccessMessage('Default address updated');
         setShowSuccess(true);
     };
 
     const handleCloseSuccess = () => {
         setShowSuccess(false);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
     };
 
     // Get address type icon
@@ -297,6 +306,15 @@ const Account: React.FC = () => {
                 return '📍';
         }
     };
+
+    // Show loading if no user data
+    if (!userData) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 6 }}>
@@ -346,7 +364,7 @@ const Account: React.FC = () => {
                             {/* Profile Header */}
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
                                 <Avatar
-                                    src={user.avatar}
+                                    src={userData.avatar}
                                     sx={{
                                         width: 120,
                                         height: 120,
@@ -370,10 +388,10 @@ const Account: React.FC = () => {
                                     </IconButton>
                                 )}
                                 <Typography variant="h5" fontWeight={600}>
-                                    {user.name}
+                                    {userData.name}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                    Member since {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                    Member since {new Date(userData.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                                 </Typography>
                             </Box>
 
@@ -454,7 +472,7 @@ const Account: React.FC = () => {
                                             <Typography variant="caption" color="text.secondary">
                                                 Email Address
                                             </Typography>
-                                            <Typography variant="body1">{user.email}</Typography>
+                                            <Typography variant="body1">{userData.email}</Typography>
                                         </Box>
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -463,9 +481,19 @@ const Account: React.FC = () => {
                                             <Typography variant="caption" color="text.secondary">
                                                 Phone Number
                                             </Typography>
-                                            <Typography variant="body1">{user.phone}</Typography>
+                                            <Typography variant="body1">{userData.phone}</Typography>
                                         </Box>
                                     </Box>
+                                    <Divider sx={{ my: 2 }} />
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<Logout />}
+                                        onClick={handleLogout}
+                                        fullWidth
+                                    >
+                                        Logout
+                                    </Button>
                                 </Stack>
                             )}
                         </Paper>
