@@ -43,7 +43,6 @@ const AdminNavbar: React.FC = () => {
                             startIcon={<ExitToApp />}
                             color="error"
                             variant="contained"
-                            color='secondary'
                             sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
                         >
                             Logout
