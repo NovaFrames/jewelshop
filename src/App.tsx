@@ -19,12 +19,12 @@ import UserLayout from './layouts/UserLayout/UserLayout';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
 
 // Pages
-import Home from './Pages/Home/Home';
-import Shop from './Pages/Shop/Shop';
-import AddToCart from './Pages/AddToCart/AddToCart';
-import ProductDetails from './Pages/ProductDetails/ProductDetails';
-import Account from './Pages/Account/Account';
-import SelectedCategory from './Pages/SelectedCategory/SelectedCategory';
+import Home from './Pages/User/Home/Home';
+import Shop from './Pages/User/Shop/Shop';
+import AddToCart from './Pages/User/AddToCart/AddToCart';
+import ProductDetails from './Pages/User/ProductDetails/ProductDetails';
+import Account from './Pages/User/Account/Account';
+import SelectedCategory from './Pages/User/SelectedCategory/SelectedCategory';
 import LoginPage from './Pages/LoginPage/LoginPage';
 
 // Admin Pages
@@ -59,6 +59,27 @@ const App: React.FC = () => {
                 <Route path="/necklaces" element={<SelectedCategory />} />
                 <Route path="/bangles" element={<SelectedCategory />} />
                 <Route path="/bracelets" element={<SelectedCategory />} />
+
+                {/* Gold */}
+                <Route path="/gold/all" element={<SelectedCategory />} />
+                <Route path="/gold/bangles" element={<SelectedCategory />} />
+                <Route path="/gold/bracelets" element={<SelectedCategory />} />
+                <Route path="/gold/earrings" element={<SelectedCategory />} />
+                <Route path="/gold/chains" element={<SelectedCategory />} />
+                <Route path="/gold/rings" element={<SelectedCategory />} />
+                <Route path="/gold/necklaces" element={<SelectedCategory />} />
+                <Route path="/gold/nose-pins" element={<SelectedCategory />} />
+
+                {/* Diamond */}
+                <Route path="/diamond/all" element={<SelectedCategory />} />
+                <Route path="/diamond/bangles" element={<SelectedCategory />} />
+                <Route path="/diamond/bracelets" element={<SelectedCategory />} />
+                <Route path="/diamond/earrings" element={<SelectedCategory />} />
+                <Route path="/diamond/chains" element={<SelectedCategory />} />
+                <Route path="/diamond/rings" element={<SelectedCategory />} />
+                <Route path="/diamond/necklaces" element={<SelectedCategory />} />
+                <Route path="/diamond/nose-pins" element={<SelectedCategory />} />
+
               </Route>
 
               {/* ---------------- ADMIN ROUTES ---------------- */}

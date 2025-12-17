@@ -10,7 +10,7 @@ import {
     Rating,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { products } from "../../Pages/Products/Products";
+import { products } from "../../Pages/User/Products/Products";
 
 export default function HomeContent() {
 

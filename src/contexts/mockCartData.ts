@@ -1,5 +1,5 @@
 // src/contexts/mockCartData.ts
-import { products } from '../Pages/Products/Products';
+import { products } from '../Pages/User/Products/Products';
 import type { CartItem } from '../types';
 
 export const mockCartItems: CartItem[] = [

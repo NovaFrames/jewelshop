@@ -27,7 +27,7 @@ import {
     Stack
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, CloudUpload as CloudUploadIcon, Close as CloseIcon } from '@mui/icons-material';
-import { type Product } from '../Products/Products';
+import { type Product } from '../User/Products/Products';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../firebase/productService';
 import { getCategories, getMaterials, type Category, type Material } from '../../firebase/categoryService';
 import { uploadImage } from '../../firebase/uploadService';

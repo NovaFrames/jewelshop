@@ -8,7 +8,7 @@ import {
     getDoc
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { type Product } from '../Pages/Products/Products';
+import { type Product } from '../Pages/User/Products/Products';
 
 const COLLECTION_NAME = 'products';
 
