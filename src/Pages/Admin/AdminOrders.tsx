@@ -46,7 +46,6 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
         contacted: { color: 'info', icon: <ContactPhone sx={{ fontSize: 16 }} /> },
         notattended: { color: 'warning', icon: <PendingActions sx={{ fontSize: 16 }} /> },
         cancelled: { color: 'error', icon: <Cancel sx={{ fontSize: 16 }} /> },
-        delivered: { color: 'success', icon: <CheckCircle sx={{ fontSize: 16 }} /> }
     };
 
     const { color, icon } = config[status.toLowerCase()] || { color: 'default', icon: null };
@@ -261,7 +260,7 @@ const AdminOrders: React.FC = () => {
                                 <TableCell sx={{ fontWeight: 600 }}>Customer</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Total</TableCell>
                                 <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                                <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
+                                <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -292,9 +291,10 @@ const AdminOrders: React.FC = () => {
                                             <MenuItem value="delivered">Delivered</MenuItem>
                                         </Select>
                                     </TableCell>
-                                    <TableCell align="right">
+                                    <TableCell>
                                         <Button
                                             variant="outlined"
+                                            color='secondary'
                                             size="small"
                                             startIcon={<Visibility />}
                                             onClick={() => handleViewDetails(order)}

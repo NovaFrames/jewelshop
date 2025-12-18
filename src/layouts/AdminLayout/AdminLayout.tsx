@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     Box,
     Drawer,
@@ -38,6 +39,7 @@ const AdminLayout: React.FC = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [mobileOpen, setMobileOpen] = useState(false);
+    const { logout, userData } = useAuth();
 
     const menuItems = [
         { text: 'Products', icon: <Inventory />, path: '/admin/products' },
@@ -51,8 +53,13 @@ const AdminLayout: React.FC = () => {
         setMobileOpen(!mobileOpen);
     };
 
-    const handleLogout = () => {
-        navigate('/');
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/', { replace: true });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
     };
 
     const drawer = (
@@ -85,14 +92,15 @@ const AdminLayout: React.FC = () => {
                     return (
                         <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
                             <ListItemButton
-                                component={RouterLink}
-                                to={item.path}
-                                onClick={() => isMobile && setMobileOpen(false)}
+                                onClick={() => {
+                                    navigate(item.path);
+                                    if (isMobile) setMobileOpen(false);
+                                }}
                                 sx={{
                                     borderRadius: 2,
-                                    bgcolor: isActive ? 'primary.main' : 'transparent',
+                                    bgcolor: isActive ? 'secondary.main' : 'transparent',
                                     '&:hover': {
-                                        bgcolor: isActive ? 'primary.main' : 'rgba(255,255,255,0.05)',
+                                        bgcolor: isActive ? 'secondary.light' : 'rgba(255,255,255,0.05)',
                                     },
                                     transition: 'all 0.2s'
                                 }}
@@ -119,16 +127,12 @@ const AdminLayout: React.FC = () => {
             <Box sx={{ p: 2 }}>
                 <Button
                     fullWidth
-                    variant="outlined"
+                    variant="contained"
+                    color="secondary"
                     startIcon={<Home />}
                     component={RouterLink}
                     to="/"
                     sx={{
-                        color: 'white',
-                        borderColor: 'rgba(255,255,255,0.2)',
-                        '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.05)' },
-                        textTransform: 'none',
-                        borderRadius: 2,
                         mb: 1
                     }}
                 >
@@ -137,6 +141,7 @@ const AdminLayout: React.FC = () => {
                 <Button
                     fullWidth
                     variant="contained"
+                    color='secondary'
                     startIcon={<ExitToApp />}
                     onClick={handleLogout}
                     sx={{
@@ -183,10 +188,19 @@ const AdminLayout: React.FC = () => {
 
                     <Stack direction="row" spacing={2} alignItems="center">
                         <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
-                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b' }}>Admin User</Typography>
-                            <Typography variant="caption" color="text.secondary">Administrator</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                                {userData?.name || 'Admin User'}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                                {userData?.role === 'admin' ? 'Administrator' : 'User'}
+                            </Typography>
                         </Box>
-                        <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 'bold' }}>A</Avatar>
+                        <Avatar
+                            src={userData?.avatar}
+                            sx={{ bgcolor: 'primary.main', fontWeight: 'bold' }}
+                        >
+                            {userData?.name?.charAt(0) || 'A'}
+                        </Avatar>
                     </Stack>
                 </Toolbar>
             </AppBar>

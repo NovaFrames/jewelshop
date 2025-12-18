@@ -1,108 +1,112 @@
 // src/App.tsx
 import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from 'react-router-dom';
-
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-
-import theme from './theme/theme';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
-import { AuthProvider } from './contexts/AuthContext';
 
 // Layouts
 import UserLayout from './layouts/UserLayout/UserLayout';
 import AdminLayout from './layouts/AdminLayout/AdminLayout';
 
-// Pages
+// User Pages
 import Home from './Pages/User/Home/Home';
 import Shop from './Pages/User/Shop/Shop';
-import AddToCart from './Pages/User/AddToCart/AddToCart';
 import ProductDetails from './Pages/User/ProductDetails/ProductDetails';
+import AddToCart from './Pages/User/AddToCart/AddToCart';
+import Orders from './Pages/User/Orders/Orders';
 import Account from './Pages/User/Account/Account';
 import SelectedCategory from './Pages/User/SelectedCategory/SelectedCategory';
-import Orders from './Pages/User/Orders/Orders';
-import LoginPage from './Pages/LoginPage/LoginPage';
 
 // Admin Pages
 import AdminProducts from './Pages/Admin/AdminProducts';
-import AdminCategories from './Pages/Admin/AdminCategories';
 import AdminOrders from './Pages/Admin/AdminOrders';
+import AdminCategories from './Pages/Admin/AdminCategories';
 import AdminUsers from './Pages/Admin/AdminUsers';
 import AdminBanner from './Pages/Admin/AdminBanner';
 
-const App: React.FC = () => {
+// Auth Components
+import ProtectedRoute from './components/Auth/ProtectedRoute';
+import AdminRoute from './components/Auth/AdminRoute';
+import LoginModal from './components/Auth/LoginModal';
+import theme from './theme/theme';
+
+const AppContent = () => {
+  const { loginModalOpen, setLoginModalOpen } = useAuth();
+
+  const handleClose = React.useCallback(() => {
+    setLoginModalOpen(false);
+  }, [setLoginModalOpen]);
+
   return (
-    <AuthProvider>
-      <CartProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
+    <>
+      <Routes>
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route index element={<Navigate to="products" replace />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="banner" element={<AdminBanner />} />
+          </Route>
+        </Route>
 
-          <Router>
-            <Routes>
+        {/* User Routes */}
+        <Route element={<UserLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/all-jewellery" element={<Shop />} />
+          <Route path="/product/:productId" element={<ProductDetails />} />
+          <Route path="/cart" element={<AddToCart />} />
 
-              {/* ---------------- USER ROUTES ---------------- */}
-              <Route element={<UserLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/all-jewellery" element={<Shop />} />
-                <Route path="/product/:productId" element={<ProductDetails />} />
-                <Route path="/cart" element={<AddToCart />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/login" element={<LoginPage />} />
+          {/* Categories */}
+          <Route path="/earrings" element={<SelectedCategory />} />
+          <Route path="/pendants" element={<SelectedCategory />} />
+          <Route path="/rings" element={<SelectedCategory />} />
+          <Route path="/chains" element={<SelectedCategory />} />
+          <Route path="/necklaces" element={<SelectedCategory />} />
+          <Route path="/bangles" element={<SelectedCategory />} />
+          <Route path="/bracelets" element={<SelectedCategory />} />
 
-                {/* Categories */}
-                <Route path="/earrings" element={<SelectedCategory />} />
-                <Route path="/pendants" element={<SelectedCategory />} />
-                <Route path="/rings" element={<SelectedCategory />} />
-                <Route path="/chains" element={<SelectedCategory />} />
-                <Route path="/necklaces" element={<SelectedCategory />} />
-                <Route path="/bangles" element={<SelectedCategory />} />
-                <Route path="/bracelets" element={<SelectedCategory />} />
+          {/* Gold */}
+          <Route path="/gold/:category" element={<SelectedCategory />} />
 
-                {/* Gold */}
-                <Route path="/gold/all" element={<SelectedCategory />} />
-                <Route path="/gold/bangles" element={<SelectedCategory />} />
-                <Route path="/gold/bracelets" element={<SelectedCategory />} />
-                <Route path="/gold/earrings" element={<SelectedCategory />} />
-                <Route path="/gold/chains" element={<SelectedCategory />} />
-                <Route path="/gold/rings" element={<SelectedCategory />} />
-                <Route path="/gold/necklaces" element={<SelectedCategory />} />
-                <Route path="/gold/nose-pins" element={<SelectedCategory />} />
+          {/* Diamond */}
+          <Route path="/diamond/:category" element={<SelectedCategory />} />
 
-                {/* Diamond */}
-                <Route path="/diamond/all" element={<SelectedCategory />} />
-                <Route path="/diamond/bangles" element={<SelectedCategory />} />
-                <Route path="/diamond/bracelets" element={<SelectedCategory />} />
-                <Route path="/diamond/earrings" element={<SelectedCategory />} />
-                <Route path="/diamond/chains" element={<SelectedCategory />} />
-                <Route path="/diamond/rings" element={<SelectedCategory />} />
-                <Route path="/diamond/necklaces" element={<SelectedCategory />} />
-                <Route path="/diamond/nose-pins" element={<SelectedCategory />} />
+          {/* Protected User Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/account" element={<Account />} />
+          </Route>
+        </Route>
 
-              </Route>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
-              {/* ---------------- ADMIN ROUTES ---------------- */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Navigate to="products" replace />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="categories" element={<AdminCategories />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="banner" element={<AdminBanner />} />
-              </Route>
-
-            </Routes>
-          </Router>
-
-        </ThemeProvider>
-      </CartProvider>
-    </AuthProvider>
+      <LoginModal
+        open={loginModalOpen}
+        onClose={handleClose}
+      />
+    </>
   );
 };
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <CartProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
 
 export default App;

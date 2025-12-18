@@ -101,14 +101,14 @@ const theme = responsiveFontSizes(
             },
           },
           outlined: {
-            backgroundColor: "#9f7e44",
+            backgroundColor: "#d4af37",
             color: "white",
             borderRadius: 20,
             padding: "10px 24px",
             "&:hover": {
               backgroundColor: "transparent",
-              color: "#9f7e44",
-              borderColor: "#9f7e44",
+              borderColor: "#d4af37",
+              color: "#d4af37",
             },
           },
         },

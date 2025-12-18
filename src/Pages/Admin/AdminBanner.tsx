@@ -200,6 +200,7 @@ const AdminBanner: React.FC = () => {
                 </Box>
                 <Button
                     variant="contained"
+                    color="secondary"
                     startIcon={<Add />}
                     onClick={() => handleOpenDialog()}
                     sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
@@ -415,6 +416,7 @@ const AdminBanner: React.FC = () => {
                     <Button
                         onClick={handleSave}
                         variant="contained"
+                        color="secondary"
                         disabled={uploading}
                         startIcon={uploading ? <CircularProgress size={20} /> : null}
                     >

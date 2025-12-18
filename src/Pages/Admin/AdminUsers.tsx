@@ -368,7 +368,7 @@ const AdminUsers: React.FC = () => {
                         </DialogContent>
                         <Divider />
                         <DialogActions sx={{ p: 2, bgcolor: 'grey.50' }}>
-                            <Button onClick={handleCloseDialog} variant="contained" color="primary">
+                            <Button onClick={handleCloseDialog} variant="contained" color="secondary">
                                 Close Details
                             </Button>
                         </DialogActions>

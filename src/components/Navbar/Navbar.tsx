@@ -39,7 +39,6 @@ import { navItems, type NavItem } from "./navbarData";
 import MegaMenu from "./MegaMenu";
 import { useScrollDirection } from "./useScrollDirection";
 import { useAuth } from "../../contexts/AuthContext";
-import LoginModal from "../Auth/LoginModal";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 
@@ -112,9 +111,8 @@ const MobileNavItem = ({
 const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const { currentUser, userData } = useAuth();
+  const { currentUser, userData, setLoginModalOpen } = useAuth();
   const scrollDir = useScrollDirection();
   const [isAtTop, setIsAtTop] = useState(true);
   const timeoutRef = useRef<number | null>(null);
@@ -445,8 +443,7 @@ const Navbar: React.FC = () => {
         </List>
       </Drawer>
 
-      {/* Login Modal */}
-      <LoginModal open={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
+      {/* Login Modal removed as it is now global in App.tsx */}
     </>
   );
 };

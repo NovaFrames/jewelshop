@@ -213,6 +213,7 @@ const AdminCategories: React.FC = () => {
                                 />
                                 <Button
                                     variant="contained"
+                                    color="secondary"
                                     onClick={handleAddCategory}
                                     disabled={!newCategory.trim()}
                                     sx={{
@@ -306,6 +307,7 @@ const AdminCategories: React.FC = () => {
                                 />
                                 <Button
                                     variant="contained"
+                                    color="secondary"
                                     onClick={handleAddMaterial}
                                     disabled={!newMaterial.trim()}
                                     sx={{

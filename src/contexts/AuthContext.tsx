@@ -22,6 +22,7 @@ interface UserData {
     avatar?: string;
     createdAt: string;
     addresses?: Address[];
+    role: 'admin' | 'user';
 }
 
 interface Address {
@@ -47,6 +48,8 @@ interface AuthContextType {
     verifyOTP: (confirmationResult: ConfirmationResult, code: string, name?: string, email?: string) => Promise<void>;
     logout: () => Promise<void>;
     updateUserData: (data: Partial<UserData>) => Promise<void>;
+    loginModalOpen: boolean;
+    setLoginModalOpen: (open: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,13 +66,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [userData, setUserData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
 
     // Fetch user data from Firestore
     const fetchUserData = async (uid: string) => {
         try {
             const userDoc = await getDoc(doc(db, 'users', uid));
             if (userDoc.exists()) {
-                setUserData(userDoc.data() as UserData);
+                const data = userDoc.data() as UserData;
+                if (!data.role) {
+                    data.role = 'user';
+                }
+                setUserData(data);
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -94,6 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=832729&color=fff&size=200`,
                 createdAt: new Date().toISOString(),
                 addresses: [],
+                role: 'user',
             };
 
             await setDoc(doc(db, 'users', user.uid), newUserData);
@@ -154,6 +163,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=832729&color=fff&size=200`,
                     createdAt: new Date().toISOString(),
                     addresses: [],
+                    role: 'user',
                 };
 
                 await setDoc(doc(db, 'users', user.uid), newUserData);
@@ -223,6 +233,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         verifyOTP,
         logout,
         updateUserData,
+        loginModalOpen,
+        setLoginModalOpen,
     };
 
     return (

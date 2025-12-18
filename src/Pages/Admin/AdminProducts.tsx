@@ -210,7 +210,6 @@ const AdminProducts: React.FC = () => {
                     color='secondary'
                     startIcon={<AddIcon />}
                     onClick={() => handleOpenDialog()}
-                    sx={{ bgcolor: '#832729', '&:hover': { bgcolor: '#6b1f21' } }}
                 >
                     Add Product
                 </Button>
