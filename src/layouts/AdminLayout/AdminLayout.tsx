@@ -1,86 +1,241 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Box, Container, Tab, Tabs, Paper } from '@mui/material';
-import AdminNavbar from '../../components/Admin/AdminNavbar';
-import { Inventory, ShoppingCart, People, Category, ViewCarousel } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { Outlet, useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+    Box,
+    Drawer,
+    AppBar,
+    Toolbar,
+    List,
+    Typography,
+    Divider,
+    IconButton,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Button,
+    useTheme,
+    useMediaQuery,
+    Avatar,
+    Stack
+} from '@mui/material';
+import {
+    Menu as MenuIcon,
+    Inventory,
+    ShoppingCart,
+    People,
+    Category,
+    ViewCarousel,
+    ExitToApp,
+    Home,
+    ChevronLeft
+} from '@mui/icons-material';
+
+const drawerWidth = 280;
 
 const AdminLayout: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [value, setValue] = useState(0);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [mobileOpen, setMobileOpen] = useState(false);
 
-    // Map routes to tab indices
-    useEffect(() => {
-        const path = location.pathname;
-        if (path.includes('/admin/products')) {
-            setValue(0);
-        } else if (path.includes('/admin/categories')) {
-            setValue(1);
-        } else if (path.includes('/admin/orders')) {
-            setValue(2);
-        } else if (path.includes('/admin/users')) {
-            setValue(3);
-        } else if (path.includes('/admin/banner')) {
-            setValue(4);
-        }
-    }, [location]);
+    const menuItems = [
+        { text: 'Products', icon: <Inventory />, path: '/admin/products' },
+        { text: 'Categories', icon: <Category />, path: '/admin/categories' },
+        { text: 'Orders', icon: <ShoppingCart />, path: '/admin/orders' },
+        { text: 'Users', icon: <People />, path: '/admin/users' },
+        { text: 'Banner', icon: <ViewCarousel />, path: '/admin/banner' },
+    ];
 
-    const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-        switch (newValue) {
-            case 0:
-                navigate('/admin/products');
-                break;
-            case 1:
-                navigate('/admin/categories');
-                break;
-            case 2:
-                navigate('/admin/orders');
-                break;
-            case 3:
-                navigate('/admin/users');
-                break;
-            case 4:
-                navigate('/admin/banner');
-                break;
-            default:
-                break;
-        }
+    const handleDrawerToggle = () => {
+        setMobileOpen(!mobileOpen);
     };
 
-    return (
-        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-            <AdminNavbar />
-            <Container maxWidth="xl">
-                <Paper sx={{ mb: 3, borderRadius: 0, borderBottom: 1, borderColor: 'divider' }} elevation={0}>
-                    <Tabs
-                        value={value}
-                        onChange={handleChange}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                        sx={{
-                            '& .MuiTab-root': {
-                                minHeight: 64,
-                                textTransform: 'none',
-                                fontSize: '1rem',
-                                fontWeight: 500,
-                            },
-                        }}
-                    >
-                        <Tab icon={<Inventory />} iconPosition="start" label="Products" />
-                        <Tab icon={<Category />} iconPosition="start" label="Categories" />
-                        <Tab icon={<ShoppingCart />} iconPosition="start" label="Orders" />
-                        <Tab icon={<People />} iconPosition="start" label="Users" />
-                        <Tab icon={<ViewCarousel />} iconPosition="start" label="Banner" />
-                    </Tabs>
-                </Paper>
+    const handleLogout = () => {
+        navigate('/');
+    };
 
-                <Box sx={{ py: 2 }}>
-                    <Outlet />
+    const drawer = (
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{
+                    width: 40,
+                    height: 40,
+                    bgcolor: 'primary.main',
+                    borderRadius: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 'bold',
+                    fontSize: '1.2rem',
+                    color: "white"
+                }}>
+                    JS
                 </Box>
-            </Container>
+                <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: 1, fontFamily: 'Playfair Display, serif' }}>
+                    JEWELRY SHOP
+                </Typography>
+            </Box>
+
+            <Divider sx={{ borderColor: 'rgba(0, 0, 0, 0.2)' }} />
+
+            <List sx={{ px: 2, py: 3, flexGrow: 1 }}>
+                {menuItems.map((item) => {
+                    const isActive = location.pathname.includes(item.path);
+                    return (
+                        <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+                            <ListItemButton
+                                component={RouterLink}
+                                to={item.path}
+                                onClick={() => isMobile && setMobileOpen(false)}
+                                sx={{
+                                    borderRadius: 2,
+                                    bgcolor: isActive ? 'primary.main' : 'transparent',
+                                    '&:hover': {
+                                        bgcolor: isActive ? 'primary.main' : 'rgba(255,255,255,0.05)',
+                                    },
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <ListItemIcon sx={{ color: isActive ? 'white' : 'rgba(12, 12, 12, 0.7)', minWidth: 45 }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={item.text}
+                                    sx={{
+                                        color: isActive ? 'white' : 'rgba(0, 0, 0, 0.7)',
+                                    }}
+                                    primaryTypographyProps={{
+                                        fontWeight: isActive ? 700 : 500,
+                                        fontSize: '0.95rem'
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    );
+                })}
+            </List>
+
+            <Box sx={{ p: 2 }}>
+                <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<Home />}
+                    component={RouterLink}
+                    to="/"
+                    sx={{
+                        color: 'white',
+                        borderColor: 'rgba(255,255,255,0.2)',
+                        '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.05)' },
+                        textTransform: 'none',
+                        borderRadius: 2,
+                        mb: 1
+                    }}
+                >
+                    View Site
+                </Button>
+                <Button
+                    fullWidth
+                    variant="contained"
+                    startIcon={<ExitToApp />}
+                    onClick={handleLogout}
+                    sx={{
+                        bgcolor: '#ef4444',
+                        '&:hover': { bgcolor: '#dc2626' },
+                        textTransform: 'none',
+                        borderRadius: 2
+                    }}
+                >
+                    Logout
+                </Button>
+            </Box>
+        </Box>
+    );
+
+    return (
+        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f8fafc' }}>
+            {/* AppBar for Mobile */}
+            <AppBar
+                position="fixed"
+                sx={{
+                    width: { md: `calc(100% - ${drawerWidth}px)` },
+                    ml: { md: `${drawerWidth}px` },
+                    bgcolor: 'white',
+                    color: 'text.primary',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    borderBottom: '1px solid #e2e8f0'
+                }}
+            >
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={handleDrawerToggle}
+                        sx={{ mr: 2, display: { md: 'none' } }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+
+                    <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                        {menuItems.find(item => location.pathname.includes(item.path))?.text || 'Dashboard'}
+                    </Typography>
+
+                    <Stack direction="row" spacing={2} alignItems="center">
+                        <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b' }}>Admin User</Typography>
+                            <Typography variant="caption" color="text.secondary">Administrator</Typography>
+                        </Box>
+                        <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 'bold' }}>A</Avatar>
+                    </Stack>
+                </Toolbar>
+            </AppBar>
+
+            {/* Sidebar Drawer */}
+            <Box
+                component="nav"
+                sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+            >
+                {/* Mobile Drawer */}
+                <Drawer
+                    variant="temporary"
+                    open={mobileOpen}
+                    onClose={handleDrawerToggle}
+                    ModalProps={{ keepMounted: true }}
+                    sx={{
+                        display: { xs: 'block', md: 'none' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, border: 'none' },
+                    }}
+                >
+                    {drawer}
+                </Drawer>
+
+                {/* Desktop Drawer */}
+                <Drawer
+                    variant="permanent"
+                    sx={{
+                        display: { xs: 'none', md: 'block' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, border: 'none' },
+                    }}
+                    open
+                >
+                    {drawer}
+                </Drawer>
+            </Box>
+
+            {/* Main Content */}
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: { xs: 2, md: 4 },
+                    width: { md: `calc(100% - ${drawerWidth}px)` },
+                    mt: '64px' // Height of AppBar
+                }}
+            >
+                <Outlet />
+            </Box>
         </Box>
     );
 };

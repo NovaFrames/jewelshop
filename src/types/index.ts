@@ -54,16 +54,42 @@ export interface Review {
   createdAt: Date;
 }
 
+export interface OrderItem {
+  category: string;
+  price: number;
+  updatedAt: string;
+  material: string;
+  addedAt: string;
+  quantity: number;
+  productId: string;
+  image: string;
+  name: string;
+  status: string;
+}
+
 export interface Order {
   id: string;
-  userId: string;
-  items: CartItem[];
+  createdAt: string;
+  updatedAt: string;
+  userEmail: string;
+  userPhone: string;
+  userName: string;
+  uid: string;
   totalAmount: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  shippingAddress: Address;
-  paymentMethod: string;
-  createdAt: Date;
-  updatedAt: Date;
+  status: string;
+  deliveryAddress: {
+    address: string;
+    city: string;
+    country: string;
+    id: string;
+    isDefault: boolean;
+    name: string;
+    phone: string;
+    state: string;
+    type: string;
+    zipCode: string;
+  };
+  items: OrderItem[];
 }
 
 export interface Address {
