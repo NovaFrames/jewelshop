@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { ShoppingBagOutlined, AccessTime, CheckCircle, Cancel } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
 
 interface OrderItem {
@@ -26,7 +26,7 @@ interface OrderItem {
 
 interface Order {
     id: string;
-    userId: string;
+    uid: string;
     userName: string;
     userEmail: string;
     userPhone: string;
@@ -54,15 +54,18 @@ const Orders: React.FC = () => {
                 const ordersRef = collection(db, 'orders');
                 const q = query(
                     ordersRef,
-                    where('userId', '==', currentUser.uid),
-                    orderBy('createdAt', 'desc')
+                    where('uid', '==', currentUser.uid)
                 );
                 const querySnapshot = await getDocs(q);
+                console.log(querySnapshot);
 
                 const ordersData: Order[] = [];
                 querySnapshot.forEach((doc) => {
                     ordersData.push({ id: doc.id, ...doc.data() } as Order);
                 });
+
+                // Sort client-side
+                ordersData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
                 setOrders(ordersData);
             } catch (error) {

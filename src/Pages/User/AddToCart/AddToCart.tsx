@@ -230,9 +230,9 @@ const AddToCart: React.FC = () => {
             // Calculate total
             const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // Create order in Firestore
+            // Create order data
             const orderData = {
-                userId: currentUser!.uid,
+                uid: currentUser!.uid,
                 userName: userData?.name || 'Guest',
                 userEmail: userData?.email || '',
                 userPhone: userData?.phone || '',
@@ -244,6 +244,7 @@ const AddToCart: React.FC = () => {
                 updatedAt: new Date().toISOString()
             };
 
+            // Store order in 'orders' collection
             await addDoc(collection(db, 'orders'), orderData);
 
             // Clear cart in Firestore
