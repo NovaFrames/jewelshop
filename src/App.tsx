@@ -25,7 +25,7 @@ import AddToCart from './Pages/User/AddToCart/AddToCart';
 import ProductDetails from './Pages/User/ProductDetails/ProductDetails';
 import Account from './Pages/User/Account/Account';
 import SelectedCategory from './Pages/User/SelectedCategory/SelectedCategory';
-import Orders from './Pages/Orders/Orders';
+import Orders from './Pages/User/Orders/Orders';
 import LoginPage from './Pages/LoginPage/LoginPage';
 
 // Admin Pages
