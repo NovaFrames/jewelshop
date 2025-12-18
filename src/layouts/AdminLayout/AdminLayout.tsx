@@ -28,7 +28,6 @@ import {
     ViewCarousel,
     ExitToApp,
     Home,
-    ChevronLeft
 } from '@mui/icons-material';
 
 const drawerWidth = 280;

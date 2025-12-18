@@ -10,9 +10,9 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { ShoppingBagOutlined, AccessTime, CheckCircle, Cancel } from '@mui/icons-material';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase/firebase';
+import { db } from '../../../firebase/firebase';
 
 interface OrderItem {
     productId: string;
