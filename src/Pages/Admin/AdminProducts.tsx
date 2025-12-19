@@ -20,12 +20,12 @@ import {
     FormControlLabel,
     Switch,
     Grid,
-    CircularProgress,
     Snackbar,
     Alert,
     MenuItem,
     Stack
 } from '@mui/material';
+import Loader from '../../components/Common/Loader';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, CloudUpload as CloudUploadIcon, Close as CloseIcon } from '@mui/icons-material';
 import { type Product } from '../User/Products/Products';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../firebase/productService';
@@ -216,9 +216,7 @@ const AdminProducts: React.FC = () => {
             </Box>
 
             {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                    <CircularProgress color="secondary" />
-                </Box>
+                <Loader sx={{ mt: 4 }} />
             ) : (
                 <TableContainer component={Paper}>
                     <Table>
@@ -365,7 +363,7 @@ const AdminProducts: React.FC = () => {
                                         onChange={handleImageUpload}
                                     />
                                 </Button>
-                                {uploading && <CircularProgress size={24} sx={{ ml: 2 }} />}
+                                {uploading && <Loader inline size={24} sx={{ ml: 2 }} />}
                             </Box>
 
                             <Stack direction="row" spacing={2} sx={{ overflowX: 'auto', pb: 1 }}>

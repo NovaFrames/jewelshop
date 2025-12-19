@@ -11,7 +11,6 @@ import {
     TableRow,
     Select,
     MenuItem,
-    CircularProgress,
     IconButton,
     Avatar,
     Stack,
@@ -27,6 +26,7 @@ import {
     Tabs,
     Tab
 } from '@mui/material';
+import Loader from '../../components/Common/Loader';
 import {
     Search,
     Visibility,
@@ -166,11 +166,7 @@ const AdminOrders: React.FC = () => {
     };
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-                <CircularProgress color="secondary" size={60} thickness={4} />
-            </Box>
-        );
+        return <Loader fullPage size={60} thickness={4} />;
     }
 
     return (

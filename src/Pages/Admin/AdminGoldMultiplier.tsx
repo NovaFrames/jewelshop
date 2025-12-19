@@ -6,10 +6,10 @@ import {
     TextField,
     Button,
     Alert,
-    CircularProgress,
     Stack,
     Divider
 } from '@mui/material';
+import Loader from '../../components/Common/Loader';
 import { Save, TrendingUp } from '@mui/icons-material';
 import { getGoldMultiplier, updateGoldMultiplier } from '../../firebase/goldRateService';
 
@@ -60,11 +60,7 @@ const AdminGoldMultiplier: React.FC = () => {
     };
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-                <CircularProgress color="secondary" />
-            </Box>
-        );
+        return <Loader sx={{ py: 10 }} />;
     }
 
     return (
@@ -105,7 +101,7 @@ const AdminGoldMultiplier: React.FC = () => {
                             variant="contained"
                             color="secondary"
                             size="large"
-                            startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <Save />}
+                            startIcon={saving ? <Loader inline size={20} color="inherit" /> : <Save />}
                             onClick={handleSave}
                             disabled={saving}
                             sx={{ py: 1.5 }}

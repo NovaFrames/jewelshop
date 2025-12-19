@@ -13,10 +13,10 @@ import {
     DialogContent,
     DialogActions,
     TextField,
-    CircularProgress,
     Stack,
     Divider
 } from '@mui/material';
+import Loader from '../../components/Common/Loader';
 import { Add, Delete, Edit, CloudUpload, Image as ImageIcon, Smartphone, Monitor } from '@mui/icons-material';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, orderBy, query } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
@@ -180,11 +180,7 @@ const AdminBanner: React.FC = () => {
     };
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <CircularProgress color="secondary" />
-            </Box>
-        );
+        return <Loader fullPage />;
     }
 
     return (
@@ -417,7 +413,7 @@ const AdminBanner: React.FC = () => {
                         variant="contained"
                         color="secondary"
                         disabled={uploading}
-                        startIcon={uploading ? <CircularProgress size={20} /> : null}
+                        startIcon={uploading ? <Loader inline size={20} color="inherit" /> : null}
                     >
                         {uploading ? 'Saving...' : 'Save Banner'}
                     </Button>

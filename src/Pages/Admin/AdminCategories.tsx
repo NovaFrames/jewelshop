@@ -12,7 +12,6 @@ import {
     Paper,
     TextField,
     Typography,
-    CircularProgress,
     Divider,
     Snackbar,
     Alert,
@@ -22,6 +21,7 @@ import {
     InputAdornment,
     Fade
 } from '@mui/material';
+import Loader from '../../components/Common/Loader';
 import {
     Delete as DeleteIcon,
     Category as CategoryIcon,
@@ -157,11 +157,7 @@ const AdminCategories: React.FC = () => {
     }, [materials, materialSearch]);
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-                <CircularProgress color="secondary" size={60} thickness={4} />
-            </Box>
-        );
+        return <Loader fullPage size={60} thickness={4} />;
     }
 
     return (

@@ -11,7 +11,6 @@ import {
     TableRow,
     Avatar,
     Chip,
-    CircularProgress,
     IconButton,
     Stack,
     Dialog,
@@ -22,6 +21,7 @@ import {
     Grid,
     Divider,
 } from '@mui/material';
+import Loader from '../../components/Common/Loader';
 import { Visibility, Email, Phone, CalendarMonth, Close, LocationOn } from '@mui/icons-material';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebase';
@@ -85,11 +85,7 @@ const AdminUsers: React.FC = () => {
     };
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <CircularProgress color="secondary" />
-            </Box>
-        );
+        return <Loader fullPage />;
     }
 
     return (
