@@ -17,8 +17,6 @@ import {
     Tabs,
     Tab,
     TextField,
-    Snackbar,
-    Alert
 } from '@mui/material';
 import {
     Facebook,
@@ -31,6 +29,7 @@ import {
 import { products } from '../Products/Products';
 import { useCart } from '../../../contexts/CartContext';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useSnackbar } from '../../../contexts/SnackbarContext';
 import { doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
 import LoginModal from '../../../components/Auth/LoginModal';
@@ -66,10 +65,10 @@ const ProductDetails: React.FC = () => {
     const navigate = useNavigate();
     const { dispatch } = useCart();
     const { currentUser } = useAuth();
+    const { showSnackbar } = useSnackbar();
     const [selectedImage, setSelectedImage] = useState(0);
     const [tabValue, setTabValue] = useState(0);
     const [quantity, setQuantity] = useState(1);
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
     const [showLoginModal, setShowLoginModal] = useState(false);
 
     // Find the product by ID
@@ -155,10 +154,10 @@ const ProductDetails: React.FC = () => {
                 }
             }
 
-            setSnackbar({ open: true, message: 'Product added to cart successfully!', severity: 'success' });
+            showSnackbar('Product added to cart successfully!', 'success');
         } catch (error) {
             console.error('Error adding to cart:', error);
-            setSnackbar({ open: true, message: 'Failed to add product to cart', severity: 'error' });
+            showSnackbar('Failed to add product to cart', 'error');
         }
     };
 
@@ -440,22 +439,6 @@ const ProductDetails: React.FC = () => {
                     </Grid>
                 </Grid>
             </Container>
-
-            {/* Snackbar for notifications */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={() => setSnackbar({ ...snackbar, open: false })}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert
-                    onClose={() => setSnackbar({ ...snackbar, open: false })}
-                    severity={snackbar.severity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
 
             <LoginModal
                 open={showLoginModal}

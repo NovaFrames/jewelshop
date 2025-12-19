@@ -21,8 +21,6 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Snackbar,
-    Alert,
     InputAdornment,
     FormControl,
     FormLabel,
@@ -48,6 +46,7 @@ import {
 } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useSnackbar } from '../../../contexts/SnackbarContext';
 
 interface Address {
     id: string;
@@ -65,6 +64,7 @@ interface Address {
 const Account: React.FC = () => {
     const navigate = useNavigate();
     const { currentUser, userData, updateUserData, logout } = useAuth();
+    const { showSnackbar } = useSnackbar();
 
     // Redirect if not logged in
     useEffect(() => {
@@ -79,8 +79,6 @@ const Account: React.FC = () => {
     const [isEditingAddress, setIsEditingAddress] = useState(false);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [isAddingAddress, setIsAddingAddress] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
 
     // Sync addresses when userData changes
     useEffect(() => {
@@ -122,11 +120,9 @@ const Account: React.FC = () => {
         try {
             await updateUserData(profileForm);
             setIsEditingProfile(false);
-            setSuccessMessage('Profile updated successfully');
-            setShowSuccess(true);
+            showSnackbar('Profile updated successfully', 'success');
         } catch (error) {
-            setSuccessMessage('Failed to update profile');
-            setShowSuccess(true);
+            showSnackbar('Failed to update profile', 'error');
         }
     };
 
@@ -183,8 +179,7 @@ const Account: React.FC = () => {
             setAddresses(updatedAddresses);
             await updateUserData({ addresses: updatedAddresses });
         }
-        setSuccessMessage('Address deleted successfully');
-        setShowSuccess(true);
+        showSnackbar('Address deleted successfully', 'success');
     };
 
     const handleSaveAddress = async () => {
@@ -239,8 +234,7 @@ const Account: React.FC = () => {
             isDefault: false,
         });
 
-        setSuccessMessage(isAddingAddress ? 'Address added successfully' : 'Address updated successfully');
-        setShowSuccess(true);
+        showSnackbar(isAddingAddress ? 'Address added successfully' : 'Address updated successfully', 'success');
     };
 
     const handleCancelAddress = () => {
@@ -278,12 +272,7 @@ const Account: React.FC = () => {
         }));
         setAddresses(updatedAddresses);
         await updateUserData({ addresses: updatedAddresses });
-        setSuccessMessage('Default address updated');
-        setShowSuccess(true);
-    };
-
-    const handleCloseSuccess = () => {
-        setShowSuccess(false);
+        showSnackbar('Default address updated', 'success');
     };
 
     const handleLogout = async () => {
@@ -784,23 +773,6 @@ const Account: React.FC = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {/* Success Snackbar */}
-            <Snackbar
-                open={showSuccess}
-                autoHideDuration={4000}
-                onClose={handleCloseSuccess}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert
-                    onClose={handleCloseSuccess}
-                    severity="success"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {successMessage}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

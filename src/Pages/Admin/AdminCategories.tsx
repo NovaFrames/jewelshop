@@ -13,8 +13,6 @@ import {
     TextField,
     Typography,
     Divider,
-    Snackbar,
-    Alert,
     Card,
     CardContent,
     Stack,
@@ -38,6 +36,7 @@ import {
     type Category,
     type Material
 } from '../../firebase/categoryService';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
 const StatCard: React.FC<{ title: string; value: number; icon: any; color: string }> = ({ title, value, icon, color }) => (
     <Card sx={{ height: '100%', borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
@@ -73,7 +72,7 @@ const AdminCategories: React.FC = () => {
     const [categorySearch, setCategorySearch] = useState('');
     const [materialSearch, setMaterialSearch] = useState('');
     const [loading, setLoading] = useState(true);
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+    const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
         fetchData();
@@ -138,10 +137,6 @@ const AdminCategories: React.FC = () => {
                 showSnackbar('Failed to delete material', 'error');
             }
         }
-    };
-
-    const showSnackbar = (message: string, severity: 'success' | 'error') => {
-        setSnackbar({ open: true, message, severity });
     };
 
     const filteredCategories = useMemo(() => {
@@ -378,21 +373,6 @@ const AdminCategories: React.FC = () => {
                 </Grid>
             </Grid>
 
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={4000}
-                onClose={() => setSnackbar({ ...snackbar, open: false })}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert
-                    onClose={() => setSnackbar({ ...snackbar, open: false })}
-                    severity={snackbar.severity}
-                    variant="filled"
-                    sx={{ width: '100%', borderRadius: 2 }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
         </Container>
     );
 };

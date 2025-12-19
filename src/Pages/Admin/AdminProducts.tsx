@@ -20,8 +20,6 @@ import {
     FormControlLabel,
     Switch,
     Grid,
-    Snackbar,
-    Alert,
     MenuItem,
     Stack
 } from '@mui/material';
@@ -31,6 +29,7 @@ import { type Product } from '../User/Products/Products';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../firebase/productService';
 import { getCategories, getMaterials, type Category, type Material } from '../../firebase/categoryService';
 import { uploadImage } from '../../firebase/uploadService';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
 const AdminProducts: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -40,8 +39,8 @@ const AdminProducts: React.FC = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [currentProduct, setCurrentProduct] = useState<Partial<Product>>({});
     const [isEditing, setIsEditing] = useState(false);
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
     const [uploading, setUploading] = useState(false);
+    const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
         fetchData();
@@ -193,10 +192,6 @@ const AdminProducts: React.FC = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
-    };
-
-    const showSnackbar = (message: string, severity: 'success' | 'error') => {
-        setSnackbar({ open: true, message, severity });
     };
 
     return (
@@ -457,12 +452,6 @@ const AdminProducts: React.FC = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-                <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
         </Container>
     );
 };

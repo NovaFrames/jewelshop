@@ -10,8 +10,6 @@ import {
     Stack,
     Paper,
     IconButton,
-    Alert,
-    Snackbar,
     InputAdornment,
     Divider,
     alpha,
@@ -29,6 +27,7 @@ import {
     CheckCircle,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { useSnackbar } from '../../../contexts/SnackbarContext';
 
 const ContactPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -38,7 +37,7 @@ const ContactPage: React.FC = () => {
         subject: '',
         message: '',
     });
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const { showSnackbar } = useSnackbar();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -51,7 +50,7 @@ const ContactPage: React.FC = () => {
         e.preventDefault();
         // Handle form submission here
         console.log('Form submitted:', formData);
-        setOpenSnackbar(true);
+        showSnackbar('Message sent successfully! We\'ll get back to you soon.', 'success');
         setFormData({
             name: '',
             email: '',
@@ -386,22 +385,6 @@ const ContactPage: React.FC = () => {
                     </Grid>
                 </Grid>
             </Container>
-
-            <Snackbar
-                open={openSnackbar}
-                autoHideDuration={6000}
-                onClose={() => setOpenSnackbar(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert
-                    onClose={() => setOpenSnackbar(false)}
-                    severity="success"
-                    sx={{ width: '100%' }}
-                    icon={<CheckCircle />}
-                >
-                    Message sent successfully! We'll get back to you soon.
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

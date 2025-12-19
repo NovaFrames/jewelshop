@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { SnackbarProvider } from './contexts/SnackbarContext';
+import GlobalSnackbar from './components/Common/GlobalSnackbar';
 
 // Layouts
 import UserLayout from './layouts/UserLayout/UserLayout';
@@ -92,23 +94,24 @@ const AppContent = () => {
         open={loginModalOpen}
         onClose={handleClose}
       />
+      <GlobalSnackbar />
     </>
   );
 };
 
 function App() {
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
+  <ThemeProvider theme={theme}>
+    <CssBaseline />
+    <AuthProvider>
+      <SnackbarProvider>
         <CartProvider>
           <Router>
             <AppContent />
           </Router>
         </CartProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  );
+      </SnackbarProvider>
+    </AuthProvider>
+  </ThemeProvider>
 }
 
 export default App;

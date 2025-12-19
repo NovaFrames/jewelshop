@@ -10,8 +10,6 @@ import {
     Divider,
     Paper,
     CircularProgress,
-    Snackbar,
-    Alert,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -26,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useSnackbar } from '../../../contexts/SnackbarContext';
 import { doc, getDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
 import { CheckoutModals } from './CheckoutModals';
@@ -44,9 +43,9 @@ interface CartItem {
 const AddToCart: React.FC = () => {
     const navigate = useNavigate();
     const { currentUser, userData } = useAuth();
+    const { showSnackbar } = useSnackbar();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
@@ -85,7 +84,7 @@ const AddToCart: React.FC = () => {
             }
         } catch (error) {
             console.error('Error loading cart:', error);
-            setSnackbar({ open: true, message: 'Failed to load cart', severity: 'error' });
+            showSnackbar('Failed to load cart', 'error');
             setCartItems([]);
         } finally {
             setLoading(false);
@@ -104,7 +103,7 @@ const AddToCart: React.FC = () => {
             });
         } catch (error) {
             console.error('Error updating cart:', error);
-            setSnackbar({ open: true, message: 'Failed to update cart', severity: 'error' });
+            showSnackbar('Failed to update cart', 'error');
         }
     };
 
@@ -128,7 +127,7 @@ const AddToCart: React.FC = () => {
         setCartItems(newItems);
         await updateCart(newItems);
 
-        setSnackbar({ open: true, message: 'Item removed from cart', severity: 'success' });
+        showSnackbar('Item removed from cart', 'success');
     };
 
     // Handle delete click
@@ -168,7 +167,7 @@ const AddToCart: React.FC = () => {
     // Open checkout modal
     const handleOpenCheckoutModal = () => {
         if (!currentUser || cartItems.length === 0) {
-            setSnackbar({ open: true, message: 'Cart is empty', severity: 'error' });
+            showSnackbar('Cart is empty', 'error');
             return;
         }
         setCheckoutModalOpen(true);
@@ -177,7 +176,7 @@ const AddToCart: React.FC = () => {
     // Handle add new address
     const handleAddNewAddress = async () => {
         if (!currentUser || !newAddress.address || !newAddress.city || !newAddress.state || !newAddress.zipCode || !newAddress.phone) {
-            setSnackbar({ open: true, message: 'Please fill all required address fields', severity: 'error' });
+            showSnackbar('Please fill all required address fields', 'error');
             return;
         }
 
@@ -209,18 +208,18 @@ const AddToCart: React.FC = () => {
                     country: 'United States',
                     phone: ''
                 });
-                setSnackbar({ open: true, message: 'Address added successfully', severity: 'success' });
+                showSnackbar('Address added successfully', 'success');
             }
         } catch (error) {
             console.error('Error adding address:', error);
-            setSnackbar({ open: true, message: 'Failed to add address', severity: 'error' });
+            showSnackbar('Failed to add address', 'error');
         }
     };
 
     // Place order with selected address
     const handlePlaceOrder = async () => {
         if (!selectedAddress) {
-            setSnackbar({ open: true, message: 'Please select a delivery address', severity: 'error' });
+            showSnackbar('Please select a delivery address', 'error');
             return;
         }
 
@@ -263,7 +262,7 @@ const AddToCart: React.FC = () => {
 
         } catch (error) {
             console.error('Error creating order:', error);
-            setSnackbar({ open: true, message: 'Failed to place order', severity: 'error' });
+            showSnackbar('Failed to place order', 'error');
         } finally {
             setLoading(false);
         }
@@ -461,22 +460,6 @@ const AddToCart: React.FC = () => {
                     </Grid>
                 </Grid>
             </Container>
-
-            {/* Snackbar for notifications */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={() => setSnackbar({ ...snackbar, open: false })}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert
-                    onClose={() => setSnackbar({ ...snackbar, open: false })}
-                    severity={snackbar.severity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
 
             {/* Delete Confirmation Dialog */}
             <Dialog
