@@ -33,6 +33,7 @@ import { useCart } from '../../../contexts/CartContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
+import LoginModal from '../../../components/Auth/LoginModal';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -69,6 +70,7 @@ const ProductDetails: React.FC = () => {
     const [tabValue, setTabValue] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     // Find the product by ID
     const product = products.find(p => p.id === productId);
@@ -96,6 +98,11 @@ const ProductDetails: React.FC = () => {
         : [product.image, product.image, product.image, product.image];
 
     const handleAddToCart = async () => {
+        if (!currentUser) {
+            setShowLoginModal(true);
+            return;
+        }
+
         try {
             // Add to local cart context
             dispatch({
@@ -449,6 +456,12 @@ const ProductDetails: React.FC = () => {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
+
+            <LoginModal
+                open={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                disableNavigation={true}
+            />
         </Box>
     );
 };
