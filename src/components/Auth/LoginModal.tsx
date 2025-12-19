@@ -19,22 +19,25 @@ import AuthForm from './AuthForm';
 interface LoginModalProps {
     open: boolean;
     onClose: () => void;
+    disableNavigation?: boolean;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
+const LoginModal: React.FC<LoginModalProps> = ({ open, onClose, disableNavigation = false }) => {
     const navigate = useNavigate();
     const { currentUser, userData } = useAuth();
 
     useEffect(() => {
         if (open && currentUser && userData) {
             onClose();
-            if (userData.role === 'admin') {
-                navigate('/admin/products', { replace: true });
-            } else {
-                navigate('/account', { replace: true });
+            if (!disableNavigation) {
+                if (userData.role === 'admin') {
+                    navigate('/admin/products', { replace: true });
+                } else {
+                    navigate('/account', { replace: true });
+                }
             }
         }
-    }, [open, currentUser, userData, navigate, onClose]);
+    }, [open, currentUser, userData, navigate, onClose, disableNavigation]);
 
     return (
         <Dialog
