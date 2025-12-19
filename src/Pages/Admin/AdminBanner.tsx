@@ -203,7 +203,6 @@ const AdminBanner: React.FC = () => {
                     color="secondary"
                     startIcon={<Add />}
                     onClick={() => handleOpenDialog()}
-                    sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
                 >
                     Add New Banner
                 </Button>

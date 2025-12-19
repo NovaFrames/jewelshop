@@ -18,9 +18,9 @@ import {
     Phone,
     Person,
     Email,
-    Sms,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import OTPInput from './OTPInput';
 
 interface AuthFormProps {
     onSuccess?: () => void;
@@ -70,8 +70,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
         setError('');
     };
 
+    const handleLoginOTPChange = (otp: string) => {
+        setLoginForm({ ...loginForm, otp });
+        setError('');
+    };
+
     const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSignupForm({ ...signupForm, [e.target.name]: e.target.value });
+        setError('');
+    };
+
+    const handleSignupOTPChange = (otp: string) => {
+        setSignupForm({ ...signupForm, otp });
         setError('');
     };
 
@@ -104,11 +114,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                 throw new Error('Please request OTP first');
             }
 
-            if (!loginForm.otp || loginForm.otp.length !== 6) {
+            const otp = loginForm.otp.replace(/\s/g, '');
+            if (!otp || otp.length !== 6) {
                 throw new Error('Please enter a valid 6-digit OTP');
             }
 
-            await verifyOTP(confirmationResult, loginForm.otp);
+            await verifyOTP(confirmationResult, otp);
             if (onSuccess) onSuccess();
         } catch (err: any) {
             setError(err.message || 'Invalid OTP');
@@ -150,11 +161,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                 throw new Error('Please request OTP first');
             }
 
-            if (!signupForm.otp || signupForm.otp.length !== 6) {
+            const otp = signupForm.otp.replace(/\s/g, '');
+            if (!otp || otp.length !== 6) {
                 throw new Error('Please enter a valid 6-digit OTP');
             }
 
-            await verifyOTP(confirmationResult, signupForm.otp, signupForm.name, signupForm.email);
+            await verifyOTP(confirmationResult, otp, signupForm.name, signupForm.email);
             if (onSuccess) onSuccess();
         } catch (err: any) {
             setError(err.message || 'Invalid OTP');
@@ -250,24 +262,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                             </Button>
                         ) : (
                             <>
-                                <TextField
-                                    label="Enter OTP"
-                                    name="otp"
-                                    type="text"
-                                    value={loginForm.otp}
-                                    onChange={handleLoginChange}
-                                    required
-                                    fullWidth
-                                    placeholder="6-digit OTP"
-                                    inputProps={{ maxLength: 6 }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Sms color="action" />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1, textAlign: 'center' }}>
+                                        Enter 6-digit OTP
+                                    </Typography>
+                                    <OTPInput
+                                        value={loginForm.otp}
+                                        onChange={handleLoginOTPChange}
+                                        disabled={loading}
+                                    />
+                                </Box>
 
                                 <Button
                                     type="submit"
@@ -373,24 +377,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                             </Button>
                         ) : (
                             <>
-                                <TextField
-                                    label="Enter OTP"
-                                    name="otp"
-                                    type="text"
-                                    value={signupForm.otp}
-                                    onChange={handleSignupChange}
-                                    required
-                                    fullWidth
-                                    placeholder="6-digit OTP"
-                                    inputProps={{ maxLength: 6 }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Sms color="action" />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1, textAlign: 'center' }}>
+                                        Enter 6-digit OTP
+                                    </Typography>
+                                    <OTPInput
+                                        value={signupForm.otp}
+                                        onChange={handleSignupOTPChange}
+                                        disabled={loading}
+                                    />
+                                </Box>
 
                                 <Button
                                     type="submit"
