@@ -311,7 +311,7 @@ const Account: React.FC = () => {
     if (!userData) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-                <CircularProgress />
+                <CircularProgress color="secondary" />
             </Box>
         );
     }

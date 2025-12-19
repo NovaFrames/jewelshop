@@ -133,7 +133,7 @@ const Orders: React.FC = () => {
     if (loading) {
         return (
             <Container maxWidth="lg" sx={{ py: 8, minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <CircularProgress />
+                <CircularProgress color="secondary" />
             </Container>
         );
     }

@@ -24,6 +24,7 @@ import AdminOrders from './Pages/Admin/AdminOrders';
 import AdminCategories from './Pages/Admin/AdminCategories';
 import AdminUsers from './Pages/Admin/AdminUsers';
 import AdminBanner from './Pages/Admin/AdminBanner';
+import AdminGoldMultiplier from './Pages/Admin/AdminGoldMultiplier';
 
 // Auth Components
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -50,6 +51,7 @@ const AppContent = () => {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="banner" element={<AdminBanner />} />
+            <Route path="gold-rate" element={<AdminGoldMultiplier />} />
           </Route>
         </Route>
 

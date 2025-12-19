@@ -159,7 +159,7 @@ const AdminCategories: React.FC = () => {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-                <CircularProgress size={60} thickness={4} />
+                <CircularProgress color="secondary" size={60} thickness={4} />
             </Box>
         );
     }

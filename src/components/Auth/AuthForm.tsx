@@ -258,7 +258,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                                 onClick={handleSendLoginOTP}
                                 sx={{ py: 1.5 }}
                             >
-                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Send OTP'}
+                                {loading ? <CircularProgress size={24} color="secondary" /> : 'Send OTP'}
                             </Button>
                         ) : (
                             <>
@@ -282,7 +282,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                                     disabled={loading}
                                     sx={{ py: 1.5 }}
                                 >
-                                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Login'}
+                                    {loading ? <CircularProgress size={24} color="secondary" /> : 'Verify & Login'}
                                 </Button>
 
                                 <Box sx={{ textAlign: 'center' }}>
@@ -373,7 +373,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                                 onClick={handleSendSignupOTP}
                                 sx={{ py: 1.5 }}
                             >
-                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Send OTP'}
+                                {loading ? <CircularProgress size={24} color="secondary" /> : 'Send OTP'}
                             </Button>
                         ) : (
                             <>
@@ -397,7 +397,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, initialTab = 0 }) => {
                                     disabled={loading}
                                     sx={{ py: 1.5 }}
                                 >
-                                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Create Account'}
+                                    {loading ? <CircularProgress size={24} color="secondary" /> : 'Verify & Create Account'}
                                 </Button>
 
                                 <Box sx={{ textAlign: 'center' }}>

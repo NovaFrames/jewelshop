@@ -87,7 +87,7 @@ const AdminUsers: React.FC = () => {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-                <CircularProgress />
+                <CircularProgress color="secondary" />
             </Box>
         );
     }

@@ -1,51 +1,61 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, Container, Grid, Paper, Skeleton } from "@mui/material";
+import { subscribeToGoldRates, subscribeToGoldMultiplier, type GoldRates } from "../../firebase/goldRateService";
 
 const GoldRate = () => {
-  const [rate24, setRate24] = useState<number | null>(null);
+  const [goldRates, setGoldRates] = useState<GoldRates | null>(null);
+  const [multiplier, setMultiplier] = useState<number>(1.07);
   const [loading, setLoading] = useState(true);
 
-  const fetchGoldRate = async () => {
-    try {
-      setLoading(true);
-      const API_KEY = "OBAL00RQP9OL3XUCTGVI227UCTGVI";
-      const response = await fetch(
-        `https://api.metals.dev/v1/latest?api_key=${API_KEY}&currency=INR`
-      );
-      const data = await response.json();
-      const goldPerOunce = data?.metals?.gold;
-
-      if (!goldPerOunce) {
-        setRate24(null);
-        setLoading(false);
-        return;
-      }
-
-      const gramPrice = goldPerOunce / 31.103476;
-      setRate24(parseFloat(gramPrice.toFixed(2)));
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching gold rate:", error);
-      setRate24(null);
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchGoldRate();
-    const interval = setInterval(fetchGoldRate, 10 * 60 * 1000);
-    return () => clearInterval(interval);
+    setLoading(true);
+
+    // Subscribe to real-time updates for gold rates
+    const unsubscribeRates = subscribeToGoldRates((rates) => {
+      setGoldRates(rates);
+      if (rates) setLoading(false);
+    });
+
+    // Subscribe to real-time updates for multiplier
+    const unsubscribeMultiplier = subscribeToGoldMultiplier((m) => {
+      if (m) setMultiplier(m.value);
+    });
+
+    return () => {
+      unsubscribeRates();
+      unsubscribeMultiplier();
+    };
   }, []);
 
-  // Calculations
-  const rate22 = rate24 ? Math.round(rate24 * 0.916) : null;
-  const rate18 = rate24 ? Math.round(rate24 * 0.75) : null;
-  const rate14 = rate24 ? Math.round(rate24 * 0.585) : null;
-
   const rates = [
-    { purity: "14 Karat", value: rate14, label: "Affordable Luxury" },
-    { purity: "18 Karat", value: rate18, label: "Diamond Jewellery" },
-    { purity: "22 Karat", value: rate22, label: "Standard Gold" },
+    {
+      purity: "14 Karat",
+      value: goldRates?.gold14k
+        ? Math.round(goldRates.gold14k * multiplier)
+        : 0,
+      label: "Affordable Luxury",
+    },
+    {
+      purity: "18 Karat",
+      value: goldRates?.gold18k
+        ? Math.round(goldRates.gold18k * multiplier)
+        : 0,
+      label: "Diamond Jewellery",
+    },
+    {
+      purity: "22 Karat",
+      value: goldRates?.gold22k
+        ? Math.round(goldRates.gold22k * multiplier)
+        : 0,
+      label: "Standard Gold",
+    },
+    {
+      purity: "24 Karat",
+      value: goldRates?.gold24k
+        ? Math.round(goldRates.gold24k * multiplier)
+        : 0,
+      label: "Pure Gold",
+    },
   ];
 
   return (
@@ -67,13 +77,13 @@ const GoldRate = () => {
             variant="body1"
             sx={{ color: "#666", fontStyle: "italic" }}
           >
-            Stay updated with the latest gold prices in your city
+            Stay updated with the latest gold prices in Tamil Nadu
           </Typography>
         </Box>
 
         <Grid container spacing={3} justifyContent="center">
           {rates.map((item, index) => (
-            <Grid size={{ xs: 12, sm: 4 }} key={index}>
+            <Grid key={index} size={{ xs: 12, sm: 6, md: 3 }}>
               <Paper
                 elevation={0}
                 sx={{
@@ -81,6 +91,15 @@ const GoldRate = () => {
                   textAlign: "center",
                   border: "1px solid #e0e0e0",
                   borderRadius: "8px",
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+                  }
                 }}
               >
                 <Typography
@@ -131,7 +150,7 @@ const GoldRate = () => {
 
         <Box sx={{ mt: 4, textAlign: "center" }}>
           <Typography variant="caption" sx={{ color: "#999" }}>
-            * Rates are indicative and subject to change.
+            * Rates are indicative and subject to change. Last updated: {goldRates?.updatedAt?.toDate ? goldRates.updatedAt.toDate().toLocaleString() : 'Recently'}
           </Typography>
         </Box>
       </Container>

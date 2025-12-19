@@ -29,6 +29,7 @@ import {
     ViewCarousel,
     ExitToApp,
     Home,
+    TrendingUp,
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -47,6 +48,7 @@ const AdminLayout: React.FC = () => {
         { text: 'Orders', icon: <ShoppingCart />, path: '/admin/orders' },
         { text: 'Users', icon: <People />, path: '/admin/users' },
         { text: 'Banner', icon: <ViewCarousel />, path: '/admin/banner' },
+        { text: 'Gold Rate', icon: <TrendingUp />, path: '/admin/gold-rate' },
     ];
 
     const handleDrawerToggle = () => {

@@ -156,7 +156,6 @@ const AdminOrders: React.FC = () => {
             contacted: orders.filter(o => o.status === 'contacted').length,
             notattended: orders.filter(o => o.status === 'notattended').length,
             cancelled: orders.filter(o => o.status === 'cancelled').length,
-            delivered: orders.filter(o => o.status === 'delivered').length,
         };
         return counts;
     }, [orders]);
@@ -169,7 +168,7 @@ const AdminOrders: React.FC = () => {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-                <CircularProgress size={60} thickness={4} />
+                <CircularProgress color="secondary" size={60} thickness={4} />
             </Box>
         );
     }
@@ -224,7 +223,6 @@ const AdminOrders: React.FC = () => {
                     <Tab label={`Contacted (${statusCounts.contacted})`} value="contacted" />
                     <Tab label={`Not Attended (${statusCounts.notattended})`} value="notattended" />
                     <Tab label={`Cancelled (${statusCounts.cancelled})`} value="cancelled" />
-                    <Tab label={`Delivered (${statusCounts.delivered})`} value="delivered" />
                 </Tabs>
 
                 {/* Toolbar */}
@@ -288,7 +286,6 @@ const AdminOrders: React.FC = () => {
                                             <MenuItem value="contacted">Contacted</MenuItem>
                                             <MenuItem value="notattended">Not Attended</MenuItem>
                                             <MenuItem value="cancelled">Cancelled</MenuItem>
-                                            <MenuItem value="delivered">Delivered</MenuItem>
                                         </Select>
                                     </TableCell>
                                     <TableCell>
