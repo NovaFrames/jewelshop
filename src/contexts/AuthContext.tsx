@@ -1,5 +1,5 @@
 // src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { User, ConfirmationResult } from 'firebase/auth';
 import {
@@ -67,6 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [userData, setUserData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
     const [loginModalOpen, setLoginModalOpen] = useState(false);
+    const recaptchaVerifiers = useRef<Record<string, RecaptchaVerifier>>({});
 
     // Fetch user data from Firestore
     const fetchUserData = async (uid: string) => {
@@ -130,16 +131,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             // Format phone number to include country code if not present
             const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
 
-            // Create RecaptchaVerifier
-            const recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainer, {
-                size: 'invisible',
-            });
+            // Reuse existing verifier for this container if it exists
+            let recaptchaVerifier = recaptchaVerifiers.current[recaptchaContainer];
+
+            if (!recaptchaVerifier) {
+                recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainer, {
+                    size: 'invisible',
+                });
+                recaptchaVerifiers.current[recaptchaContainer] = recaptchaVerifier;
+            }
 
             // Send OTP
             const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, recaptchaVerifier);
             return confirmationResult;
         } catch (error: any) {
             console.error('Send OTP error:', error);
+            // If it fails, clear the verifier so the next attempt can try fresh
+            if (recaptchaVerifiers.current[recaptchaContainer]) {
+                try {
+                    recaptchaVerifiers.current[recaptchaContainer].clear();
+                } catch (e) { }
+                delete recaptchaVerifiers.current[recaptchaContainer];
+            }
             throw new Error(error.message || 'Failed to send OTP');
         }
     };
