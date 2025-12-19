@@ -10,7 +10,7 @@ const UserLayout = () => {
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
 
-            <Box component="main" sx={{ flexGrow: 1 }}>
+            <Box component="main" sx={{ flexGrow: 1, pb: { xs: 8, md: 0 } }}>
                 <Outlet />
             </Box>
 

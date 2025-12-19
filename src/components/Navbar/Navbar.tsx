@@ -27,11 +27,19 @@ import {
   ExpandLess,
   ExpandMore,
   HelpOutline,
-  Search as SearchIcon,
   ReceiptLong,
   LocalShippingOutlined,
   PhoneOutlined,
+  AutoAwesomeOutlined,
+  DiamondOutlined,
+  FavoriteBorder,
+  RadioButtonUnchecked,
+  BlurCircular,
+  FilterVintageOutlined,
+  BrightnessLow,
+  CircleOutlined,
 } from "@mui/icons-material";
+import MobileBottomNav from "./MobileBottomNav";
 import { Link as RouterLink } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
@@ -53,10 +61,26 @@ const MobileNavItem = ({
   const [open, setOpen] = useState(false);
   const hasSubmenu = item.hasMegaMenu && item.megaMenuData;
 
+  const getIcon = (iconName?: string) => {
+    switch (iconName) {
+      case 'StorefrontOutlined': return <StorefrontOutlined />;
+      case 'AutoAwesomeOutlined': return <AutoAwesomeOutlined />;
+      case 'DiamondOutlined': return <DiamondOutlined />;
+      case 'FavoriteBorder': return <FavoriteBorder />;
+      case 'RadioButtonUnchecked': return <RadioButtonUnchecked />;
+      case 'BlurCircular': return <BlurCircular />;
+      case 'FilterVintageOutlined': return <FilterVintageOutlined />;
+      case 'BrightnessLow': return <BrightnessLow />;
+      case 'CircleOutlined': return <CircleOutlined />;
+      default: return <StorefrontOutlined />;
+    }
+  };
+
   const handleClick = () => {
     if (hasSubmenu) setOpen(!open);
     else onClose();
   };
+
 
   return (
     <>
@@ -70,18 +94,23 @@ const MobileNavItem = ({
             justifyContent: "space-between",
             textTransform: "none",
             color: "#333",
-            py: 2,
-            px: 2,
-            borderBottom: "1px solid #eee",
-            "&:active": { bgcolor: "#f2f2f2" },
+            py: 1.8,
+            px: 2.5,
+            borderBottom: "1px solid #f5f5f5",
+            "&:active": { bgcolor: "#f9f9f9" },
           }}
         >
-          <Typography fontWeight={500}>{item.name}</Typography>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box sx={{ color: "#832729", display: 'flex' }}>
+              {getIcon(item.icon)}
+            </Box>
+            <Typography fontWeight={500} sx={{ fontSize: '0.95rem' }}>{item.name}</Typography>
+          </Stack>
           {hasSubmenu &&
             (open ? (
-              <ExpandLess sx={{ color: "#832729" }} />
+              <ExpandLess sx={{ color: "#ccc", fontSize: 20 }} />
             ) : (
-              <ExpandMore sx={{ color: "#832729" }} />
+              <ExpandMore sx={{ color: "#ccc", fontSize: 20 }} />
             ))}
         </Button>
       </ListItem>
@@ -283,9 +312,6 @@ const Navbar: React.FC = () => {
 
               {/* Right */}
               <Stack direction="row" spacing={1}>
-                <IconButton sx={{ display: { xs: "flex", md: "none" } }}>
-                  <SearchIcon />
-                </IconButton>
                 <Stack direction="row" spacing={1} sx={{ display: { xs: "none", md: "flex" } }}>
                   <IconButton
                     onClick={handleProfileClick}
@@ -305,10 +331,10 @@ const Navbar: React.FC = () => {
                       <PersonOutline />
                     )}
                   </IconButton>
-                  <IconButton component={RouterLink} to="/orders">
-                    <ReceiptLong />
-                  </IconButton>
                 </Stack>
+                <IconButton component={RouterLink} to="/orders">
+                  <ReceiptLong />
+                </IconButton>
                 <IconButton component={RouterLink} to="/cart">
                   <Badge
                     badgeContent={cartCount}
@@ -384,64 +410,86 @@ const Navbar: React.FC = () => {
       <Drawer
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        sx={{ "& .MuiDrawer-paper": { width: { xs: "85%", sm: 350 } } }}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: { xs: "85%", sm: 350 },
+            borderTopRightRadius: 16,
+            borderBottomRightRadius: 16,
+          }
+        }}
       >
         {/* Header */}
-        <Box sx={{ p: 2, bgcolor: "#832729", color: "#fff" }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Box
-              sx={{ display: "flex", alignItems: "center", gap: 1, cursor: 'pointer' }}
-              onClick={() => {
-                setMobileOpen(false);
-                if (currentUser) {
-                  window.location.href = '/account';
-                } else {
-                  setLoginModalOpen(true);
-                }
-              }}
-            >
-              {currentUser && userData ? (
-                <>
-                  <Avatar src={userData.avatar} sx={{ width: 32, height: 32 }} />
-                  <Typography fontWeight={600}>{userData.name}</Typography>
-                </>
-              ) : (
-                <>
-                  <PersonOutline />
-                  <Typography fontWeight={600}>Login / Signup</Typography>
-                </>
-              )}
-            </Box>
-            <IconButton onClick={() => setMobileOpen(false)} sx={{ color: "#fff" }}>
-              <Close />
+        <Box sx={{ p: 3, bgcolor: "#fff", borderBottom: "1px solid #eee" }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ color: "#832729", fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>
+              JEWELRY
+            </Typography>
+            <IconButton onClick={() => setMobileOpen(false)} sx={{ color: "#333", bgcolor: '#f5f5f5' }}>
+              <Close fontSize="small" />
             </IconButton>
           </Stack>
-        </Box>
 
-        {/* Search */}
-        <Box sx={{ p: 2 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            color='secondary'
-            startIcon={<SearchIcon />}
-            sx={{ justifyContent: "flex-start", color: "#555", borderColor: "#ddd" }}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              cursor: 'pointer',
+              p: 2,
+              bgcolor: '#fcf8f8',
+              borderRadius: 2,
+              border: '1px solid #f0e6e6'
+            }}
+            onClick={() => {
+              setMobileOpen(false);
+              handleProfileClick();
+            }}
           >
-            Search Jewelry
-          </Button>
+            {currentUser && userData ? (
+              <>
+                <Avatar src={userData.avatar} sx={{ width: 45, height: 45, border: '2px solid #832729' }} />
+                <Box>
+                  <Typography fontWeight={600} color="#333">{userData.name}</Typography>
+                  <Typography variant="caption" color="textSecondary">View Profile</Typography>
+                </Box>
+              </>
+            ) : (
+              <>
+                <Avatar sx={{ bgcolor: '#832729', width: 45, height: 45 }}>
+                  <PersonOutline />
+                </Avatar>
+                <Box>
+                  <Typography fontWeight={600} color="#333">Welcome Guest</Typography>
+                  <Typography variant="caption" color="textSecondary">Login / Signup to your account</Typography>
+                </Box>
+              </>
+            )}
+          </Box>
         </Box>
 
         {/* Menu */}
-        <List disablePadding>
-          {navItems.map((item) => (
-            <MobileNavItem
-              key={item.name}
-              item={item}
-              onClose={() => setMobileOpen(false)}
-            />
-          ))}
-        </List>
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', pb: 8 }}>
+          <Typography variant="overline" sx={{ px: 3, color: '#999', fontWeight: 600 }}>
+            Shop By Category
+          </Typography>
+          <List disablePadding>
+            {navItems.map((item) => (
+              <MobileNavItem
+                key={item.name}
+                item={item}
+                onClose={() => setMobileOpen(false)}
+              />
+            ))}
+          </List>
+        </Box>
       </Drawer>
+
+      {/* -------------------- MOBILE BOTTOM NAV -------------------- */}
+      <MobileBottomNav
+        cartCount={cartCount}
+        onOpenDrawer={() => setMobileOpen(true)}
+        onProfileClick={handleProfileClick}
+      />
 
       {/* Login Modal removed as it is now global in App.tsx */}
     </>

@@ -37,6 +37,7 @@ export const navItems: NavItem[] = [
     {
         name: 'All Jewellery',
         path: '/all-jewellery',
+        icon: 'StorefrontOutlined',
         hasMegaMenu: true,
         megaMenuData: {
             tabs: ['Category'],
@@ -67,6 +68,7 @@ export const navItems: NavItem[] = [
     {
         name: 'Gold',
         path: '/gold/all',
+        icon: 'AutoAwesomeOutlined',
         hasMegaMenu: true,
         megaMenuData: {
             tabs: ['Category'],
@@ -96,6 +98,7 @@ export const navItems: NavItem[] = [
     {
         name: 'Diamond',
         path: '/diamond/all',
+        icon: 'DiamondOutlined',
         hasMegaMenu: true,
         megaMenuData: {
             tabs: ['Category'],
@@ -122,12 +125,12 @@ export const navItems: NavItem[] = [
             }
         }
     },
-    { name: 'Earrings', path: '/earrings' },
-    { name: 'Rings', path: '/rings' },
-    { name: 'Bracelets', path: '/bracelets' },
-    { name: 'Necklaces', path: '/necklaces' },
-    { name: 'Nose Pins', path: '/nose-pin' },
-    { name: 'Bangles', path: '/bangles' },
+    { name: 'Earrings', path: '/earrings', icon: 'FavoriteBorder' },
+    { name: 'Rings', path: '/rings', icon: 'RadioButtonUnchecked' },
+    { name: 'Bracelets', path: '/bracelets', icon: 'BlurCircular' },
+    { name: 'Necklaces', path: '/necklaces', icon: 'FilterVintageOutlined' },
+    { name: 'Nose Pins', path: '/nose-pin', icon: 'BrightnessLow' },
+    { name: 'Bangles', path: '/bangles', icon: 'CircleOutlined' },
 
 
 ];
