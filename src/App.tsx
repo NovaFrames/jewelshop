@@ -100,18 +100,20 @@ const AppContent = () => {
 };
 
 function App() {
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <AuthProvider>
-      <SnackbarProvider>
-        <CartProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </CartProvider>
-      </SnackbarProvider>
-    </AuthProvider>
-  </ThemeProvider>
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <SnackbarProvider>
+          <CartProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </CartProvider>
+        </SnackbarProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
 }
 
 export default App;

@@ -345,12 +345,13 @@ const AddToCart: React.FC = () => {
                     <Grid size={{ xs: 12, md: 8 }}>
                         <Paper elevation={0} sx={{ border: '1px solid #eee', }}>
                             {/* Header */}
-                            <Box sx={{ display: { xs: 'none', md: 'flex' }, p: 2, borderBottom: '1px solid #eee', bgcolor: '#f9f9f9' }}>
+                            <Box sx={{ p: 2, borderBottom: '1px solid #eee', bgcolor: '#f9f9f9', display: { xs: 'none', md: 'block' } }}>
                                 <Grid container spacing={2}>
-                                    <Grid size={5}><Typography variant="subtitle2" fontWeight={600}>PRODUCT</Typography></Grid>
+                                    <Grid size={4}><Typography variant="subtitle2" fontWeight={600}>PRODUCT</Typography></Grid>
                                     <Grid size={2}><Typography variant="subtitle2" fontWeight={600} align="center">PRICE</Typography></Grid>
-                                    <Grid size={3}><Typography variant="subtitle2" fontWeight={600} align="center">QUANTITY</Typography></Grid>
+                                    <Grid size={2}><Typography variant="subtitle2" fontWeight={600} align="center">QUANTITY</Typography></Grid>
                                     <Grid size={2}><Typography variant="subtitle2" fontWeight={600} align="right">SUBTOTAL</Typography></Grid>
+                                    <Grid size={2}><Typography variant="subtitle2" fontWeight={600} align="right">ACTION</Typography></Grid>
                                 </Grid>
                             </Box>
 
@@ -361,15 +362,8 @@ const AddToCart: React.FC = () => {
                                         {index > 0 && <Divider sx={{ my: 2 }} />}
                                         <Grid container spacing={2} alignItems="center">
                                             {/* Product */}
-                                            <Grid size={{ xs: 12, md: 5 }}>
+                                            <Grid size={{ xs: 12, md: 4 }}>
                                                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={() => handleDeleteClick(item.productId)}
-                                                        sx={{ color: '#999', '&:hover': { color: '#d32f2f' } }}
-                                                    >
-                                                        <Delete fontSize="small" />
-                                                    </IconButton>
                                                     <Box
                                                         component="img"
                                                         src={item.image}
@@ -389,31 +383,50 @@ const AddToCart: React.FC = () => {
 
                                             {/* Price */}
                                             <Grid size={{ xs: 6, md: 2 }}>
-                                                <Typography variant="body1" align="center" sx={{ display: { xs: 'block', md: 'block' } }}>
-                                                    ₹{item.price}
-                                                </Typography>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'center' } }}>
+                                                    <Typography variant="body2" sx={{ display: { xs: 'block', md: 'none' } }} color="text.secondary">Price:</Typography>
+                                                    <Typography variant="body1">
+                                                        ₹{item.price}
+                                                    </Typography>
+                                                </Box>
                                             </Grid>
 
                                             {/* Quantity */}
-                                            <Grid size={{ xs: 6, md: 3 }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #ddd', borderRadius: 1, width: 'fit-content', mx: 'auto' }}>
-                                                    <IconButton size="small" onClick={() => handleDecreaseQuantity(item.productId)} disabled={item.quantity <= 1}>
-                                                        <Remove fontSize="small" />
-                                                    </IconButton>
-                                                    <Typography sx={{ px: 2, minWidth: 30, textAlign: 'center' }}>{item.quantity}</Typography>
-                                                    <IconButton size="small" onClick={() => handleIncreaseQuantity(item.productId)}>
-                                                        <Add fontSize="small" />
-                                                    </IconButton>
+                                            <Grid size={{ xs: 6, md: 2 }}>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <Typography variant="body2" sx={{ display: { xs: 'block', md: 'none' } }} color="text.secondary">Quantity:</Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: 1, width: 'fit-content' }}>
+                                                        <IconButton size="small" onClick={() => handleDecreaseQuantity(item.productId)} disabled={item.quantity <= 1}>
+                                                            <Remove fontSize="small" />
+                                                        </IconButton>
+                                                        <Typography sx={{ px: 1, minWidth: 25, textAlign: 'center' }}>{item.quantity}</Typography>
+                                                        <IconButton size="small" onClick={() => handleIncreaseQuantity(item.productId)}>
+                                                            <Add fontSize="small" />
+                                                        </IconButton>
+                                                    </Box>
                                                 </Box>
                                             </Grid>
 
                                             {/* Subtotal */}
-                                            <Grid size={{ xs: 12, md: 2 }}>
-                                                <Box sx={{ display: 'flex', justifyContent: { xs: 'space-between', md: 'flex-end' }, alignItems: 'center' }}>
+                                            <Grid size={{ xs: 6, md: 2 }}>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' } }}>
                                                     <Typography variant="body2" sx={{ display: { xs: 'block', md: 'none' } }} color="text.secondary">Subtotal:</Typography>
                                                     <Typography variant="subtitle1" fontWeight={600} color="#832729">
                                                         ₹{item.price * item.quantity}
                                                     </Typography>
+                                                </Box>
+                                            </Grid>
+
+                                            {/* Delete Button */}
+                                            <Grid size={{ xs: 6, md: 2 }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleDeleteClick(item.productId)}
+                                                        sx={{ color: '#999', '&:hover': { color: '#d32f2f' } }}
+                                                    >
+                                                        <Delete fontSize="small" />
+                                                    </IconButton>
                                                 </Box>
                                             </Grid>
                                         </Grid>
