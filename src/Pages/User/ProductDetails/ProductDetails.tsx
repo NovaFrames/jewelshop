@@ -259,14 +259,22 @@ const ProductDetails: React.FC = () => {
                                     (1 customer review)
                                 </Typography>
                             </Box>
-
+                            <Typography
+                                sx={{
+                                    fontWeight: 50,
+                                    color: 'theme.palette.primary.main',
+                                    fontFamily: 'Playfair Display, serif',
+                                }}
+                            >
+                                {product.weight}g
+                            </Typography>
                             {/* Price */}
                             <Typography
                                 variant="h4"
                                 sx={{
                                     fontWeight: 600,
                                     mb: 3,
-                                    color: '#832729',
+                                    color: 'theme.palette.primary.main',
                                     fontFamily: 'Playfair Display, serif'
                                 }}
                             >
@@ -286,6 +294,7 @@ const ProductDetails: React.FC = () => {
                                     </Typography>
                                 )}
                             </Typography>
+
 
                             <Typography variant="body1" paragraph sx={{ color: '#666', mb: 4, lineHeight: 1.8 }}>
                                 {product.description}
