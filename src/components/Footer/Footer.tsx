@@ -6,8 +6,6 @@ import {
   Grid,
   Typography,
   Link,
-  TextField,
-  Button,
   Stack,
   IconButton,
   Divider,
@@ -20,72 +18,69 @@ import {
   Email,
   Phone,
   LocationOn,
-  ArrowForward,
 } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 
 const Footer: React.FC = () => {
-  const quickLinks = [
+  const shopLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Collections', href: '/collections' },
-    { label: 'New Arrivals', href: '/new-arrivals' },
-    { label: 'Best Sellers', href: '/best-sellers' },
-    { label: 'Sale', href: '/sale' },
+    { label: 'All Jewellery', href: '/all-jewellery' },
+    { label: 'My Account', href: '/account' },
+    { label: 'My Orders', href: '/orders' },
+    { label: 'Cart', href: '/cart' },
   ];
 
   const categories = [
-    { label: 'Necklaces', href: '/collections/necklaces' },
-    { label: 'Earrings', href: '/collections/earrings' },
-    { label: 'Rings', href: '/collections/rings' },
-    { label: 'Bracelets', href: '/collections/bracelets' },
-    { label: 'Watches', href: '/collections/watches' },
+    { label: 'Earrings', href: '/earrings' },
+    { label: 'Rings', href: '/rings' },
+    { label: 'Necklaces', href: '/necklaces' },
+    { label: 'Bangles', href: '/bangles' },
+    { label: 'Bracelets', href: '/bracelets' },
   ];
 
   const companyLinks = [
-    { label: 'About Us', href: '/about' },
-    { label: 'Contact', href: '/contact' },
-    { label: 'FAQs', href: '/faq' },
-    { label: 'Shipping Policy', href: '/shipping' },
-    { label: 'Return Policy', href: '/returns' },
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
+    { label: 'Contact Us', href: '/contact' },
   ];
 
   return (
     <Box
       component="footer"
       sx={{
-        pt: { xs: 8, md: 12 },
+        pt: { xs: 8, md: 10 },
         pb: { xs: 4, md: 6 },
+        bgcolor: '#fdfbf7',
+        borderTop: '1px solid',
+        borderColor: 'divider',
       }}
     >
-      <Container>
+      <Container maxWidth="lg">
         <Grid container spacing={6}>
           {/* Brand Column */}
           <Grid size={{ xs: 12, md: 4 }}>
             <Typography
               variant="h4"
               sx={{
-                fontFamily: '"Playfair Display", serif',
+                fontFamily: '"DM Sans", serif',
                 letterSpacing: 2,
                 mb: 3,
                 fontWeight: 700,
-                fontSize: { xs: "1.5rem", md: "2rem" },
+                color: 'primary.main',
+                fontSize: { xs: "1.5rem", md: "1.8rem" },
               }}
             >
               JEWELRY
             </Typography>
-            <Typography variant="body2" sx={{ mb: 4, opacity: 0.8 }}>
+            <Typography variant="body2" sx={{ mb: 4, color: 'text.secondary', maxWidth: 300 }}>
               Timeless elegance meets modern luxury. We craft jewelry pieces
               that tell your unique story with exceptional quality and design.
             </Typography>
 
-            <Stack direction="row" spacing={2} sx={{ mb: 4 }}>
+            <Stack direction="row" spacing={1.5}>
               {[
-                { icon: <Facebook />, href: '#' },
-                { icon: <Instagram />, href: '#' },
-                { icon: <Pinterest />, href: '#' },
-                { icon: <Twitter />, href: '#' },
+                { icon: <Facebook fontSize="small" />, href: '#' },
+                { icon: <Instagram fontSize="small" />, href: '#' },
+                { icon: <Pinterest fontSize="small" />, href: '#' },
+                { icon: <Twitter fontSize="small" />, href: '#' },
               ].map((social, index) => (
                 <IconButton
                   key={index}
@@ -94,11 +89,13 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   sx={{
-                    color: 'black',
-                    bgcolor: 'rgba(0, 0, 0, 0.1)',
+                    color: 'primary.main',
+                    bgcolor: 'rgba(125, 60, 60, 0.05)',
                     '&:hover': {
-                      bgcolor: 'rgba(0, 0, 0, 0.2)',
+                      bgcolor: 'primary.main',
+                      color: 'white',
                     },
+                    transition: 'all 0.3s ease',
                   }}
                 >
                   {social.icon}
@@ -107,22 +104,23 @@ const Footer: React.FC = () => {
             </Stack>
           </Grid>
 
-          {/* Quick Links */}
-          <Grid size={{ xs: 12, md: 2 }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+          {/* Shop Links */}
+          <Grid size={{ xs: 6, md: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 3, fontWeight: 700, color: 'text.primary' }}>
               Shop
             </Typography>
             <Stack spacing={1.5}>
-              {quickLinks.map((link) => (
+              {shopLinks.map((link) => (
                 <Link
                   key={link.label}
                   component={RouterLink}
                   to={link.href}
-                  color="inherit"
-                  underline="hover"
+                  color="text.secondary"
+                  underline="none"
                   sx={{
-                    opacity: 0.8,
-                    '&:hover': { opacity: 1 },
+                    fontSize: '0.875rem',
+                    '&:hover': { color: 'secondary.main' },
+                    transition: 'color 0.2s ease',
                   }}
                 >
                   {link.label}
@@ -132,8 +130,8 @@ const Footer: React.FC = () => {
           </Grid>
 
           {/* Categories */}
-          <Grid size={{ xs: 12, md: 2 }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+          <Grid size={{ xs: 6, md: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 3, fontWeight: 700, color: 'text.primary' }}>
               Categories
             </Typography>
             <Stack spacing={1.5}>
@@ -142,11 +140,12 @@ const Footer: React.FC = () => {
                   key={category.label}
                   component={RouterLink}
                   to={category.href}
-                  color="inherit"
-                  underline="hover"
+                  color="text.secondary"
+                  underline="none"
                   sx={{
-                    opacity: 0.8,
-                    '&:hover': { opacity: 1 },
+                    fontSize: '0.875rem',
+                    '&:hover': { color: 'secondary.main' },
+                    transition: 'color 0.2s ease',
                   }}
                 >
                   {category.label}
@@ -155,96 +154,71 @@ const Footer: React.FC = () => {
             </Stack>
           </Grid>
 
-          {/* Company */}
-          <Grid size={{ xs: 12, md: 2 }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-              Company
+          {/* Company & Contact */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Typography variant="subtitle1" sx={{ mb: 3, fontWeight: 700, color: 'text.primary' }}>
+              Contact Us
             </Typography>
-            <Stack spacing={1.5}>
-              {companyLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  component={RouterLink}
-                  to={link.href}
-                  color="inherit"
-                  underline="hover"
-                  sx={{
-                    opacity: 0.8,
-                    '&:hover': { opacity: 1 },
-                  }}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </Stack>
-          </Grid>
-
-          {/* Newsletter */}
-          <Grid size={{ xs: 12, md: 2 }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-              Stay Updated
-            </Typography>
-            <Box component="form">
-              <TextField
-                fullWidth
-                placeholder="Your email"
-                variant="outlined"
-                size="small"
-                sx={{ mb: 2 }}
-              />
-              <Button
-                fullWidth
-                variant="contained"
-                color='secondary'
-                endIcon={<ArrowForward />}
-                sx={{
-                  textTransform: 'none',
-                  fontWeight: 500,
-                }}
-              >
-                Subscribe
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-
-        <Divider sx={{ my: 6, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-
-        {/* Bottom Bar */}
-        <Grid container spacing={2} alignItems="center">
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="body2" sx={{ opacity: 0.7 }}>
-              &copy; {new Date().getFullYear()} Jewelry Store. All rights reserved.
-            </Typography>
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack
-              direction="row"
-              spacing={3}
-              justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-              sx={{ flexWrap: 'wrap', gap: 2 }}
-            >
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Phone sx={{ fontSize: 16, opacity: 0.7 }} />
-                <Typography variant="body2" sx={{ opacity: 0.7 }}>
+            <Stack spacing={2.5}>
+              <Stack direction="row" spacing={2} alignItems="flex-start">
+                <LocationOn sx={{ color: 'secondary.main', fontSize: 20, mt: 0.3 }} />
+                <Typography variant="body2" color="text.secondary">
+                  123 Jewelry Avenue, Luxury District,<br />
+                  New York, NY 10001
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Phone sx={{ color: 'secondary.main', fontSize: 20 }} />
+                <Typography variant="body2" color="text.secondary">
                   +1 (555) 123-4567
                 </Typography>
               </Stack>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Email sx={{ fontSize: 16, opacity: 0.7 }} />
-                <Typography variant="body2" sx={{ opacity: 0.7 }}>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Email sx={{ color: 'secondary.main', fontSize: 20 }} />
+                <Typography variant="body2" color="text.secondary">
                   support@jewelry.com
                 </Typography>
               </Stack>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <LocationOn sx={{ fontSize: 16, opacity: 0.7 }} />
-                <Typography variant="body2" sx={{ opacity: 0.7 }}>
-                  New York, NY
-                </Typography>
-              </Stack>
+              <Box sx={{ pt: 1 }}>
+                {companyLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    component={RouterLink}
+                    to={link.href}
+                    color="text.secondary"
+                    underline="none"
+                    sx={{
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      '&:hover': { color: 'secondary.main' },
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </Box>
             </Stack>
           </Grid>
         </Grid>
+
+        <Divider sx={{ my: 6, opacity: 0.5 }} />
+
+        {/* Bottom Bar */}
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 2
+        }}>
+          <Typography variant="caption" color="text.secondary">
+            &copy; {new Date().getFullYear()} Jewelry Store. All rights reserved.
+          </Typography>
+          <Stack direction="row" spacing={3}>
+            <Link href="#" underline="none" color="text.secondary" sx={{ fontSize: '0.75rem' }}>Privacy Policy</Link>
+            <Link href="#" underline="none" color="text.secondary" sx={{ fontSize: '0.75rem' }}>Terms of Service</Link>
+          </Stack>
+        </Box>
       </Container>
     </Box>
   );
