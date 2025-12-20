@@ -17,7 +17,6 @@ import {
     DialogContentText,
 } from '@mui/material';
 import {
-    Delete,
     ShoppingBagOutlined,
     Add,
     Remove,
