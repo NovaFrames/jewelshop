@@ -311,39 +311,53 @@ const Navbar: React.FC = () => {
               </Box>
 
               {/* Right */}
-              <Stack direction="row" spacing={1}>
-                <Stack direction="row" spacing={1} sx={{ display: { xs: "none", md: "flex" } }}>
-                  <IconButton
-                    onClick={handleProfileClick}
-                    sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+
+                {currentUser && userData?.role === "admin" ? (
+                  <Button
+                    component={RouterLink}
+                    to="/admin"
+                    startIcon={<PersonOutline />}
+                    sx={{ display: { xs: "none", md: "flex" }, color: "#333", textTransform: "none" }}
                   >
-                    {currentUser && userData ? (
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Avatar
-                          src={userData.avatar}
-                          sx={{ width: 32, height: 32 }}
-                        />
-                        <Typography variant="body2" sx={{ display: { xs: 'none', lg: 'block' } }}>
-                          {userData.name}
-                        </Typography>
-                      </Stack>
-                    ) : (
-                      <PersonOutline />
-                    )}
+                    Admin
+                  </Button>
+                ) : null}
+
+                <Stack direction="row" spacing={1}>
+                  <Stack direction="row" spacing={1} sx={{ display: { xs: "none", md: "flex" } }}>
+                    <Button
+                      onClick={handleProfileClick}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                    >
+                      {currentUser && userData ? (
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Avatar
+                            src={userData.avatar}
+                            sx={{ width: 32, height: 32 }}
+                          />
+                          <Typography variant="body2" sx={{ display: { xs: 'none', lg: 'block' } }}>
+                            {userData.name}
+                          </Typography>
+                        </Stack>
+                      ) : (
+                        <PersonOutline />
+                      )}
+                    </Button>
+                  </Stack>
+                  <IconButton component={RouterLink} to="/orders">
+                    <ReceiptLong />
+                  </IconButton>
+                  <IconButton component={RouterLink} to="/cart">
+                    <Badge
+                      badgeContent={cartCount}
+                      sx={{ "& .MuiBadge-badge": { bgcolor: "#832729", color: "white" } }}
+                    >
+                      <ShoppingBagOutlined />
+                    </Badge>
                   </IconButton>
                 </Stack>
-                <IconButton component={RouterLink} to="/orders">
-                  <ReceiptLong />
-                </IconButton>
-                <IconButton component={RouterLink} to="/cart">
-                  <Badge
-                    badgeContent={cartCount}
-                    sx={{ "& .MuiBadge-badge": { bgcolor: "#832729", color: "white" } }}
-                  >
-                    <ShoppingBagOutlined />
-                  </Badge>
-                </IconButton>
-              </Stack>
+              </Box>
             </Toolbar>
           </Container>
         </Box>

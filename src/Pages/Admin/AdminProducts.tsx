@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Box,
     Button,
@@ -25,7 +25,7 @@ import {
     Stack
 } from '@mui/material';
 import Loader from '../../components/Common/Loader';
-import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, CloudUpload as CloudUploadIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, CloudUpload as CloudUploadIcon, Close as CloseIcon, Search as SearchIcon } from '@mui/icons-material';
 import { type Product } from '../User/Products/Products';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../firebase/productService';
 import { getCategories, getMaterials, type Category, type Material } from '../../firebase/categoryService';
@@ -43,6 +43,9 @@ const AdminProducts: React.FC = () => {
     const [uploading, setUploading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedMaterial, setSelectedMaterial] = useState('All');
     const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -210,6 +213,16 @@ const AdminProducts: React.FC = () => {
         }));
     };
 
+    const filteredProducts = useMemo(() => {
+        return products.filter(product => {
+            const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+            const matchesMaterial = selectedMaterial === 'All' || product.material === selectedMaterial;
+            return matchesSearch && matchesCategory && matchesMaterial;
+        });
+    }, [products, searchQuery, selectedCategory, selectedMaterial]);
+
     return (
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -226,6 +239,74 @@ const AdminProducts: React.FC = () => {
                 </Button>
             </Box>
 
+            {/* Filters Section */}
+            <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid size={{ xs: 12, md: 4 }}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            placeholder="Search products..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            InputProps={{
+                                startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+                            }}
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <TextField
+                            select
+                            fullWidth
+                            size="small"
+                            label="Filter by Category"
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                        >
+                            <MenuItem value="All">All Categories</MenuItem>
+                            {categories.map((cat) => (
+                                <MenuItem key={cat.id} value={cat.name}>{cat.name}</MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <TextField
+                            select
+                            fullWidth
+                            size="small"
+                            label="Filter by Material"
+                            value={selectedMaterial}
+                            onChange={(e) => setSelectedMaterial(e.target.value)}
+                        >
+                            <MenuItem value="All">All Materials</MenuItem>
+                            {materials.map((mat) => (
+                                <MenuItem key={mat.id} value={mat.name}>{mat.name}</MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 2 }}>
+                        <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
+                            <Typography variant="body2" color="text.secondary">
+                                {filteredProducts.length} Products
+                            </Typography>
+                            {(searchQuery || selectedCategory !== 'All' || selectedMaterial !== 'All') && (
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        setSearchQuery('');
+                                        setSelectedCategory('All');
+                                        setSelectedMaterial('All');
+                                    }}
+                                    sx={{ textTransform: 'none' }}
+                                >
+                                    Clear
+                                </Button>
+                            )}
+                        </Stack>
+                    </Grid>
+                </Grid>
+            </Paper>
+
             {loading ? (
                 <Loader sx={{ mt: 4 }} />
             ) : (
@@ -235,6 +316,7 @@ const AdminProducts: React.FC = () => {
                             <TableRow>
                                 <TableCell>Image</TableCell>
                                 <TableCell>Name</TableCell>
+                                <TableCell>Material</TableCell>
                                 <TableCell>Category</TableCell>
                                 <TableCell>Price</TableCell>
                                 <TableCell>Stock</TableCell>
@@ -242,7 +324,7 @@ const AdminProducts: React.FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {products.map((product) => (
+                            {filteredProducts.map((product) => (
                                 <TableRow key={product.id}>
                                     <TableCell>
                                         <Box
@@ -253,6 +335,7 @@ const AdminProducts: React.FC = () => {
                                         />
                                     </TableCell>
                                     <TableCell>{product.name}</TableCell>
+                                    <TableCell>{product.material}</TableCell>
                                     <TableCell>{product.category}</TableCell>
                                     <TableCell>₹{product.price}</TableCell>
                                     <TableCell>
