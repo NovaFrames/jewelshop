@@ -19,6 +19,7 @@ import AddToCart from './Pages/User/AddToCart/AddToCart';
 import Orders from './Pages/User/Orders/Orders';
 import Account from './Pages/User/Account/Account';
 import SelectedCategory from './Pages/User/SelectedCategory/SelectedCategory';
+import ContactPage from './Pages/User/ContactPage/ContactPage';
 
 // Admin Pages
 import AdminProducts from './Pages/Admin/AdminProducts';
@@ -63,6 +64,7 @@ const AppContent = () => {
           <Route path="/all-jewellery" element={<Shop />} />
           <Route path="/product/:productId" element={<ProductDetails />} />
           <Route path="/cart" element={<AddToCart />} />
+          <Route path="/contact" element={<ContactPage />} />
 
           {/* Categories */}
           <Route path="/earrings" element={<SelectedCategory />} />
