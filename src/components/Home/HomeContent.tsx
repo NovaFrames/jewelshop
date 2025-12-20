@@ -8,13 +8,44 @@ import {
     CardMedia,
     CardContent,
     Rating,
+    CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { products } from "../../Pages/User/Products/Products";
+import { type Product } from "../../Pages/User/Products/Products";
+import { getProducts } from "../../firebase/productService";
+import { useState, useEffect } from "react";
 
 export default function HomeContent() {
-
     const navigate = useNavigate();
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch products from database
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoading(true);
+                const fetchedProducts = await getProducts();
+                setProducts(fetchedProducts);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    // Show loading state
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <CircularProgress color="secondary" />
+            </Box>
+        );
+    }
+
     return (
         <Container maxWidth="lg" sx={{ py: 6 }}>
 

@@ -1,5 +1,5 @@
 // src/Pages/SelectedCategory/SelectedCategory.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
@@ -16,17 +16,38 @@ import {
     MenuItem,
     Stack,
     Button,
+    CircularProgress,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
     ShoppingCartOutlined as CartIcon,
 } from '@mui/icons-material';
-import { products } from '../Products/Products';
+import { type Product } from '../Products/Products';
+import { getProducts } from '../../../firebase/productService';
 
 const SelectedCategory: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [sortBy, setSortBy] = useState<string>('default');
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch products from database
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoading(true);
+                const fetchedProducts = await getProducts();
+                setProducts(fetchedProducts);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     // Parse the URL path to determine category and material
     const pathname = location.pathname;
@@ -110,6 +131,15 @@ const SelectedCategory: React.FC = () => {
     const handleSortChange = (event: SelectChangeEvent<string>) => {
         setSortBy(event.target.value);
     };
+
+    // Show loading state
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <CircularProgress color="secondary" />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh', py: 4 }}>

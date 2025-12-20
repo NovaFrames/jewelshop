@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import type { ReactNode } from 'react';
 import type { CartItem } from '../types';
-import { mockCartItems } from './mockCartData';
 
 interface CartState {
   items: CartItem[];
@@ -98,7 +97,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, {
-    items: mockCartItems, // Initialize with mock data
+    items: [], // Start with empty cart
     total: 0,
   });
 

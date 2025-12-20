@@ -33,6 +33,7 @@ import AdminGoldMultiplier from './Pages/Admin/AdminGoldMultiplier';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AdminRoute from './components/Auth/AdminRoute';
 import LoginModal from './components/Auth/LoginModal';
+import ScrollToTop from './components/Common/ScrollToTop';
 import theme from './theme/theme';
 
 const AppContent = () => {
@@ -44,6 +45,7 @@ const AppContent = () => {
 
   return (
     <>
+      <ScrollToTop />
       <Routes>
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminRoute />}>

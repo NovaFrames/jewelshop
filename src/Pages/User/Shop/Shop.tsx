@@ -1,5 +1,5 @@
 // src/Pages/Shop/Shop.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -20,18 +20,39 @@ import {
     Checkbox,
     Stack,
     Button,
+    CircularProgress,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
     ExpandMore as ExpandMoreIcon,
     ShoppingCartOutlined as CartIcon
 } from '@mui/icons-material';
-import { products, categories } from '../Products/Products';
+import { categories, type Product } from '../Products/Products';
+import { getProducts } from '../../../firebase/productService';
 
 const Shop: React.FC = () => {
     const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState<string>('Our Store');
     const [sortBy, setSortBy] = useState<string>('default');
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch products from database
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoading(true);
+                const fetchedProducts = await getProducts();
+                setProducts(fetchedProducts);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     // Filter products by category and search
     const filteredProducts = selectedCategory === 'Our Store'
@@ -60,7 +81,14 @@ const Shop: React.FC = () => {
         setSelectedCategory(categoryName);
     };
 
-
+    // Show loading state
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <CircularProgress color="secondary" />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh', py: 4 }}>

@@ -1,5 +1,5 @@
 // src/Pages/ProductDetails/ProductDetails.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
     Box,
@@ -17,6 +17,7 @@ import {
     Tabs,
     Tab,
     TextField,
+    CircularProgress,
 } from '@mui/material';
 import {
     Facebook,
@@ -26,7 +27,8 @@ import {
     Add,
     Remove
 } from '@mui/icons-material';
-import { products } from '../Products/Products';
+import { type Product } from '../Products/Products';
+import { getProductById, getProducts } from '../../../firebase/productService';
 import { useCart } from '../../../contexts/CartContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useSnackbar } from '../../../contexts/SnackbarContext';
@@ -70,14 +72,47 @@ const ProductDetails: React.FC = () => {
     const [tabValue, setTabValue] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [product, setProduct] = useState<Product | null>(null);
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Find the product by ID
-    const product = products.find(p => p.id === productId);
+    // Fetch product and related products from database
+    useEffect(() => {
+        const fetchProductData = async () => {
+            if (!productId) return;
 
-    // Related products (same category)
-    const relatedProducts = products
-        .filter(p => p.category === product?.category && p.id !== product?.id)
-        .slice(0, 4);
+            try {
+                setLoading(true);
+                // Fetch the specific product
+                const fetchedProduct = await getProductById(productId);
+                setProduct(fetchedProduct);
+
+                // Fetch all products to get related ones
+                if (fetchedProduct) {
+                    const allProducts = await getProducts();
+                    const related = allProducts
+                        .filter(p => p.category === fetchedProduct.category && p.id !== fetchedProduct.id)
+                        .slice(0, 4);
+                    setRelatedProducts(related);
+                }
+            } catch (error) {
+                console.error('Error fetching product:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProductData();
+    }, [productId]);
+
+    // Show loading state
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <CircularProgress color="secondary" />
+            </Box>
+        );
+    }
 
     if (!product) {
         return (
@@ -266,7 +301,7 @@ const ProductDetails: React.FC = () => {
                                     fontFamily: 'Playfair Display, serif',
                                 }}
                             >
-                                {product.weight}g
+                                {product.weight}grams
                             </Typography>
                             {/* Price */}
                             <Typography
