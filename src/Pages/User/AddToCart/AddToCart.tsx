@@ -246,6 +246,26 @@ const AddToCart: React.FC = () => {
             // Store order in 'orders' collection
             await addDoc(collection(db, 'orders'), orderData);
 
+            // Send email notification to admin
+            try {
+                const response = await fetch('https://us-central1-jewelshop-603b2.cloudfunctions.net/sendOrderEmail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ orderData }),
+                });
+
+                if (response.ok) {
+                    console.log('✅ Order confirmation email sent to admin');
+                } else {
+                    console.error('❌ Failed to send email notification');
+                }
+            } catch (emailError) {
+                console.error('❌ Failed to send email notification:', emailError);
+                // Don't fail the order if email fails
+            }
+
             // Clear cart in Firestore
             const cartRef = doc(db, 'cart', currentUser!.uid);
             await updateDoc(cartRef, {
@@ -356,7 +376,7 @@ const AddToCart: React.FC = () => {
                             </Box>
 
                             {/* Items */}
-                            <Box sx={{ p: 2 }}>
+                            <Box sx={{ pl: 2, pb: 2, pt: 2 }}>
                                 {cartItems.map((item, index) => (
                                     <Box key={item.productId}>
                                         {index > 0 && <Divider sx={{ my: 2 }} />}
@@ -420,13 +440,13 @@ const AddToCart: React.FC = () => {
                                             {/* Delete Button */}
                                             <Grid size={{ xs: 6, md: 2 }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                    <IconButton
-                                                        size="small"
+                                                    <Button
+                                                        size="medium"
                                                         onClick={() => handleDeleteClick(item.productId)}
-                                                        sx={{ color: '#999', '&:hover': { color: '#d32f2f' } }}
+                                                        sx={{ color: 'red', '&:hover': { color: '#d32f2f' } }}
                                                     >
-                                                        <Delete fontSize="small" />
-                                                    </IconButton>
+                                                        Remove
+                                                    </Button>
                                                 </Box>
                                             </Grid>
                                         </Grid>
