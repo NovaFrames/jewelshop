@@ -202,7 +202,7 @@ const AdminUsers: React.FC = () => {
             >
                 {selectedUser && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                        <DialogTitle sx={{
+                        <DialogTitle component="div" sx={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',

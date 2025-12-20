@@ -11,6 +11,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
+    DialogContentText,
     DialogActions,
     TextField,
     Stack,
@@ -36,6 +37,8 @@ const AdminBanner: React.FC = () => {
     const [uploading, setUploading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [bannerToDelete, setBannerToDelete] = useState<Banner | null>(null);
 
     // Form State
     const [title, setTitle] = useState('');
@@ -156,26 +159,39 @@ const AdminBanner: React.FC = () => {
         }
     };
 
-    const handleDelete = async (banner: Banner) => {
-        if (!window.confirm("Are you sure you want to delete this banner?")) return;
+    const handleDeleteClick = (banner: Banner) => {
+        setBannerToDelete(banner);
+        setDeleteDialogOpen(true);
+    };
 
-        try {
-            await deleteDoc(doc(db, 'banners', banner.id));
+    const handleCancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setBannerToDelete(null);
+    };
 
-            // Try to delete images from storage (optional, might fail if file doesn't exist or permission issues)
+    const handleConfirmDelete = async () => {
+        if (bannerToDelete) {
             try {
-                const desktopRef = ref(storage, banner.desktopImageUrl);
-                const mobileRef = ref(storage, banner.mobileImageUrl);
-                await deleteObject(desktopRef);
-                await deleteObject(mobileRef);
-            } catch (e) {
-                console.warn("Could not delete images from storage", e);
-            }
+                await deleteDoc(doc(db, 'banners', bannerToDelete.id));
 
-            fetchBanners();
-        } catch (error) {
-            console.error("Error deleting banner: ", error);
-            alert("Failed to delete banner.");
+                // Try to delete images from storage
+                try {
+                    const desktopRef = ref(storage, bannerToDelete.desktopImageUrl);
+                    const mobileRef = ref(storage, bannerToDelete.mobileImageUrl);
+                    await deleteObject(desktopRef);
+                    await deleteObject(mobileRef);
+                } catch (e) {
+                    console.warn("Could not delete images from storage", e);
+                }
+
+                fetchBanners();
+            } catch (error) {
+                console.error("Error deleting banner: ", error);
+                alert("Failed to delete banner.");
+            } finally {
+                setDeleteDialogOpen(false);
+                setBannerToDelete(null);
+            }
         }
     };
 
@@ -215,7 +231,7 @@ const AdminBanner: React.FC = () => {
                                         <IconButton color="primary" onClick={() => handleOpenDialog(banner)}>
                                             <Edit />
                                         </IconButton>
-                                        <IconButton color="error" onClick={() => handleDelete(banner)}>
+                                        <IconButton color="error" onClick={() => handleDeleteClick(banner)}>
                                             <Delete />
                                         </IconButton>
                                     </Box>
@@ -416,6 +432,34 @@ const AdminBanner: React.FC = () => {
                         startIcon={uploading ? <Loader inline size={20} color="inherit" /> : null}
                     >
                         {uploading ? 'Saving...' : 'Save Banner'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleCancelDelete}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle sx={{ fontWeight: 600 }}>Confirm Delete</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this banner? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button onClick={handleCancelDelete} variant="outlined" color="inherit">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        variant="contained"
+                        color="error"
+                        sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+                    >
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>

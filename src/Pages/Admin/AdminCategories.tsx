@@ -17,7 +17,12 @@ import {
     CardContent,
     Stack,
     InputAdornment,
-    Fade
+    Fade,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions
 } from '@mui/material';
 import Loader from '../../components/Common/Loader';
 import {
@@ -72,6 +77,9 @@ const AdminCategories: React.FC = () => {
     const [categorySearch, setCategorySearch] = useState('');
     const [materialSearch, setMaterialSearch] = useState('');
     const [loading, setLoading] = useState(true);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+    const [deleteType, setDeleteType] = useState<'category' | 'material' | null>(null);
     const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -103,16 +111,10 @@ const AdminCategories: React.FC = () => {
         }
     };
 
-    const handleDeleteCategory = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
-            try {
-                await deleteCategory(id);
-                showSnackbar('Category deleted successfully', 'success');
-                fetchData();
-            } catch (error) {
-                showSnackbar('Failed to delete category', 'error');
-            }
-        }
+    const handleDeleteCategory = (id: string) => {
+        setItemToDelete(id);
+        setDeleteType('category');
+        setDeleteDialogOpen(true);
     };
 
     const handleAddMaterial = async () => {
@@ -127,14 +129,33 @@ const AdminCategories: React.FC = () => {
         }
     };
 
-    const handleDeleteMaterial = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this material?')) {
+    const handleDeleteMaterial = (id: string) => {
+        setItemToDelete(id);
+        setDeleteType('material');
+        setDeleteDialogOpen(true);
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setItemToDelete(null);
+        setDeleteType(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (itemToDelete && deleteType) {
             try {
-                await deleteMaterial(id);
-                showSnackbar('Material deleted successfully', 'success');
+                if (deleteType === 'category') {
+                    await deleteCategory(itemToDelete);
+                    showSnackbar('Category deleted successfully', 'success');
+                } else {
+                    await deleteMaterial(itemToDelete);
+                    showSnackbar('Material deleted successfully', 'success');
+                }
                 fetchData();
             } catch (error) {
-                showSnackbar('Failed to delete material', 'error');
+                showSnackbar(`Failed to delete ${deleteType}`, 'error');
+            } finally {
+                handleCancelDelete();
             }
         }
     };
@@ -373,6 +394,33 @@ const AdminCategories: React.FC = () => {
                 </Grid>
             </Grid>
 
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleCancelDelete}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle sx={{ fontWeight: 600 }}>Confirm Delete</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this {deleteType}? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button onClick={handleCancelDelete} variant="outlined" color="inherit">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        variant="contained"
+                        color="error"
+                        sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+                    >
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 };

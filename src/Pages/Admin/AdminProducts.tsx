@@ -6,6 +6,7 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
+    DialogContentText,
     DialogTitle,
     IconButton,
     Paper,
@@ -40,6 +41,8 @@ const AdminProducts: React.FC = () => {
     const [currentProduct, setCurrentProduct] = useState<Partial<Product>>({});
     const [isEditing, setIsEditing] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState<string | null>(null);
     const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -146,10 +149,10 @@ const AdminProducts: React.FC = () => {
             const productData = {
                 ...currentProduct,
                 price: Number(currentProduct.price),
-                originalPrice: currentProduct.originalPrice ? Number(currentProduct.originalPrice) : undefined,
+                originalPrice: currentProduct.originalPrice ? Number(currentProduct.originalPrice) : null,
                 rating: Number(currentProduct.rating),
                 reviews: Number(currentProduct.reviews),
-                discount: currentProduct.discount ? Number(currentProduct.discount) : undefined,
+                discount: currentProduct.discount ? Number(currentProduct.discount) : null,
                 weight: Number(currentProduct.weight),
                 tags: Array.isArray(currentProduct.tags) ? currentProduct.tags : (currentProduct.tags as unknown as string).split(',').map((t: string) => t.trim()),
                 // Ensure image is set if images array exists
@@ -174,14 +177,27 @@ const AdminProducts: React.FC = () => {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
+    const handleDeleteClick = (id: string) => {
+        setProductToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setProductToDelete(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (productToDelete) {
             try {
-                await deleteProduct(id);
+                await deleteProduct(productToDelete);
                 showSnackbar('Product deleted successfully', 'success');
                 fetchData();
             } catch (error) {
                 showSnackbar('Error deleting product', 'error');
+            } finally {
+                setDeleteDialogOpen(false);
+                setProductToDelete(null);
             }
         }
     };
@@ -248,7 +264,7 @@ const AdminProducts: React.FC = () => {
                                         <IconButton onClick={() => handleOpenDialog(product)} color="primary">
                                             <EditIcon />
                                         </IconButton>
-                                        <IconButton onClick={() => handleDelete(product.id)} color="error">
+                                        <IconButton onClick={() => handleDeleteClick(product.id)} color="error">
                                             <DeleteIcon />
                                         </IconButton>
                                     </TableCell>
@@ -449,6 +465,34 @@ const AdminProducts: React.FC = () => {
                     <Button onClick={handleSave} variant="contained"
                         color='secondary' sx={{ bgcolor: '#832729', '&:hover': { bgcolor: '#6b1f21' } }}>
                         Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleCancelDelete}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle sx={{ fontWeight: 600 }}>Confirm Delete</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this product? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button onClick={handleCancelDelete} variant="outlined" color="inherit">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        variant="contained"
+                        color="error"
+                        sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+                    >
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>
