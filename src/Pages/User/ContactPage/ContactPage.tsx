@@ -34,9 +34,9 @@ const ContactPage: React.FC = () => {
         name: '',
         email: '',
         phone: '',
-        subject: '',
         message: '',
     });
+    const [loading, setLoading] = useState(false);
     const { showSnackbar } = useSnackbar();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,18 +46,38 @@ const ContactPage: React.FC = () => {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission here
-        console.log('Form submitted:', formData);
-        showSnackbar('Message sent successfully! We\'ll get back to you soon.', 'success');
-        setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            subject: '',
-            message: '',
-        });
+
+        try {
+            setLoading(true);
+
+            // Call the Cloud Function to send emails
+            const response = await fetch('https://us-central1-jewelshop-603b2.cloudfunctions.net/sendContactEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                showSnackbar('Message sent successfully! We\'ll get back to you soon.', 'success');
+                setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    message: '',
+                });
+            } else {
+                showSnackbar('Failed to send message. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            showSnackbar('Failed to send message. Please try again.', 'error');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const contactInfo = [
@@ -227,7 +247,7 @@ const ContactPage: React.FC = () => {
 
                                 <Box component="form" onSubmit={handleSubmit}>
                                     <Grid container spacing={3}>
-                                        <Grid size={{ xs: 12, md: 4 }}>
+                                        <Grid size={{ xs: 12, md: 6 }}>
                                             <TextField
                                                 fullWidth
                                                 label="Your Name"
@@ -239,27 +259,7 @@ const ContactPage: React.FC = () => {
                                                 color='secondary'
                                             />
                                         </Grid>
-                                        <Grid size={{ xs: 12, md: 4 }}>
-                                            <TextField
-                                                fullWidth
-                                                label="Email Address"
-                                                name="email"
-                                                type="email"
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                                required
-                                                variant="outlined"
-                                                color='secondary'
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <Email sx={{ color: 'text.secondary' }} />
-                                                        </InputAdornment>
-                                                    ),
-                                                }}
-                                            />
-                                        </Grid>
-                                        <Grid size={{ xs: 12, md: 4 }}>
+                                        <Grid size={{ xs: 12, md: 6 }}>
                                             <TextField
                                                 fullWidth
                                                 label="Phone Number"
@@ -277,16 +277,24 @@ const ContactPage: React.FC = () => {
                                                 }}
                                             />
                                         </Grid>
-                                        <Grid size={12}>
+                                        <Grid size={{ xs: 12, md: 12 }}>
                                             <TextField
                                                 fullWidth
-                                                label="Subject"
-                                                name="subject"
-                                                value={formData.subject}
+                                                label="Email Address"
+                                                name="email"
+                                                type="email"
+                                                value={formData.email}
                                                 onChange={handleChange}
                                                 required
                                                 variant="outlined"
                                                 color='secondary'
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Email sx={{ color: 'text.secondary' }} />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}
                                             />
                                         </Grid>
                                         <Grid size={12}>
@@ -311,6 +319,7 @@ const ContactPage: React.FC = () => {
                                             variant="contained"
                                             color='secondary'
                                             size="large"
+                                            disabled={loading}
                                             endIcon={<Send />}
                                             sx={{
                                                 px: 6,
@@ -318,7 +327,7 @@ const ContactPage: React.FC = () => {
                                                 fontSize: '1.1rem',
                                             }}
                                         >
-                                            Send Message
+                                            {loading ? 'Sending...' : 'Send Message'}
                                         </Button>
                                     </Box>
                                 </Box>

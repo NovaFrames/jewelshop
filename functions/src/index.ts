@@ -165,3 +165,110 @@ export const sendOrderEmail = onRequest(async (req, res) => {
         }
     });
 });
+
+// HTTP function to send contact form email to user
+export const sendContactEmail = onRequest(async (req, res) => {
+    // Handle CORS
+    corsHandler(req, res, async () => {
+        try {
+            // Only allow POST requests
+            if (req.method !== "POST") {
+                res.status(405).send({ error: "Method not allowed" });
+                return;
+            }
+
+            const { name, email, phone, message } = req.body;
+
+            if (!name || !email || !message) {
+                res.status(400).send({ error: "Name, email, and message are required" });
+                return;
+            }
+
+            // Create email content for admin
+            const adminEmailHTML = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #832729; text-align: center;">New Contact Form Submission</h2>
+                <hr style="border: 1px solid #eee;" />
+                
+                <h3 style="color: #333;">Contact Details:</h3>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+                
+                <h3 style="color: #333; margin-top: 20px;">Message:</h3>
+                <p style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; line-height: 1.6;">
+                    ${message}
+                </p>
+                
+                <hr style="border: 1px solid #eee; margin: 20px 0;" />
+                
+                <p style="margin-top: 30px; color: #666; font-size: 12px; text-align: center;">
+                    This is an automated notification from your Jewelry Shop contact form.
+                </p>
+            </div>
+        `;
+
+            // Create email content for user (confirmation)
+            const userEmailHTML = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #832729; text-align: center;">Thank You for Contacting Us!</h2>
+                <hr style="border: 1px solid #eee;" />
+                
+                <p style="font-size: 16px; line-height: 1.6;">Dear ${name},</p>
+                
+                <p style="font-size: 14px; line-height: 1.6;">
+                    Thank you for reaching out to us. We have received your message and our team will get back to you within 24 hours.
+                </p>
+                
+                <h3 style="color: #333; margin-top: 20px;">Your Message:</h3>
+                <p style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; line-height: 1.6; font-size: 14px;">
+                    ${message}
+                </p>
+                
+                <hr style="border: 1px solid #eee; margin: 20px 0;" />
+                
+                <p style="font-size: 14px; line-height: 1.6;">
+                    If you have any urgent questions, please feel free to call us at <strong>+1 (555) 123-4567</strong>.
+                </p>
+                
+                <p style="font-size: 14px; line-height: 1.6;">
+                    Best regards,<br/>
+                    <strong>Jewelry Shop Team</strong>
+                </p>
+                
+                <p style="margin-top: 30px; color: #666; font-size: 12px; text-align: center;">
+                    This is an automated confirmation email from Jewelry Shop.
+                </p>
+            </div>
+        `;
+
+            // Send email to admin
+            const adminMailOptions = {
+                from: "novaframesdev@gmail.com",
+                to: "novaframesdev@gmail.com",
+                subject: `New Contact Form Submission from ${name}`,
+                html: adminEmailHTML,
+            };
+
+            // Send confirmation email to user
+            const userMailOptions = {
+                from: "novaframesdev@gmail.com",
+                to: email,
+                subject: "Thank you for contacting Jewelry Shop",
+                html: userEmailHTML,
+            };
+
+            // Send both emails
+            await Promise.all([
+                transporter.sendMail(adminMailOptions),
+                transporter.sendMail(userMailOptions),
+            ]);
+
+            console.log("✅ Contact form emails sent successfully");
+            res.status(200).send({ success: true, message: "Emails sent successfully" });
+        } catch (error: any) {
+            console.error("❌ Failed to send contact email:", error.message || error);
+            res.status(500).send({ error: `Failed to send email: ${error.message}` });
+        }
+    });
+});
