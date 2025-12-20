@@ -22,7 +22,10 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions
+    DialogActions,
+    MenuItem,
+    Chip,
+    CircularProgress
 } from '@mui/material';
 import Loader from '../../components/Common/Loader';
 import {
@@ -32,7 +35,6 @@ import {
     Search as SearchIcon,
 } from '@mui/icons-material';
 import {
-    getCategories,
     addCategory,
     deleteCategory,
     getMaterials,
@@ -73,10 +75,14 @@ const AdminCategories: React.FC = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [materials, setMaterials] = useState<Material[]>([]);
     const [newCategory, setNewCategory] = useState('');
+    const [selectedMaterialForCategory, setSelectedMaterialForCategory] = useState('');
     const [newMaterial, setNewMaterial] = useState('');
     const [categorySearch, setCategorySearch] = useState('');
     const [materialSearch, setMaterialSearch] = useState('');
     const [loading, setLoading] = useState(true);
+    const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [isAddingMaterial, setIsAddingMaterial] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<string | null>(null);
     const [deleteType, setDeleteType] = useState<'category' | 'material' | null>(null);
@@ -89,9 +95,22 @@ const AdminCategories: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [cats, mats] = await Promise.all([getCategories(), getMaterials()]);
-            setCategories(cats);
+            const mats = await getMaterials();
             setMaterials(mats);
+            // Derive categories from materials for local state
+            const cats: Category[] = [];
+            mats.forEach(mat => {
+                if (mat.categories) {
+                    mat.categories.forEach(catName => {
+                        cats.push({
+                            id: `${mat.id}_${catName}`,
+                            name: catName,
+                            materialId: mat.id
+                        });
+                    });
+                }
+            });
+            setCategories(cats);
         } catch (error) {
             showSnackbar('Failed to fetch data', 'error');
         } finally {
@@ -100,18 +119,38 @@ const AdminCategories: React.FC = () => {
     };
 
     const handleAddCategory = async () => {
-        if (!newCategory.trim()) return;
+        if (!newCategory.trim() || !selectedMaterialForCategory) {
+            showSnackbar('Please enter category name and select a material', 'error');
+            return;
+        }
+        setIsAddingCategory(true);
         try {
-            await addCategory(newCategory.trim());
+            const id = await addCategory(newCategory.trim(), selectedMaterialForCategory);
+
+            // Update local materials state
+            setMaterials(prev => prev.map(mat =>
+                mat.id === selectedMaterialForCategory
+                    ? { ...mat, categories: [...(mat.categories || []), newCategory.trim()] }
+                    : mat
+            ));
+
+            const newCat: Category = {
+                id,
+                name: newCategory.trim(),
+                materialId: selectedMaterialForCategory
+            };
+            setCategories(prev => [...prev, newCat]);
             setNewCategory('');
             showSnackbar('Category added successfully', 'success');
-            fetchData();
         } catch (error) {
             showSnackbar('Failed to add category', 'error');
+        } finally {
+            setIsAddingCategory(false);
         }
     };
 
     const handleDeleteCategory = (id: string) => {
+        // id is in format `${materialId}_${categoryName}`
         setItemToDelete(id);
         setDeleteType('category');
         setDeleteDialogOpen(true);
@@ -119,13 +158,21 @@ const AdminCategories: React.FC = () => {
 
     const handleAddMaterial = async () => {
         if (!newMaterial.trim()) return;
+        setIsAddingMaterial(true);
         try {
-            await addMaterial(newMaterial.trim());
+            const id = await addMaterial(newMaterial.trim());
+            const newMat: Material = {
+                id,
+                name: newMaterial.trim(),
+                categories: []
+            };
+            setMaterials(prev => [...prev, newMat]);
             setNewMaterial('');
             showSnackbar('Material added successfully', 'success');
-            fetchData();
         } catch (error) {
             showSnackbar('Failed to add material', 'error');
+        } finally {
+            setIsAddingMaterial(false);
         }
     };
 
@@ -143,18 +190,33 @@ const AdminCategories: React.FC = () => {
 
     const handleConfirmDelete = async () => {
         if (itemToDelete && deleteType) {
+            setIsDeleting(true);
             try {
                 if (deleteType === 'category') {
-                    await deleteCategory(itemToDelete);
+                    // itemToDelete is `${materialId}_${categoryName}`
+                    const [materialId, categoryName] = itemToDelete.split('_');
+                    await deleteCategory(categoryName, materialId);
+
+                    // Update local materials state
+                    setMaterials(prev => prev.map(mat =>
+                        mat.id === materialId
+                            ? { ...mat, categories: mat.categories.filter(c => c !== categoryName) }
+                            : mat
+                    ));
+
+                    setCategories(prev => prev.filter(cat => cat.id !== itemToDelete));
                     showSnackbar('Category deleted successfully', 'success');
                 } else {
                     await deleteMaterial(itemToDelete);
+                    setMaterials(prev => prev.filter(mat => mat.id !== itemToDelete));
+                    // Also remove categories associated with this material
+                    setCategories(prev => prev.filter(cat => cat.materialId !== itemToDelete));
                     showSnackbar('Material deleted successfully', 'success');
                 }
-                fetchData();
             } catch (error) {
                 showSnackbar(`Failed to delete ${deleteType}`, 'error');
             } finally {
+                setIsDeleting(false);
                 handleCancelDelete();
             }
         }
@@ -205,99 +267,7 @@ const AdminCategories: React.FC = () => {
             </Grid>
 
             <Grid container spacing={4}>
-                {/* Categories Section */}
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <Paper sx={{ p: 3, borderRadius: 4, height: '100%', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CategoryIcon color="primary" /> Categories
-                        </Typography>
 
-                        <Stack spacing={2} sx={{ mb: 3 }}>
-                            <Box sx={{ display: 'flex', gap: 1 }}>
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    placeholder="Add new category..."
-                                    value={newCategory}
-                                    onChange={(e) => setNewCategory(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleAddCategory()}
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                                />
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={handleAddCategory}
-                                    disabled={!newCategory.trim()}
-                                    sx={{
-                                        borderRadius: 2,
-                                        px: 3,
-                                        bgcolor: '#832729',
-                                        '&:hover': { bgcolor: '#6b1f21' },
-                                        textTransform: 'none',
-                                        fontWeight: 600
-                                    }}
-                                >
-                                    Add
-                                </Button>
-                            </Box>
-
-                            <TextField
-                                fullWidth
-                                size="small"
-                                placeholder="Search categories..."
-                                value={categorySearch}
-                                onChange={(e) => setCategorySearch(e.target.value)}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc' } }}
-                            />
-                        </Stack>
-
-                        <Divider sx={{ mb: 2 }} />
-
-                        <List sx={{ maxHeight: 400, overflow: 'auto', pr: 1 }}>
-                            {filteredCategories.map((category) => (
-                                <Fade in key={category.id}>
-                                    <ListItem
-                                        sx={{
-                                            borderRadius: 2,
-                                            mb: 1,
-                                            '&:hover': { bgcolor: '#f1f5f9' },
-                                            transition: 'background-color 0.2s'
-                                        }}
-                                    >
-                                        <ListItemText
-                                            primary={category.name}
-                                            primaryTypographyProps={{ fontWeight: 500 }}
-                                        />
-                                        <ListItemSecondaryAction>
-                                            <IconButton
-                                                edge="end"
-                                                onClick={() => handleDeleteCategory(category.id)}
-                                                color="error"
-                                                sx={{ '&:hover': { bgcolor: '#fee2e2' } }}
-                                            >
-                                                <DeleteIcon fontSize="small" />
-                                            </IconButton>
-                                        </ListItemSecondaryAction>
-                                    </ListItem>
-                                </Fade>
-                            ))}
-                            {filteredCategories.length === 0 && (
-                                <Box sx={{ py: 4, textAlign: 'center' }}>
-                                    <Typography variant="body2" color="textSecondary">
-                                        {categorySearch ? 'No matching categories found.' : 'No categories added yet.'}
-                                    </Typography>
-                                </Box>
-                            )}
-                        </List>
-                    </Paper>
-                </Grid>
 
                 {/* Materials Section */}
                 <Grid size={{ xs: 12, md: 6 }}>
@@ -321,17 +291,18 @@ const AdminCategories: React.FC = () => {
                                     variant="contained"
                                     color="secondary"
                                     onClick={handleAddMaterial}
-                                    disabled={!newMaterial.trim()}
+                                    disabled={!newMaterial.trim() || isAddingMaterial}
                                     sx={{
                                         borderRadius: 2,
                                         px: 3,
                                         bgcolor: '#832729',
                                         '&:hover': { bgcolor: '#6b1f21' },
                                         textTransform: 'none',
-                                        fontWeight: 600
+                                        fontWeight: 600,
+                                        minWidth: 80
                                     }}
                                 >
-                                    Add
+                                    {isAddingMaterial ? <CircularProgress size={24} color="inherit" /> : 'Add'}
                                 </Button>
                             </Box>
 
@@ -392,6 +363,126 @@ const AdminCategories: React.FC = () => {
                         </List>
                     </Paper>
                 </Grid>
+
+                {/* Categories Section */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Paper sx={{ p: 3, borderRadius: 4, height: '100%', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <CategoryIcon color="primary" /> Categories
+                        </Typography>
+
+                        <Stack spacing={2} sx={{ mb: 3 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    size="small"
+                                    label="Select Material"
+                                    value={selectedMaterialForCategory}
+                                    onChange={(e) => setSelectedMaterialForCategory(e.target.value)}
+                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                >
+                                    {materials.map((mat) => (
+                                        <MenuItem key={mat.id} value={mat.id}>
+                                            {mat.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        placeholder="Add new category..."
+                                        value={newCategory}
+                                        onChange={(e) => setNewCategory(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleAddCategory()}
+                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={handleAddCategory}
+                                        disabled={!newCategory.trim() || !selectedMaterialForCategory || isAddingCategory}
+                                        sx={{
+                                            borderRadius: 2,
+                                            px: 3,
+                                            bgcolor: '#832729',
+                                            '&:hover': { bgcolor: '#6b1f21' },
+                                            textTransform: 'none',
+                                            fontWeight: 600,
+                                            minWidth: 80
+                                        }}
+                                    >
+                                        {isAddingCategory ? <CircularProgress size={24} color="inherit" /> : 'Add'}
+                                    </Button>
+                                </Box>
+                            </Box>
+
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="Search categories..."
+                                value={categorySearch}
+                                onChange={(e) => setCategorySearch(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#f8fafc' } }}
+                            />
+                        </Stack>
+
+                        <Divider sx={{ mb: 2 }} />
+
+                        <Box sx={{ maxHeight: 500, overflow: 'auto', pr: 1 }}>
+                            {materials.map((material) => {
+                                const materialCategories = filteredCategories.filter(cat => cat.materialId === material.id);
+                                if (materialCategories.length === 0 && !categorySearch) return null;
+                                if (materialCategories.length === 0 && categorySearch) return null;
+
+                                return (
+                                    <Box key={material.id} sx={{ mb: 3 }}>
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.secondary', mb: 1.5, px: 1, textTransform: 'uppercase', letterSpacing: 1, fontSize: '0.75rem' }}>
+                                            {material.name}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, px: 1 }}>
+                                            {materialCategories.map((category) => (
+                                                <Fade in key={category.id}>
+                                                    <Chip
+                                                        label={category.name}
+                                                        onDelete={() => handleDeleteCategory(category.id)}
+                                                        deleteIcon={<DeleteIcon sx={{ fontSize: '16px !important' }} />}
+                                                        sx={{
+                                                            borderRadius: 2,
+                                                            fontWeight: 500,
+                                                            bgcolor: '#f1f5f9',
+                                                            '&:hover': { bgcolor: '#e2e8f0' },
+                                                            '& .MuiChip-deleteIcon': {
+                                                                color: '#94a3b8',
+                                                                '&:hover': { color: '#ef4444' }
+                                                            }
+                                                        }}
+                                                    />
+                                                </Fade>
+                                            ))}
+                                        </Box>
+                                        {materials.indexOf(material) !== materials.length - 1 && <Divider sx={{ mt: 2, mb: 1, opacity: 0.5 }} />}
+                                    </Box>
+                                );
+                            })}
+                            {filteredCategories.length === 0 && (
+                                <Box sx={{ py: 4, textAlign: 'center' }}>
+                                    <Typography variant="body2" color="textSecondary">
+                                        {categorySearch ? 'No matching categories found.' : 'No categories added yet.'}
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Box>
+                    </Paper>
+                </Grid>
             </Grid>
 
             {/* Delete Confirmation Dialog */}
@@ -415,9 +506,10 @@ const AdminCategories: React.FC = () => {
                         onClick={handleConfirmDelete}
                         variant="contained"
                         color="error"
-                        sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' } }}
+                        disabled={isDeleting}
+                        sx={{ bgcolor: '#d32f2f', '&:hover': { bgcolor: '#b71c1c' }, minWidth: 100 }}
                     >
-                        Delete
+                        {isDeleting ? <CircularProgress size={24} color="inherit" /> : 'Delete'}
                     </Button>
                 </DialogActions>
             </Dialog>

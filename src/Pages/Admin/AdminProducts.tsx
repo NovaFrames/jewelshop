@@ -28,7 +28,7 @@ import Loader from '../../components/Common/Loader';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, CloudUpload as CloudUploadIcon, Close as CloseIcon, Search as SearchIcon } from '@mui/icons-material';
 import { type Product } from '../User/Products/Products';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../firebase/productService';
-import { getCategories, getMaterials, type Category, type Material } from '../../firebase/categoryService';
+import { getMaterials, type Category, type Material } from '../../firebase/categoryService';
 import { uploadImage } from '../../firebase/uploadService';
 import { useSnackbar } from '../../contexts/SnackbarContext';
 
@@ -55,14 +55,27 @@ const AdminProducts: React.FC = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [productsData, categoriesData, materialsData] = await Promise.all([
+            const [productsData, materialsData] = await Promise.all([
                 getProducts(),
-                getCategories(),
                 getMaterials()
             ]);
             setProducts(productsData);
-            setCategories(categoriesData);
             setMaterials(materialsData);
+
+            // Derive categories from materials
+            const cats: Category[] = [];
+            materialsData.forEach(mat => {
+                if (mat.categories) {
+                    mat.categories.forEach(catName => {
+                        cats.push({
+                            id: `${mat.id}_${catName}`,
+                            name: catName,
+                            materialId: mat.id
+                        });
+                    });
+                }
+            });
+            setCategories(cats);
         } catch (error) {
             showSnackbar('Failed to fetch data', 'error');
         } finally {
@@ -207,10 +220,17 @@ const AdminProducts: React.FC = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
-        setCurrentProduct(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        setCurrentProduct(prev => {
+            const newState = {
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            };
+            // Reset category if material changes
+            if (name === 'material') {
+                newState.category = '';
+            }
+            return newState;
+        });
     };
 
     const filteredProducts = useMemo(() => {
@@ -254,6 +274,26 @@ const AdminProducts: React.FC = () => {
                             }}
                         />
                     </Grid>
+
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                        <TextField
+                            select
+                            fullWidth
+                            size="small"
+                            label="Filter by Material"
+                            value={selectedMaterial}
+                            onChange={(e) => {
+                                setSelectedMaterial(e.target.value);
+                                setSelectedCategory('All');
+                            }}
+                        >
+                            <MenuItem value="All">All Materials</MenuItem>
+                            {materials.map((mat) => (
+                                <MenuItem key={mat.id} value={mat.name}>{mat.name}</MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+
                     <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <TextField
                             select
@@ -262,28 +302,17 @@ const AdminProducts: React.FC = () => {
                             label="Filter by Category"
                             value={selectedCategory}
                             onChange={(e) => setSelectedCategory(e.target.value)}
+                            disabled={selectedMaterial === 'All'}
                         >
                             <MenuItem value="All">All Categories</MenuItem>
-                            {categories.map((cat) => (
-                                <MenuItem key={cat.id} value={cat.name}>{cat.name}</MenuItem>
-                            ))}
+                            {selectedMaterial !== 'All' && categories
+                                .filter(cat => cat.materialId === materials.find(m => m.name === selectedMaterial)?.id)
+                                .map((cat) => (
+                                    <MenuItem key={cat.id} value={cat.name}>{cat.name}</MenuItem>
+                                ))}
                         </TextField>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                        <TextField
-                            select
-                            fullWidth
-                            size="small"
-                            label="Filter by Material"
-                            value={selectedMaterial}
-                            onChange={(e) => setSelectedMaterial(e.target.value)}
-                        >
-                            <MenuItem value="All">All Materials</MenuItem>
-                            {materials.map((mat) => (
-                                <MenuItem key={mat.id} value={mat.name}>{mat.name}</MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
+
                     <Grid size={{ xs: 12, md: 2 }}>
                         <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
                             <Typography variant="body2" color="text.secondary">
@@ -380,12 +409,18 @@ const AdminProducts: React.FC = () => {
                                 fullWidth
                                 value={currentProduct.category || ''}
                                 onChange={handleChange}
+                                disabled={!currentProduct.material}
                             >
-                                {categories.map((option) => (
-                                    <MenuItem key={option.id} value={option.name}>
-                                        {option.name}
-                                    </MenuItem>
-                                ))}
+                                {categories
+                                    .filter(cat => {
+                                        const selectedMat = materials.find(m => m.name === currentProduct.material);
+                                        return selectedMat ? cat.materialId === selectedMat.id : true;
+                                    })
+                                    .map((option) => (
+                                        <MenuItem key={option.id} value={option.name}>
+                                            {option.name}
+                                        </MenuItem>
+                                    ))}
                             </TextField>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
