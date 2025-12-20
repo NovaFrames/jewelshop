@@ -190,6 +190,7 @@ const ProductDetails: React.FC = () => {
             }
 
             showSnackbar('Product added to cart successfully!', 'success');
+            navigate('/cart');
         } catch (error) {
             console.error('Error adding to cart:', error);
             showSnackbar('Failed to add product to cart', 'error');
