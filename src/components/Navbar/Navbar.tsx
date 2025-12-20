@@ -43,12 +43,13 @@ import MobileBottomNav from "./MobileBottomNav";
 import { Link as RouterLink } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
-import { navItems, type NavItem } from "./navbarData";
+import { navItems as staticNavItems, type NavItem } from "./navbarData";
 import MegaMenu from "./MegaMenu";
 import { useScrollDirection } from "./useScrollDirection";
 import { useAuth } from "../../contexts/AuthContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
+import { getMaterials } from "../../firebase/categoryService";
 
 /* -------------------- Mobile Nav Item -------------------- */
 const MobileNavItem = ({
@@ -118,7 +119,7 @@ const MobileNavItem = ({
       {hasSubmenu && (
         <Collapse in={open}>
           <List disablePadding sx={{ bgcolor: "#fafafa" }}>
-            {item.megaMenuData?.categories["Category"]?.map((sub) => (
+            {Object.values(item.megaMenuData?.categories || {}).flat().map((sub) => (
               <ListItemButton
                 key={sub.name}
                 component={RouterLink}
@@ -145,6 +146,121 @@ const Navbar: React.FC = () => {
   const scrollDir = useScrollDirection();
   const [isAtTop, setIsAtTop] = useState(true);
   const timeoutRef = useRef<number | null>(null);
+  const [navItems, setNavItems] = useState<NavItem[]>([]);
+
+  // UI Mappings for "Old UI" aesthetics
+  const categoryIcons: Record<string, string> = {
+    'Earrings': 'FavoriteBorder',
+    'Rings': 'RadioButtonUnchecked',
+    'Pendants': 'BlurCircular',
+    'Chains': 'FilterVintageOutlined',
+    'Nose Pin': 'BrightnessLow',
+    'Necklaces': 'CircleOutlined',
+    'Bangles': 'FilterVintageOutlined',
+    'Bracelets': 'BrightnessLow',
+    'Gold': 'AutoAwesomeOutlined',
+    'Diamond': 'DiamondOutlined',
+  };
+
+  // Fetch dynamic nav items
+  useEffect(() => {
+    const fetchNavData = async () => {
+      try {
+        const materials = await getMaterials();
+
+        // Transform materials into NavItems
+        const dynamicItems: NavItem[] = materials.map(mat => ({
+          name: mat.name,
+          path: `/${mat.name.toLowerCase()}/all`,
+          icon: categoryIcons[mat.name] || 'AutoAwesomeOutlined',
+          hasMegaMenu: true,
+          megaMenuData: {
+            tabs: ['Category'],
+            categories: {
+              'Category': [
+                { name: `All ${mat.name}`, path: `/${mat.name.toLowerCase()}/all` },
+                ...(mat.categories || []).map(cat => ({
+                  name: cat,
+                  path: `/${mat.name.toLowerCase()}/${cat.toLowerCase().replace(/\s+/g, '-')}`
+                }))
+              ],
+            },
+            promoImage: mat.name.toLowerCase() === 'gold'
+              ? 'https://www.tanishq.co.in/on/demandware.static/-/Sites-Tanishq-site-catalog/default/dw5c76c6f6/header-mega-menu/banner-images/kundan-stories-desktop.jpg'
+              : 'https://www.tanishq.co.in/on/demandware.static/-/Sites-Tanishq-site-catalog/default/dwf47a3eda/header-mega-menu/banner-images/elan-desktop.jpg',
+            promoTitle: `Exquisite ${mat.name} Collection`,
+            promoLinkText: 'Explore Now',
+            bottomBanner: {
+              image: 'https://www.tanishq.co.in/on/demandware.static/-/Sites-Tanishq-site-catalog/default/dw4723a799/header-mega-menu/thumbnail-images/all-jew-menu-bottom.png',
+              text: `From Classic to Contemporary ${mat.name}.`,
+              subText: 'Explore Stunning Designs.',
+              buttonText: 'View All',
+            }
+          }
+        }));
+
+        // Get unique categories across all materials for top-level category items
+        const allCategories = new Set<string>();
+        materials.forEach(mat => {
+          if (mat.categories) {
+            mat.categories.forEach(cat => allCategories.add(cat));
+          }
+        });
+
+        const categoryItems: NavItem[] = Array.from(allCategories).map(cat => ({
+          name: cat,
+          path: `/${cat.toLowerCase().replace(/\s+/g, '-')}`,
+          icon: categoryIcons[cat] || 'FavoriteBorder',
+          hasMegaMenu: true,
+          megaMenuData: {
+            tabs: ['Material'],
+            categories: {
+              'Material': materials
+                .filter(mat => mat.categories?.includes(cat))
+                .map(mat => ({
+                  name: `${mat.name} ${cat}`,
+                  path: `/${mat.name.toLowerCase()}/${cat.toLowerCase().replace(/\s+/g, '-')}`
+                })),
+            },
+            promoImage: 'https://www.tanishq.co.in/on/demandware.static/-/Sites-Tanishq-site-catalog/default/dwf47a3eda/header-mega-menu/banner-images/elan-desktop.jpg',
+            promoTitle: `${cat} for Every Occasion`,
+            promoLinkText: 'Explore All',
+            bottomBanner: {
+              image: 'https://www.tanishq.co.in/on/demandware.static/-/Sites-Tanishq-site-catalog/default/dw4723a799/header-mega-menu/thumbnail-images/all-jew-menu-bottom.png',
+              text: `Discover the Perfect ${cat}.`,
+              subText: 'Exquisite Craftsmanship.',
+              buttonText: 'View All',
+            }
+          }
+        }));
+
+        // Combine dynamic materials and categories
+        const combinedItems = [
+          ...dynamicItems,
+          ...categoryItems
+        ];
+
+        // Enrich "All Jewellery" mega menu with all materials and categories
+        const allJewelleryItem = staticNavItems.find(item => item.name === 'All Jewellery');
+        if (allJewelleryItem && allJewelleryItem.megaMenuData) {
+          // Add Materials tab
+          allJewelleryItem.megaMenuData.tabs = ['Category', 'Material'];
+          allJewelleryItem.megaMenuData.categories['Material'] = materials.map(mat => ({
+            name: mat.name,
+            path: `/${mat.name.toLowerCase()}/all`
+          }));
+          // Re-import staticTabsData if needed or ensure it's in the categories
+        }
+
+        setNavItems(combinedItems);
+
+      } catch (error) {
+        console.error("Error fetching nav data:", error);
+      }
+    };
+
+    fetchNavData();
+  }, []);
 
   // Fetch cart count from Firestore
   useEffect(() => {
@@ -367,7 +483,50 @@ const Navbar: React.FC = () => {
           <Box sx={{ display: { xs: "none", md: "block" }, borderBottom: "1px solid #eee" }}>
             <Container maxWidth="xl">
               <Stack direction="row" justifyContent="center" spacing={5}>
-                {navItems.map((item) => (
+                {/* Hardcoded All Jewellery */}
+                {staticNavItems.find(item => item.name === 'All Jewellery') && (
+                  <Box
+                    onMouseEnter={() => handleMouseEnter('All Jewellery')}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <Button
+                      component={RouterLink}
+                      to="/all-jewellery"
+                      sx={{
+                        textTransform: "uppercase",
+                        py: 2,
+                        color: "#333",
+                        fontWeight: 500,
+                        fontSize: "0.85rem",
+                        letterSpacing: "1px",
+                        borderBottom:
+                          hoveredItem === 'All Jewellery'
+                            ? "2px solid #832729"
+                            : "2px solid transparent",
+                        "&:hover": {
+                          color: "#832729",
+                          bgcolor: "transparent",
+                        },
+                        borderRadius: 0,
+                      }}
+                    >
+                      All Jewellery
+                    </Button>
+
+                    <AnimatePresence>
+                      {hoveredItem === 'All Jewellery' && (
+                        <MegaMenu
+                          data={staticNavItems.find(item => item.name === 'All Jewellery')!.megaMenuData!}
+                          onMouseEnter={() => handleMouseEnter('All Jewellery')}
+                          onMouseLeave={handleMouseLeave}
+                          onClose={handleMouseLeave}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </Box>
+                )}
+
+                {navItems.slice(0, 8).map((item) => (
                   <Box
                     key={item.name}
                     onMouseEnter={() => handleMouseEnter(item.name)}
@@ -487,7 +646,14 @@ const Navbar: React.FC = () => {
             Shop By Category
           </Typography>
           <List disablePadding>
-            {navItems.map((item) => (
+            {/* Hardcoded All Jewellery */}
+            {staticNavItems.find(item => item.name === 'All Jewellery') && (
+              <MobileNavItem
+                item={staticNavItems.find(item => item.name === 'All Jewellery')!}
+                onClose={() => setMobileOpen(false)}
+              />
+            )}
+            {navItems.slice(0, 9).map((item) => (
               <MobileNavItem
                 key={item.name}
                 item={item}

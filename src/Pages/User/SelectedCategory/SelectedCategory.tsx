@@ -1,6 +1,6 @@
-// src/Pages/SelectedCategory/SelectedCategory.tsx
+// src/Pages/User/SelectedCategory/SelectedCategory.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -26,11 +26,12 @@ import { type Product } from '../Products/Products';
 import { getProducts } from '../../../firebase/productService';
 
 const SelectedCategory: React.FC = () => {
-    const location = useLocation();
     const navigate = useNavigate();
     const [sortBy, setSortBy] = useState<string>('default');
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const { material, category } = useParams<{ material?: string; category: string }>();
 
     // Fetch products from database
     useEffect(() => {
@@ -49,65 +50,54 @@ const SelectedCategory: React.FC = () => {
         fetchProducts();
     }, []);
 
-    // Parse the URL path to determine category and material
-    const pathname = location.pathname;
-    const pathParts = pathname.split('/').filter(Boolean);
-
-    let materialFilter = '';
-    let categoryFilter = '';
+    let materialFilter = material || '';
+    let categoryFilter = category || '';
     let displayName = '';
 
-    if (pathParts.length === 2 && (pathParts[0] === 'gold' || pathParts[0] === 'diamond')) {
-        // Format: '/gold/bangles' or '/diamond/rings'
-        materialFilter = pathParts[0].charAt(0).toUpperCase() + pathParts[0].slice(1);
-        const catPart = pathParts[1].split('-').map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ');
-        categoryFilter = catPart;
-        displayName = `${materialFilter} ${categoryFilter}`;
-    } else if (pathParts.length === 1) {
-        // Format: '/earrings' or '/nose-pin'
-        categoryFilter = pathParts[0].split('-').map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ');
-        displayName = categoryFilter;
+    // Format display name
+    const formatName = (str: string) => str.split('-').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+
+    if (materialFilter && categoryFilter) {
+        const matName = formatName(materialFilter);
+        const catName = formatName(categoryFilter);
+        displayName = catName === 'All' ? `All ${matName}` : `${matName} ${catName}`;
+    } else {
+        displayName = formatName(categoryFilter);
     }
 
     // Filter products by category and/or material
     const filteredProducts = products.filter(p => {
         // Normalize strings for comparison
-        const productCategory = p.category.toLowerCase();
-        const productMaterial = p.material.toLowerCase();
-        const searchCategory = categoryFilter.toLowerCase();
-        const searchMaterial = materialFilter.toLowerCase();
+        const productCategory = p.category.toLowerCase().trim();
+        const productMaterial = p.material.toLowerCase().trim();
+        const searchCategory = categoryFilter.toLowerCase().trim();
+        const searchMaterial = materialFilter.toLowerCase().trim();
 
-        // Check category match
-        let categoryMatch = false;
-        if (searchCategory === 'all') {
-            categoryMatch = true;
-        } else if (searchCategory.includes('earring')) {
-            categoryMatch = productCategory.includes('earring');
-        } else if (searchCategory.includes('ring') && !searchCategory.includes('earring')) {
-            categoryMatch = productCategory.includes('ring') && !productCategory.includes('earring');
-        } else if (searchCategory.includes('pendant')) {
-            categoryMatch = productCategory.includes('pendant') || productCategory.includes('prayer');
-        } else if (searchCategory.includes('chain')) {
-            categoryMatch = productCategory.includes('chain') || productCategory.includes('prayer');
-        } else if (searchCategory.includes('necklace')) {
-            categoryMatch = productCategory.includes('necklace') || productCategory.includes('prayer');
-        } else if (searchCategory.includes('bangle')) {
-            categoryMatch = productCategory.includes('bangle') || productCategory.includes('barrette');
-        } else if (searchCategory.includes('bracelet')) {
-            categoryMatch = productCategory.includes('bracelet');
-        } else if (searchCategory.includes('nose')) {
-            categoryMatch = productCategory.includes('nose');
-        } else {
-            categoryMatch = productCategory.includes(searchCategory) || searchCategory.includes(productCategory);
-        }
+        // Helper to check if two category strings match (handling singular/plural)
+        const isCategoryMatch = (prodCat: string, searchCat: string) => {
+            if (searchCat === 'all') return true;
+
+            // Exact match
+            if (prodCat === searchCat) return true;
+
+            // Singular/Plural normalization (very basic but effective for common jewelry terms)
+            const normalize = (s: string) => {
+                if (s.endsWith('s')) return s.slice(0, -1);
+                return s;
+            };
+
+            return normalize(prodCat) === normalize(searchCat);
+        };
+
+        const categoryMatch = isCategoryMatch(productCategory, searchCategory);
 
         // If we have a material filter, check both category and material
         if (searchMaterial) {
-            const materialMatch = productMaterial.includes(searchMaterial);
+            const materialMatch = productMaterial === searchMaterial ||
+                productMaterial.includes(searchMaterial) ||
+                searchMaterial.includes(productMaterial);
             return categoryMatch && materialMatch;
         }
 

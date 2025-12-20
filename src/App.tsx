@@ -68,20 +68,9 @@ const AppContent = () => {
           <Route path="/cart" element={<AddToCart />} />
           <Route path="/contact" element={<ContactPage />} />
 
-          {/* Categories */}
-          <Route path="/earrings" element={<SelectedCategory />} />
-          <Route path="/pendants" element={<SelectedCategory />} />
-          <Route path="/rings" element={<SelectedCategory />} />
-          <Route path="/chains" element={<SelectedCategory />} />
-          <Route path="/necklaces" element={<SelectedCategory />} />
-          <Route path="/bangles" element={<SelectedCategory />} />
-          <Route path="/bracelets" element={<SelectedCategory />} />
-
-          {/* Gold */}
-          <Route path="/gold/:category" element={<SelectedCategory />} />
-
-          {/* Diamond */}
-          <Route path="/diamond/:category" element={<SelectedCategory />} />
+          {/* Dynamic Categories */}
+          <Route path="/:material/:category" element={<SelectedCategory />} />
+          <Route path="/:category" element={<SelectedCategory />} />
 
           {/* Protected User Routes */}
           <Route element={<ProtectedRoute />}>

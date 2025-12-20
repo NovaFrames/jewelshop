@@ -27,23 +27,51 @@ import {
     ExpandMore as ExpandMoreIcon,
     ShoppingCartOutlined as CartIcon
 } from '@mui/icons-material';
-import { categories, type Product } from '../Products/Products';
+import { type Product } from '../Products/Products';
 import { getProducts } from '../../../firebase/productService';
+import { getCategories } from '../../../firebase/categoryService';
+
+
 
 const Shop: React.FC = () => {
     const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState<string>('Our Store');
     const [sortBy, setSortBy] = useState<string>('default');
     const [products, setProducts] = useState<Product[]>([]);
+    const [dynamicCategories, setDynamicCategories] = useState<{ name: string; count: number }[]>([]);
+
     const [loading, setLoading] = useState(true);
 
     // Fetch products from database
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
+
             try {
                 setLoading(true);
-                const fetchedProducts = await getProducts();
+                const [fetchedProducts, fetchedCategories] = await Promise.all([
+                    getProducts(),
+                    getCategories()
+                ]);
+
                 setProducts(fetchedProducts);
+
+                // Calculate counts for each unique category name
+                const categoryCounts: { [key: string]: number } = {};
+                fetchedProducts.forEach(p => {
+                    const cat = p.category;
+                    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+                });
+
+                // Get unique category names from the fetched categories
+                const uniqueCategoryNames = Array.from(new Set(fetchedCategories.map(c => c.name)));
+
+                const processedCategories = uniqueCategoryNames.map(name => ({
+                    name,
+                    count: categoryCounts[name] || 0
+                })).sort((a, b) => a.name.localeCompare(b.name));
+
+                setDynamicCategories(processedCategories);
+
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
@@ -51,13 +79,15 @@ const Shop: React.FC = () => {
             }
         };
 
-        fetchProducts();
+        fetchData();
+
     }, []);
 
     // Filter products by category and search
     const filteredProducts = selectedCategory === 'Our Store'
         ? products
-        : products.filter(p => p.category === selectedCategory);
+        : products.filter(p => p.category.toLowerCase().trim() === selectedCategory.toLowerCase().trim());
+
 
     // Apply sorting
     const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -124,7 +154,41 @@ const Shop: React.FC = () => {
                                 </AccordionSummary>
                                 <AccordionDetails sx={{ p: 0 }}>
                                     <Box>
-                                        {categories.map((category) => (
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={selectedCategory === 'Our Store'}
+                                                    onChange={() => handleCategoryChange('Our Store')}
+                                                    sx={{ py: 0.5 }}
+                                                    size="small"
+                                                />
+                                            }
+                                            label={
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    width: '100%',
+                                                    pr: 2
+                                                }}>
+                                                    <Typography variant="body2">All Jewellery</Typography>
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        ({products.length})
+                                                    </Typography>
+                                                </Box>
+                                            }
+                                            sx={{
+                                                width: '100%',
+                                                mx: 0,
+                                                px: 2,
+                                                py: 0.5,
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover'
+                                                }
+                                            }}
+                                        />
+
+                                        {dynamicCategories.map((category) => (
+
                                             <FormControlLabel
                                                 key={category.name}
                                                 control={

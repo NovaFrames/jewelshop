@@ -256,6 +256,7 @@ const AddToCart: React.FC = () => {
                 });
 
                 if (response.ok) {
+                    showSnackbar('Order placed successfully', 'success');
                     console.log('✅ Order confirmation email sent to admin');
                 } else {
                     console.error('❌ Failed to send email notification');
