@@ -132,6 +132,7 @@ const LandingPage: React.FC = () => {
                                                     <Typography
                                                         variant="subtitle1"
                                                         sx={{
+                                                            color: '#fff',
                                                             textTransform: 'uppercase',
                                                             letterSpacing: '2px',
                                                             fontWeight: 500,
@@ -147,6 +148,7 @@ const LandingPage: React.FC = () => {
                                                     <Typography
                                                         variant="h3"
                                                         sx={{
+                                                            color: '#fff',
                                                             fontFamily: '"Playfair Display", serif',
                                                             fontWeight: 600,
                                                             mb: { xs: 1.5, md: 3 },
@@ -164,10 +166,27 @@ const LandingPage: React.FC = () => {
                                                         variant="contained"
                                                         color='secondary'
                                                         onClick={() => navigate("/all-jewellery")}
+                                                        sx={{
+                                                            mt: { xs: 2, md: 3 },
+                                                            fontSize: { xs: '0.55rem', md: '1rem' },
+                                                            opacity: 0,
+                                                            animation: activeIndex === slideIndex ? `fadeInUp 0.8s ease forwards ${1.0 + (itemIndex * 0.2)}s` : 'none'
+                                                        }}
                                                     >
                                                         Shop Now
                                                     </Button>
                                                 </Box>
+                                                {/* Gradient Overlay */}
+                                                <Box
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0,0,0,0.6q))',
+                                                    }}
+                                                />
                                             </Box>
                                         </motion.div>
                                     </Grid>
