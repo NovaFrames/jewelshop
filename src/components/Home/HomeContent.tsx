@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { type Product } from "../../Pages/User/Products/Products";
-import { getProducts } from "../../firebase/productService";
+import { getEightProducts } from "../../firebase/productService";
 import { useState, useEffect } from "react";
 
 export default function HomeContent() {
@@ -25,7 +25,7 @@ export default function HomeContent() {
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const fetchedProducts = await getProducts();
+                const fetchedProducts = await getEightProducts();
                 setProducts(fetchedProducts);
             } catch (error) {
                 console.error('Error fetching products:', error);

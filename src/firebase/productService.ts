@@ -5,14 +5,18 @@ import {
     updateDoc,
     deleteDoc,
     doc,
-    getDoc
+    getDoc,
+    query,
+    limit,
+    startAfter,
+    DocumentSnapshot
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { type Product } from '../Pages/User/Products/Products';
 
 const COLLECTION_NAME = 'products';
 
-// Get all products
+// Get all products (for components that need all data)
 export const getProducts = async (): Promise<Product[]> => {
     try {
         const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
@@ -27,6 +31,63 @@ export const getProducts = async (): Promise<Product[]> => {
         return products;
     } catch (error) {
         console.error("Error getting products: ", error);
+        throw error;
+    }
+};
+
+// Get paginated products for infinite scroll
+export const getPaginatedProducts = async (
+    pageSize: number = 4,
+    lastDoc?: DocumentSnapshot
+): Promise<{ products: Product[], lastVisible: DocumentSnapshot | null }> => {
+    try {
+        let q = query(collection(db, COLLECTION_NAME), limit(pageSize));
+
+        if (lastDoc) {
+            q = query(collection(db, COLLECTION_NAME), startAfter(lastDoc), limit(pageSize));
+        }
+
+        const querySnapshot = await getDocs(q);
+        const products: Product[] = [];
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            products.push({
+                id: doc.id,
+                ...data
+            } as Product);
+        });
+
+        const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+        return { products, lastVisible };
+    } catch (error) {
+        console.error("Error getting paginated products:", error);
+        throw error;
+    }
+};
+
+// Get limited products (for home page)
+export const getEightProducts = async (): Promise<Product[]> => {
+    try {
+        const q = query(
+            collection(db, COLLECTION_NAME),
+            limit(8)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const products: Product[] = [];
+
+        querySnapshot.forEach((doc) => {
+            products.push({
+                id: doc.id,
+                ...(doc.data() as Omit<Product, "id">),
+            });
+        });
+
+        return products;
+    } catch (error) {
+        console.error("Error getting products:", error);
         throw error;
     }
 };

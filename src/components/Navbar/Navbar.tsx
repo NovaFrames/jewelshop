@@ -26,9 +26,7 @@ import {
   StorefrontOutlined,
   ExpandLess,
   ExpandMore,
-  HelpOutline,
   ReceiptLong,
-  LocalShippingOutlined,
   PhoneOutlined,
   AutoAwesomeOutlined,
   DiamondOutlined,
@@ -323,6 +321,8 @@ const Navbar: React.FC = () => {
       setLoginModalOpen(true);
     }
   };
+  const text =
+    "🚚 Free shipping above ₹2000 with secure payments, easy returns, fast delivery, premium quality products, and trusted customer support";
 
   return (
     <>
@@ -344,32 +344,44 @@ const Navbar: React.FC = () => {
               display: { xs: "none", md: "block" },
             }}
           >
-            <Container maxWidth="xl">
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="caption" sx={{ letterSpacing: 1 }}>
-                  Free Shipping on Orders Over ₹2000
-                </Typography>
-                <Stack direction="row" spacing={3}>
-                  <Button
-                    startIcon={<StorefrontOutlined sx={{ fontSize: 16 }} />}
-                    sx={{ textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
-                  >
-                    Store
-                  </Button>
-                  <Button
-                    startIcon={<HelpOutline sx={{ fontSize: 16 }} />}
-                    sx={{ textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
-                  >
-                    Help
-                  </Button>
-                  <Button
-                    startIcon={<LocalShippingOutlined sx={{ fontSize: 16 }} />}
-                    sx={{ textTransform: "none", fontSize: "0.75rem", minWidth: "auto" }}
-                  >
-                    Track
-                  </Button>
-                </Stack>
-              </Stack>
+            <Container maxWidth="xl" sx={{ overflow: "hidden" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  width: "max-content",
+                  animation: "marquee 30s linear infinite",
+                  "@keyframes marquee": {
+                    "0%": { transform: "translateX(0)" },
+                    "100%": { transform: "translateX(-50%)" },
+                  },
+                }}
+              >
+                {/* First set */}
+                <Box sx={{ display: "flex", whiteSpace: "nowrap" }}>
+                  <Typography variant="body2" sx={{ fontWeight: 400, mx: 4 }}>
+                    {text}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 400, mx: 4 }}>
+                    {text}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 400, mx: 4 }}>
+                    {text}
+                  </Typography>
+                </Box>
+
+                {/* Duplicate set for seamless loop */}
+                <Box sx={{ display: "flex", whiteSpace: "nowrap" }}>
+                  <Typography variant="body2" sx={{ fontWeight: 400, mx: 4 }}>
+                    {text}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 400, mx: 4 }}>
+                    {text}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 400, mx: 4 }}>
+                    {text}
+                  </Typography>
+                </Box>
+              </Box>
             </Container>
           </Box>
         </Collapse>

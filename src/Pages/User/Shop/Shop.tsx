@@ -1,5 +1,5 @@
 // src/Pages/Shop/Shop.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -27,8 +27,9 @@ import {
     ExpandMore as ExpandMoreIcon,
     ShoppingCartOutlined as CartIcon
 } from '@mui/icons-material';
+import type { DocumentSnapshot } from 'firebase/firestore';
 import { type Product } from '../Products/Products';
-import { getProducts } from '../../../firebase/productService';
+import { getPaginatedProducts } from '../../../firebase/productService';
 import { getCategories } from '../../../firebase/categoryService';
 
 
@@ -37,37 +38,35 @@ const Shop: React.FC = () => {
     const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState<string>('Our Store');
     const [sortBy, setSortBy] = useState<string>('default');
-    const [products, setProducts] = useState<Product[]>([]);
+    const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
     const [dynamicCategories, setDynamicCategories] = useState<{ name: string; count: number }[]>([]);
-
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [lastVisible, setLastVisible] = useState<DocumentSnapshot | null>(null);
+    const observerTarget = useRef<HTMLDivElement>(null);
 
-    // Fetch products from database
+    // Fetch initial products and categories
     useEffect(() => {
         const fetchData = async () => {
-
             try {
                 setLoading(true);
-                const [fetchedProducts, fetchedCategories] = await Promise.all([
-                    getProducts(),
+                const [paginatedData, fetchedCategories] = await Promise.all([
+                    getPaginatedProducts(4), // Get first 4 products
                     getCategories()
                 ]);
 
-                setProducts(fetchedProducts);
+                setDisplayedProducts(paginatedData.products);
+                setLastVisible(paginatedData.lastVisible);
+                setHasMore(paginatedData.products.length === 4);
 
-                // Calculate counts for each unique category name
-                const categoryCounts: { [key: string]: number } = {};
-                fetchedProducts.forEach(p => {
-                    const cat = p.category;
-                    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-                });
-
-                // Get unique category names from the fetched categories
+                // Get unique category names and their counts from categories collection
                 const uniqueCategoryNames = Array.from(new Set(fetchedCategories.map(c => c.name)));
 
+                // For now, set count to 0 for each category (you can add a count field to your categories collection)
                 const processedCategories = uniqueCategoryNames.map(name => ({
                     name,
-                    count: categoryCounts[name] || 0
+                    count: 0 // Not displaying counts since we're using pagination
                 })).sort((a, b) => a.name.localeCompare(b.name));
 
                 setDynamicCategories(processedCategories);
@@ -80,13 +79,53 @@ const Shop: React.FC = () => {
         };
 
         fetchData();
-
     }, []);
+
+    // Load more products
+    const loadMoreProducts = useCallback(async () => {
+        if (!hasMore || loadingMore || !lastVisible) return;
+
+        try {
+            setLoadingMore(true);
+            const paginatedData = await getPaginatedProducts(4, lastVisible);
+
+            setDisplayedProducts(prev => [...prev, ...paginatedData.products]);
+            setLastVisible(paginatedData.lastVisible);
+            setHasMore(paginatedData.products.length === 4);
+        } catch (error) {
+            console.error('Error loading more products:', error);
+        } finally {
+            setLoadingMore(false);
+        }
+    }, [hasMore, loadingMore, lastVisible]);
+
+    // Infinite scroll observer
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !loadingMore) {
+                    loadMoreProducts();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
+        }
+
+        return () => {
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
+        };
+    }, [hasMore, loadingMore, loadMoreProducts]);
 
     // Filter products by category and search
     const filteredProducts = selectedCategory === 'Our Store'
-        ? products
-        : products.filter(p => p.category.toLowerCase().trim() === selectedCategory.toLowerCase().trim());
+        ? displayedProducts
+        : displayedProducts.filter(p => p.category.toLowerCase().trim() === selectedCategory.toLowerCase().trim());
 
 
     // Apply sorting
@@ -171,9 +210,6 @@ const Shop: React.FC = () => {
                                                     pr: 2
                                                 }}>
                                                     <Typography variant="body2">All Jewellery</Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        ({products.length})
-                                                    </Typography>
                                                 </Box>
                                             }
                                             sx={{
@@ -207,9 +243,6 @@ const Shop: React.FC = () => {
                                                         pr: 2
                                                     }}>
                                                         <Typography variant="body2">{category.name}</Typography>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            ({category.count})
-                                                        </Typography>
                                                     </Box>
                                                 }
                                                 sx={{
@@ -263,7 +296,7 @@ const Shop: React.FC = () => {
 
                         {/* Products Grid */}
                         <Grid container spacing={3}>
-                            {sortedProducts.slice(0, 8).map((product, index) => (
+                            {sortedProducts.map((product, index) => (
                                 <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }} key={product.id}>
                                     <Card
                                         sx={{
@@ -384,6 +417,25 @@ const Shop: React.FC = () => {
                                 </Grid>
                             ))}
                         </Grid>
+
+                        {/* Observer target for infinite scroll */}
+                        <Box ref={observerTarget} sx={{ height: 20, mt: 2 }} />
+
+                        {/* Loading indicator */}
+                        {loadingMore && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                                <CircularProgress color="secondary" />
+                            </Box>
+                        )}
+
+                        {/* No more products message */}
+                        {!hasMore && sortedProducts.length > 0 && (
+                            <Box sx={{ textAlign: 'center', py: 4 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    No more products to load
+                                </Typography>
+                            </Box>
+                        )}
 
                         {/* No Results */}
                         {sortedProducts.length === 0 && (
